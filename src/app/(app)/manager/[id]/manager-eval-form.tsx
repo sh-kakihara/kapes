@@ -32,6 +32,7 @@ export default function ManagerEvalForm({
   managerScores,
   hasLeader,
   leaderScoreIsSelf = false,
+  readOnly = false,
 }: {
   evaluation: { id: string; status: string; period: { manager_deadline: Date | null }; skipDirector: boolean };
   selfScores: ScoreEntry[];
@@ -39,12 +40,13 @@ export default function ManagerEvalForm({
   managerScores: ScoreEntry[];
   hasLeader: boolean;
   leaderScoreIsSelf?: boolean;
+  readOnly?: boolean;
 }) {
   const router = useRouter();
   const deadline = evaluation.period.manager_deadline;
   const withinDeadline = isWithinDeadline(deadline);
   const canEdit =
-    evaluation.status === "SUBMITTED_TO_MANAGER" || withinDeadline;
+    !readOnly && (evaluation.status === "SUBMITTED_TO_MANAGER" || withinDeadline);
 
   // 提出条件:
   // リーダーあり → リーダー評価が課長に届いている（SUBMITTED_TO_MANAGER以上）

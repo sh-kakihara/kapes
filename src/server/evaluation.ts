@@ -6,6 +6,14 @@ import { EVALUATION_ITEMS } from "@/lib/constants";
 import { revalidatePath } from "next/cache";
 import { forbidden } from "next/navigation";
 
+// MANAGER/ADMIN、または課なし部署所属者（isDeptViewer）を許可
+async function requireManagerOrDeptViewer(userId: string, role: string) {
+  if (["MANAGER", "ADMIN"].includes(role)) return;
+  if (["DIRECTOR", "EXECUTIVE", "COUNSELOR", "PRESIDENT", "LEADER"].includes(role)) forbidden();
+  const me = await prisma.user.findUnique({ where: { id: userId }, select: { section_id: true, department_id: true } });
+  if (!me || me.section_id || !me.department_id) forbidden();
+}
+
 function isWithinDeadline(deadline: Date | null): boolean {
   if (!deadline) return false;
   return new Date() <= new Date(deadline);
@@ -194,17 +202,26 @@ export async function submitFromEmployee(evaluationId: string) {
       },
     });
   } else {
-    // 課長不在 → 部長へ直接（skip_director なら社長へ）
+    // 課長不在
     const dept = evaluation.employee.department;
-    if (dept?.skip_director) {
+    const deptId = evaluation.employee.department_id;
+    // 顧問のいる部では skip_director に関わらず部長へ（次長など）
+    const executive = deptId
+      ? await prisma.user.findFirst({
+          where: { department_id: deptId, role: "EXECUTIVE", is_active: true, deleted_at: null },
+        })
+      : null;
+    if (!executive && dept?.skip_director) {
+      // 顧問なし + skip_director → 社長へ
       await prisma.evaluation.update({
         where: { id: evaluationId },
         data: { status: "SUBMITTED_TO_PRESIDENT", submitted_to_president_at: new Date() },
       });
     } else {
-      const director = evaluation.employee.department_id
+      // 顧問あり or 通常部署 → 部長へ
+      const director = deptId
         ? await prisma.user.findFirst({
-            where: { department_id: evaluation.employee.department_id, role: "DIRECTOR", is_active: true, deleted_at: null },
+            where: { department_id: deptId, role: "DIRECTOR", is_active: true, deleted_at: null },
           })
         : null;
       await prisma.evaluation.update({
@@ -281,7 +298,7 @@ export async function saveManagerEvaluation(
 ) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("未認証");
-  if (!["MANAGER", "ADMIN"].includes(session.user.role)) forbidden();
+  await requireManagerOrDeptViewer(session.user.id, session.user.role);
 
   for (const s of scores) {
     await prisma.evaluationScore.upsert({
@@ -299,7 +316,7 @@ export async function saveManagerEvaluation(
 export async function submitFromManager(evaluationId: string) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("未認証");
-  if (!["MANAGER", "ADMIN"].includes(session.user.role)) forbidden();
+  await requireManagerOrDeptViewer(session.user.id, session.user.role);
 
   const evaluation = await prisma.evaluation.findUnique({
     where: { id: evaluationId },
@@ -401,7 +418,7 @@ export async function submitFromDirector(evaluationId: string) {
   await syncDirectorEvalToRecord(evaluationId, "director");
 
   revalidatePath("/director");
-  return { ok: true, hasExecutive: false };
+  return { ok: true };
 }
 
 // 執行役員評価を保存（部長評価と同じ evaluator キー "director" を使用）
@@ -508,6 +525,7 @@ async function mergeUsersWithEvaluations(
       employee: { ...emp, hasManager },
       status: ev?.status ?? null,
       scores: ev?.scores ?? [],
+      skip_reason: ev?.skip_reason ?? null,
     };
   });
 }
@@ -533,6 +551,62 @@ export async function getLeaderEvaluationList(periodId: string) {
   });
 
   return await mergeUsersWithEvaluations(employees, evaluations);
+}
+
+// 課長: 全評価をスキップして社長へ直送（育休・長期病欠など）
+export async function skipEvaluation(periodId: string, employeeId: string, reason: string) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("未認証");
+  await requireManagerOrDeptViewer(session.user.id, session.user.role);
+
+  // 評価レコードがなければ作成する
+  const existing = await prisma.evaluation.findUnique({
+    where: { period_id_employee_id: { period_id: periodId, employee_id: employeeId } },
+  });
+
+  if (existing) {
+    // すでに課長より先に進んでいる場合はスキップ不可
+    const skipable = ["DRAFT", "SUBMITTED_TO_LEADER"].includes(existing.status) || existing.status === null;
+    if (!skipable) throw new Error("この評価はすでに課長評価以降に進んでいるためスキップできません");
+    await prisma.evaluation.update({
+      where: { id: existing.id },
+      data: { status: "SUBMITTED_TO_PRESIDENT", submitted_to_president_at: new Date(), skip_reason: reason },
+    });
+  } else {
+    await prisma.evaluation.create({
+      data: {
+        period_id: periodId,
+        employee_id: employeeId,
+        status: "SUBMITTED_TO_PRESIDENT",
+        submitted_to_president_at: new Date(),
+        skip_reason: reason,
+      },
+    });
+  }
+
+  revalidatePath("/manager");
+  revalidatePath("/president");
+  return { ok: true };
+}
+
+// 課長: スキップを解除してDRAFTに戻す
+export async function undoSkipEvaluation(evaluationId: string) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("未認証");
+  await requireManagerOrDeptViewer(session.user.id, session.user.role);
+
+  const evaluation = await prisma.evaluation.findUnique({ where: { id: evaluationId } });
+  if (!evaluation) throw new Error("評価が見つかりません");
+  if (evaluation.status !== "SUBMITTED_TO_PRESIDENT") throw new Error("社長提出済み以外の評価は解除できません");
+
+  await prisma.evaluation.update({
+    where: { id: evaluationId },
+    data: { status: "DRAFT", submitted_to_president_at: null, skip_reason: null },
+  });
+
+  revalidatePath("/manager");
+  revalidatePath("/president");
+  return { ok: true };
 }
 
 // 課長: 担当課の全社員一覧（未開始含む）
@@ -562,7 +636,7 @@ export async function getManagerEvaluationList(periodId: string) {
 export async function getDirectorEvaluationList(periodId: string) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("未認証");
-  const isDirectorRole = ["DIRECTOR", "EXECUTIVE", "ADMIN"].includes(session.user.role);
+  const isDirectorRole = ["DIRECTOR", "ADMIN"].includes(session.user.role);
   if (!isDirectorRole) {
     const viewer = await prisma.user.findUnique({ where: { id: session.user.id }, select: { can_view_evaluations: true } });
     if (!viewer?.can_view_evaluations) forbidden();
@@ -575,6 +649,38 @@ export async function getDirectorEvaluationList(periodId: string) {
     where: { department_id: me.department_id ?? undefined, deleted_at: null, is_active: true, role: { notIn: ["EXECUTIVE", "PRESIDENT", "ADMIN"] }, employee_type: { not: "実習生" }, department: { skip_evaluation: false } },
     include: employeeWithOrgInclude,
     orderBy: [{ employee_number: "asc" }, { name: "asc" }],
+  });
+
+  const evaluations = await prisma.evaluation.findMany({
+    where: { period_id: periodId, employee_id: { in: employees.map((e) => e.id) } },
+    include: evalWithScoresInclude,
+  });
+
+  return await mergeUsersWithEvaluations(employees, evaluations);
+}
+
+// 課なし閲覧者: 自部署の全課の課長評価一覧（閲覧専用）
+export async function getDeptViewerEvaluationList(periodId: string) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("未認証");
+
+  const me = await prisma.user.findUnique({ where: { id: session.user.id } });
+  if (!me) throw new Error("ユーザー情報取得失敗");
+  if (!me.department_id) throw new Error("部署未所属");
+  if (me.section_id) throw new Error("課所属ユーザーは使用不可");
+  if (["DIRECTOR", "EXECUTIVE", "COUNSELOR", "PRESIDENT", "ADMIN", "MANAGER"].includes(me.role)) forbidden();
+
+  const employees = await prisma.user.findMany({
+    where: {
+      department_id: me.department_id,
+      deleted_at: null,
+      is_active: true,
+      role: { notIn: ["DIRECTOR", "EXECUTIVE", "COUNSELOR", "PRESIDENT", "ADMIN"] },
+      employee_type: { not: "実習生" },
+      department: { skip_evaluation: false },
+    },
+    include: employeeWithOrgInclude,
+    orderBy: [{ section: { name: "asc" } }, { employee_number: "asc" }, { name: "asc" }],
   });
 
   const evaluations = await prisma.evaluation.findMany({
@@ -689,6 +795,7 @@ export async function getPresidentEvaluations(periodId: string) {
       employee: { ...ev.employee, hasManager: undefined },
       status: ev.status,
       scores: ev.scores,
+      skip_reason: ev.skip_reason ?? null,
     }));
 
   return [...activeItems, ...deletedItems];

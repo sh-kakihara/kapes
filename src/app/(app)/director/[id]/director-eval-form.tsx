@@ -3,27 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { EVALUATION_ITEMS, STATUS_LABELS } from "@/lib/constants";
-import { saveDirectorEvaluation, submitFromDirector, saveExecutiveEvaluation, submitFromExecutive } from "@/server/evaluation";
+import { saveDirectorEvaluation, submitFromDirector } from "@/server/evaluation";
 
 type ScoreEntry = { item_code: string; score: number | null; comment: string };
 
 function isWithinDeadline(deadline: Date | null): boolean {
   if (!deadline) return false;
   return new Date() <= new Date(deadline);
-}
-
-const STATUS_ORDER = [
-  "DRAFT",
-  "SUBMITTED_TO_LEADER",
-  "SUBMITTED_TO_MANAGER",
-  "SUBMITTED_TO_DIRECTOR",
-  "SUBMITTED_TO_EXECUTIVE",
-  "SUBMITTED_TO_PRESIDENT",
-  "COMPLETED",
-] as const;
-
-function statusIndex(s: string) {
-  return STATUS_ORDER.indexOf(s as (typeof STATUS_ORDER)[number]);
 }
 
 export default function DirectorEvalForm({
@@ -33,11 +19,7 @@ export default function DirectorEvalForm({
   managerScores,
   directorScores,
   directorHasSaved,
-  executiveScores,
-  executiveHasSaved,
   employeeRole,
-  isExecutive = false,
-  hasExecutive = false,
   readOnly = false,
 }: {
   evaluation: { id: string; status: string; period: { director_deadline: Date | null } };
@@ -46,36 +28,17 @@ export default function DirectorEvalForm({
   managerScores: ScoreEntry[];
   directorScores: ScoreEntry[];
   directorHasSaved: boolean;
-  executiveScores?: ScoreEntry[];
-  executiveHasSaved?: boolean;
   employeeRole?: string;
-  isExecutive?: boolean;
-  hasExecutive?: boolean;
   readOnly?: boolean;
 }) {
   const router = useRouter();
   const deadline = evaluation.period.director_deadline;
   const withinDeadline = isWithinDeadline(deadline);
 
-  // 執行役員は SUBMITTED_TO_DIRECTOR or SUBMITTED_TO_EXECUTIVE で編集可、部長は SUBMITTED_TO_DIRECTOR で編集可
-  const myRequiredStatus = isExecutive ? "SUBMITTED_TO_EXECUTIVE" : "SUBMITTED_TO_DIRECTOR";
-  const canEdit = (isExecutive
-    ? ["SUBMITTED_TO_DIRECTOR", "SUBMITTED_TO_EXECUTIVE"].includes(evaluation.status)
-    : evaluation.status === "SUBMITTED_TO_DIRECTOR")
-    || withinDeadline;
-  const canSubmit = statusIndex(evaluation.status) >= statusIndex("SUBMITTED_TO_DIRECTOR");
+  const canEdit = evaluation.status === "SUBMITTED_TO_DIRECTOR" || withinDeadline;
+  const canSubmit = evaluation.status === "SUBMITTED_TO_DIRECTOR";
 
   const [scores, setScores] = useState<ScoreEntry[]>(() => {
-    if (isExecutive) {
-      // 執行役員: 項目ごとに「執行役員保存済みスコア → 部長スコア」の優先順で初期値を決定
-      return directorScores.map((s) => {
-        const execScore = executiveScores?.find((e) => e.item_code === s.item_code);
-        if (execScore && execScore.score !== null) return execScore;
-        // 執行役員が未入力の項目は部長評価をデフォルト表示
-        return s;
-      });
-    }
-    // 部長: 初回のみ課長評価から自動入力
     if (!directorHasSaved && managerScores.some((s) => s.score !== null)) {
       return directorScores.map((s) => ({
         ...s,
@@ -100,11 +63,7 @@ export default function DirectorEvalForm({
     setSaving(true);
     setMessage("");
     try {
-      if (isExecutive) {
-        await saveExecutiveEvaluation(evaluation.id, scores);
-      } else {
-        await saveDirectorEvaluation(evaluation.id, scores);
-      }
+      await saveDirectorEvaluation(evaluation.id, scores);
       setMessage("保存しました");
     } catch (e: unknown) {
       setMessage(e instanceof Error ? e.message : "保存に失敗しました");
@@ -113,28 +72,18 @@ export default function DirectorEvalForm({
     }
   }
 
-  const submitTarget = "社長";
-
   async function handleSubmit() {
-    if (!confirm(`${submitTarget}に提出します。よろしいですか？`)) return;
+    if (!confirm("社長に提出します。よろしいですか？")) return;
     setSubmitting(true);
     try {
-      if (isExecutive) {
-        await saveExecutiveEvaluation(evaluation.id, scores);
-        await submitFromExecutive(evaluation.id);
-      } else {
-        await saveDirectorEvaluation(evaluation.id, scores);
-        await submitFromDirector(evaluation.id);
-      }
+      await saveDirectorEvaluation(evaluation.id, scores);
+      await submitFromDirector(evaluation.id);
       router.push("/director");
     } catch (e: unknown) {
       setMessage(e instanceof Error ? e.message : "提出に失敗しました");
       setSubmitting(false);
     }
   }
-
-  const evalLabel = isExecutive ? "顧問評価" : "部長評価";
-  const evalColor = isExecutive ? "indigo" : "purple";
 
   return (
     <div>
@@ -149,7 +98,7 @@ export default function DirectorEvalForm({
         )}
         {canEdit && !canSubmit && (
           <span className="text-xs text-red-500 bg-red-50 border border-red-200 px-2 py-1 rounded">
-            {isExecutive ? "部長の提出がまだのため提出できません" : "課長評価がまだ届いていないため提出できません"}
+            課長評価がまだ届いていないため提出できません
           </span>
         )}
       </div>
@@ -199,21 +148,9 @@ export default function DirectorEvalForm({
                 </div>
               </div>
 
-              {isExecutive && (
-                <div className="bg-gray-50 rounded p-3 mb-3">
-                  <p className="text-xs font-medium text-gray-500 mb-1">【部長評価】</p>
-                  <div className="flex items-center gap-3">
-                    <span className="text-purple-700 font-bold">{directorScores.find((x) => x.item_code === item.code)?.score ?? "未入力"}</span>
-                    {directorScores.find((x) => x.item_code === item.code)?.comment && (
-                      <span className="text-sm text-gray-600">「{directorScores.find((x) => x.item_code === item.code)?.comment}」</span>
-                    )}
-                  </div>
-                </div>
-              )}
-
               <div>
                 <p className="text-xs font-medium text-gray-500 mb-2">
-                  【{evalLabel}】
+                  【部長評価】
                   {canEdit && canSubmit && dir.score === managerScores.find((m) => m.item_code === item.code)?.score && dir.score !== null && (
                     <span className="ml-2 text-xs text-gray-400">（課長評価から自動入力）</span>
                   )}
@@ -228,8 +165,8 @@ export default function DirectorEvalForm({
                           onClick={() => setScore(item.code, v)}
                           className={`w-10 h-10 rounded-full border-2 text-sm font-bold transition-colors
                             ${dir.score === v
-                              ? `bg-${evalColor}-600 border-${evalColor}-600 text-white`
-                              : `border-gray-300 text-gray-600 hover:border-${evalColor}-400`
+                              ? "bg-purple-600 border-purple-600 text-white"
+                              : "border-gray-300 text-gray-600 hover:border-purple-400"
                             }`}
                         >
                           {v}
@@ -246,12 +183,12 @@ export default function DirectorEvalForm({
                       onChange={(e) => setComment(item.code, e.target.value)}
                       placeholder="コメント（任意）"
                       rows={2}
-                      className={`w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-${evalColor}-500 resize-none`}
+                      className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
                     />
                   </>
                 ) : (
                   <div className="flex items-center gap-3">
-                    <span className={`text-${evalColor}-700 font-bold`}>{dir.score ?? "未入力"}</span>
+                    <span className="text-purple-700 font-bold">{dir.score ?? "未入力"}</span>
                     {dir.comment && <span className="text-sm text-gray-600">「{dir.comment}」</span>}
                   </div>
                 )}
@@ -285,15 +222,13 @@ export default function DirectorEvalForm({
             type="button"
             onClick={handleSubmit}
             disabled={submitting || saving || !canSubmit}
-            title={!canSubmit ? (isExecutive ? "部長の提出がまだのため提出できません" : "課長評価がまだ届いていないため提出できません") : undefined}
+            title={!canSubmit ? "課長評価がまだ届いていないため提出できません" : undefined}
             className="px-6 py-2 bg-purple-600 text-white rounded font-medium text-sm hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {submitting ? "提出中..." : `${submitTarget}に提出`}
+            {submitting ? "提出中..." : "社長に提出"}
           </button>
           {!canSubmit && (
-            <span className="text-xs text-gray-400">
-              ※ {isExecutive ? "部長の提出が届いていません" : "課長評価が届いていません"}
-            </span>
+            <span className="text-xs text-gray-400">※ 課長評価が届いていません</span>
           )}
         </div>
       )}

@@ -7,7 +7,13 @@ import { EVALUATION_ITEMS } from "@/lib/constants";
 export default async function ManagerEvalPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user) redirect("/login");
-  if (!["MANAGER", "ADMIN"].includes(session.user.role)) redirect("/evaluation");
+  const isManager = ["MANAGER", "ADMIN"].includes(session.user.role);
+  let isDeptViewer = false;
+  if (!isManager && !["DIRECTOR", "EXECUTIVE", "COUNSELOR", "PRESIDENT", "ADMIN"].includes(session.user.role)) {
+    const me2 = await prisma.user.findUnique({ where: { id: session.user.id }, select: { section_id: true, department_id: true } });
+    if (me2 && !me2.section_id && me2.department_id) isDeptViewer = true;
+  }
+  if (!isManager && !isDeptViewer) redirect("/evaluation");
 
   const { id } = await params;
   const evaluation = await prisma.evaluation.findUnique({

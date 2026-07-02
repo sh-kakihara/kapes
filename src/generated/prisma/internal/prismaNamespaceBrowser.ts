@@ -211,7 +211,8 @@ export const EvaluationScalarFieldEnum = {
   manager_id: 'manager_id',
   director_id: 'director_id',
   executive_id: 'executive_id',
-  submitted_to_executive_at: 'submitted_to_executive_at'
+  submitted_to_executive_at: 'submitted_to_executive_at',
+  skip_reason: 'skip_reason'
 } as const
 
 export type EvaluationScalarFieldEnum = (typeof EvaluationScalarFieldEnum)[keyof typeof EvaluationScalarFieldEnum]

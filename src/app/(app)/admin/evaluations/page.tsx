@@ -58,18 +58,16 @@ export default async function AdminEvaluationsPage({ searchParams }: { searchPar
         detailBasePath="/director"
         scoreEvaluator="manager"
         scoreOptions={[
-          { value: "self",      label: "自己評価" },
-          { value: "leader",    label: "リーダー評価" },
-          { value: "manager",   label: "課長評価" },
-          { value: "director",  label: "部長評価" },
-          { value: "executive", label: "顧問評価" },
+          { value: "self",     label: "自己評価" },
+          { value: "leader",   label: "リーダー評価" },
+          { value: "manager",  label: "課長評価" },
+          { value: "director", label: "部長評価" },
         ]}
         popupColumns={[
           { key: "self",      label: "自己評価",     color: "text-blue-600" },
           { key: "leader",    label: "リーダー評価", color: "text-orange-500", showForRoles: ["STAFF", "LEADER"], hideIfSectionNoLeader: true },
           { key: "manager",   label: "課長評価",     color: "text-green-700",  roleOverride: "MANAGER" },
           { key: "director",  label: "部長評価",     color: "text-purple-700" },
-          { key: "executive", label: "顧問評価", color: "text-indigo-700" },
         ]}
         detailButtonLabel="評価を見る"
       />

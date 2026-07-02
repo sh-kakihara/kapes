@@ -1,0 +1,2 @@
+-- 参事ロール追加
+ALTER TYPE "Role" ADD VALUE 'COUNSELOR';

@@ -12,7 +12,7 @@ export default async function AdminPage() {
       <h2 className="text-xl font-bold mb-6 text-gray-800">管理者メニュー</h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Link href="/admin/users" className="bg-white rounded-lg border p-6 hover:border-blue-400 transition-colors">
-          <h3 className="font-bold text-gray-800 mb-1">社員管理</h3>
+          <h3 className="font-bold text-gray-800 mb-1">ユーザー管理</h3>
           <p className="text-sm text-gray-500">社員の登録・編集・削除</p>
         </Link>
         <Link href="/admin/departments" className="bg-white rounded-lg border p-6 hover:border-blue-400 transition-colors">

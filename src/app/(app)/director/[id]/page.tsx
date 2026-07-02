@@ -7,11 +7,12 @@ import { EVALUATION_ITEMS } from "@/lib/constants";
 export default async function DirectorEvalPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user) redirect("/login");
-  const isDirectorRole = ["DIRECTOR", "EXECUTIVE", "ADMIN"].includes(session.user.role);
-  const viewer = isDirectorRole
+  const isDirectorRole = ["DIRECTOR", "ADMIN"].includes(session.user.role);
+  const isExecutive = session.user.role === "EXECUTIVE";
+  const viewer = (isDirectorRole || isExecutive)
     ? null
     : await prisma.user.findUnique({ where: { id: session.user.id }, select: { can_view_evaluations: true } });
-  if (!isDirectorRole && !viewer?.can_view_evaluations) redirect("/evaluation");
+  if (!isDirectorRole && !isExecutive && !viewer?.can_view_evaluations) redirect("/evaluation");
   const readOnly = !isDirectorRole;
 
   const { id } = await params;
@@ -22,21 +23,13 @@ export default async function DirectorEvalPage({ params }: { params: Promise<{ i
 
   if (!evaluation) redirect("/director");
 
-  const hasExecutive = evaluation.employee.department_id
-    ? !!(await prisma.user.findFirst({
-        where: { department_id: evaluation.employee.department_id, role: "EXECUTIVE", is_active: true, deleted_at: null },
-      }))
-    : false;
-
   const build = (evaluator: string) => EVALUATION_ITEMS.map((item) => {
     const s = evaluation.scores.find((x) => x.item_code === item.code && x.evaluator === evaluator);
     return { item_code: item.code, score: s?.score ?? null, comment: s?.comment ?? "" };
   });
 
   const employeeRole = evaluation.employee.role;
-  // 課長社員：課長評価欄に自己評価点を表示
   const managerScores = employeeRole === "MANAGER" ? build("self") : build("manager");
-  // リーダー社員：リーダー評価欄に自己評価点を表示
   const leaderScores = employeeRole === "LEADER" ? build("self") : build("leader");
 
   return (
@@ -55,10 +48,6 @@ export default async function DirectorEvalPage({ params }: { params: Promise<{ i
         employeeRole={employeeRole}
         directorScores={build("director")}
         directorHasSaved={evaluation.scores.some((s) => s.evaluator === "director")}
-        executiveScores={build("executive")}
-        executiveHasSaved={evaluation.scores.some((s) => s.evaluator === "executive")}
-        isExecutive={session.user.role === "EXECUTIVE"}
-        hasExecutive={hasExecutive}
         readOnly={readOnly}
       />
     </div>

@@ -2,6 +2,7 @@ export const ROLE_LABELS: Record<string, string> = {
   ADMIN: "管理者",
   PRESIDENT: "社長",
   EXECUTIVE: "顧問",
+  COUNSELOR: "参事",
   DIRECTOR: "部長",
   MANAGER: "課長",
   LEADER: "リーダー",

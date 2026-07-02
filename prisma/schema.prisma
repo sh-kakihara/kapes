@@ -14,6 +14,7 @@ enum Role {
   ADMIN      // システム管理者
   PRESIDENT  // 社長
   EXECUTIVE  // 執行役員
+  COUNSELOR  // 参事
   DIRECTOR   // 部長
   MANAGER    // 課長
   LEADER     // リーダー
@@ -207,6 +208,8 @@ model Evaluation {
   manager   User?            @relation("EvaluationManager", fields: [manager_id], references: [id])
   director  User?            @relation("EvaluationDirector", fields: [director_id], references: [id])
   executive User?            @relation("EvaluationExecutive", fields: [executive_id], references: [id])
+
+  skip_reason String? /// 評価スキップ理由（育休・長期病欠など）
 
   scores EvaluationScore[]
 

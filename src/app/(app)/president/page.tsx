@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { getAllPeriods, getPresidentEvaluations } from "@/server/evaluation";
 import { prisma } from "@/lib/db";
+import Link from "next/link";
 import EvaluationListTable, { type EvalListItem } from "@/components/evaluation-list-table";
 import PeriodSelector from "./period-selector";
 
@@ -66,6 +67,7 @@ export default async function PresidentPage({
       },
       status: ev.status,
       scores,
+      skip_reason: ev.skip_reason ?? null,
     };
   });
 
@@ -79,7 +81,15 @@ export default async function PresidentPage({
   return (
     <div>
       <div className="flex items-center justify-between mb-1 flex-wrap gap-3">
-        <h2 className="text-xl font-bold text-gray-800">評価閲覧画面</h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl font-bold text-gray-800">評価閲覧画面</h2>
+          <Link
+            href={`/president/scatter${selectedPeriod.id !== periods[0]?.id ? `?period=${selectedPeriod.id}` : ""}`}
+            className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 font-medium"
+          >
+            散布図
+          </Link>
+        </div>
         <PeriodSelector
           periods={periods.map((p) => ({ id: p.id, name: p.name, is_active: p.is_active }))}
           selectedId={selectedPeriod.id}
@@ -104,7 +114,6 @@ hideWithoutGroupForEvaluator="leader"
             { key: "leader",    label: "リーダー評価", color: "text-orange-500", hideIfSectionNoLeader: true },
             { key: "manager",   label: "課長評価",     color: "text-green-700" },
             { key: "director",  label: "部長評価",     color: "text-purple-700" },
-            { key: "executive", label: "顧問評価", color: "text-indigo-700" },
           ]}
           diffColumn={{ evaluatorA: "director", evaluatorB: "self", label: "部長評価−自己評価", showForEvaluator: "director" }}
         />

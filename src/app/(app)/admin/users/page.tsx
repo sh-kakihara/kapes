@@ -14,7 +14,7 @@ export default async function AdminUsersPage() {
       <div className="mb-4">
         <a href="/admin" className="text-sm text-blue-600 hover:underline">← 管理者メニュー</a>
       </div>
-      <h2 className="text-xl font-bold mb-6 text-gray-800">社員管理</h2>
+      <h2 className="text-xl font-bold mb-6 text-gray-800">ユーザー管理</h2>
       <UserAdmin users={users} departments={departments} />
     </div>
   );

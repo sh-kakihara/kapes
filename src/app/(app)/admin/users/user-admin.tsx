@@ -132,7 +132,7 @@ type User = {
   [key: string]: unknown;
 };
 
-const ROLES = ["STAFF", "LEADER", "MANAGER", "DIRECTOR", "EXECUTIVE", "PRESIDENT", "ADMIN"] as const;
+const ROLES = ["STAFF", "LEADER", "MANAGER", "COUNSELOR", "DIRECTOR", "EXECUTIVE", "PRESIDENT", "ADMIN"] as const;
 const EMPLOYEE_TYPES = ["柿原工業", "柿原技研", "実習生"] as const;
 
 const CSV_HEADERS = ["社員番号", "ログインID", "氏名", "パスワード", "ロール", "部署名", "課名", "グループ名", "社員種別", "状態"];

@@ -44,6 +44,7 @@ export type EvalListItem = {
   employee: Employee;
   status: string | null;
   scores: Score[];
+  skip_reason?: string | null;
 };
 
 type RowData = {
@@ -204,6 +205,8 @@ export default function EvaluationListTable({
   hideWithoutGroupForEvaluator,
   diffColumn,
   detailButtonLabel = "評価入力へ",
+  onSkipEvaluation,
+  onUndoSkipEvaluation,
 }: {
   items: EvalListItem[];
   detailBasePath: string;
@@ -237,12 +240,19 @@ export default function EvaluationListTable({
   diffColumn?: { evaluatorA: string; evaluatorB: string; label: string; showForEvaluator: string };
   /** ポップアップのボタンラベル（デフォルト: "評価入力へ"） */
   detailButtonLabel?: string;
+  /** 評価スキップコールバック（課長権限のみ渡す） */
+  onSkipEvaluation?: (item: EvalListItem, reason: string) => Promise<void>;
+  /** スキップ解除コールバック（課長権限のみ渡す） */
+  onUndoSkipEvaluation?: (item: EvalListItem) => Promise<void>;
 }) {
   const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [selectedItem, setSelectedItem] = useState<EvalListItem | null>(null);
   const [selectedEvaluator, setSelectedEvaluator] = useState(scoreEvaluator);
+  const [skipping, setSkipping] = useState(false);
+  const [skipDialogItem, setSkipDialogItem] = useState<EvalListItem | null>(null);
+  const [skipReason, setSkipReason] = useState("");
 
   const data = useMemo<RowData[]>(() =>
     items.flatMap((item) => {
@@ -316,7 +326,11 @@ export default function EvaluationListTable({
     [items, selectedEvaluator, selfUserId, hideForEvaluator, selfHidesForEvaluator, showSelfForRoles, hideWithoutGroupForEvaluator, diffColumn]
   );
 
-  const filterableCols = ["employee_number", "name", "department", "section", "group", "status"];
+  const filterableCols = [
+    "employee_number", "name", "department", "section", "group", "status",
+    ...EVALUATION_ITEMS.map((i) => i.code),
+    "total", "diff",
+  ];
 
   const columns = useMemo(() => [
     columnHelper.accessor("employee_number", { header: "社員番号", filterFn: multiSelectFilter }),
@@ -339,6 +353,7 @@ export default function EvaluationListTable({
     ...EVALUATION_ITEMS.map((item, idx) =>
       columnHelper.accessor(item.code as keyof RowData, {
         id: item.code,
+        filterFn: multiSelectFilter,
         header: () => (
           <span className="text-xs font-semibold text-gray-500" title={item.label}>
             {idx + 1}
@@ -356,6 +371,7 @@ export default function EvaluationListTable({
     ),
     columnHelper.accessor("total", {
       header: "合計",
+      filterFn: multiSelectFilter,
       cell: (info) => {
         const v = info.getValue() as number | null;
         return (
@@ -368,6 +384,7 @@ export default function EvaluationListTable({
     ...(diffColumn && selectedEvaluator === diffColumn.showForEvaluator
       ? [columnHelper.accessor("diff" as keyof RowData, {
           id: "diff",
+          filterFn: multiSelectFilter,
           header: () => <div className="text-xs font-semibold text-gray-600">{diffColumn.label}</div>,
           cell: (info) => {
             const v = info.getValue() as number | null;
@@ -529,11 +546,14 @@ export default function EvaluationListTable({
                     {canFilter ? (
                       <FacetedFilter
                         column={header.column}
-                        title={String(
-                          typeof header.column.columnDef.header === "function"
-                            ? header.id
-                            : header.column.columnDef.header
-                        )}
+                        title={
+                          (() => { const idx = EVALUATION_ITEMS.findIndex((i) => i.code === header.id); return idx >= 0 ? String(idx + 1) : undefined; })()
+                          ?? (header.id === "total" ? "合計"
+                            : header.id === "diff" ? "部－自"
+                            : typeof header.column.columnDef.header === "function"
+                              ? header.id
+                              : String(header.column.columnDef.header))
+                        }
                       />
                     ) : (
                       <div
@@ -563,11 +583,7 @@ export default function EvaluationListTable({
                 <tr
                   key={row.id}
                   onClick={isSelfRow ? undefined : () => {
-                    const item = items.find(
-                      (i) =>
-                        i.employee.name === row.original.name &&
-                        (i.employee.employee_number ?? "") === row.original.employee_number
-                    );
+                    const item = items.find((i) => i.employee.id === row.original.employeeId);
                     if (item) setSelectedItem(item);
                   }}
                   className={`border-b last:border-0 transition-colors ${isSelfRow ? "bg-orange-50" : "hover:bg-blue-50 cursor-pointer"}`}
@@ -627,8 +643,43 @@ export default function EvaluationListTable({
                 >
                   {STATUS_LABELS[selectedItem.status ?? "NO_EVAL"] ?? selectedItem.status ?? ""}
                 </span>
+                {selectedItem.skip_reason && (
+                  <p className="mt-1 text-xs text-orange-700 bg-orange-50 border border-orange-200 rounded px-2 py-1">
+                    スキップ理由: {selectedItem.skip_reason}
+                  </p>
+                )}
               </div>
               <div className="flex items-center gap-3">
+                {onUndoSkipEvaluation && selectedItem.evalId && (selectedItem.skip_reason || selectedItem.status === "SUBMITTED_TO_PRESIDENT") && (
+                  <button
+                    onClick={async () => {
+                      if (!confirm(`${selectedItem.employee.name} のスキップを解除しますか？\n自己評価入力中（DRAFT）に戻ります。`)) return;
+                      setSkipping(true);
+                      try {
+                        await onUndoSkipEvaluation(selectedItem);
+                        setSelectedItem(null);
+                        router.refresh();
+                      } catch (e) {
+                        alert(`スキップ解除に失敗しました。\n${e instanceof Error ? e.message : String(e)}`);
+                      } finally {
+                        setSkipping(false);
+                      }
+                    }}
+                    disabled={skipping}
+                    className="px-4 py-2 bg-orange-500 text-white rounded text-sm font-medium hover:bg-orange-600 disabled:opacity-50"
+                  >
+                    スキップ解除
+                  </button>
+                )}
+                {onSkipEvaluation && !["SUBMITTED_TO_MANAGER", "SUBMITTED_TO_DIRECTOR", "SUBMITTED_TO_EXECUTIVE", "SUBMITTED_TO_PRESIDENT", "COMPLETED"].includes(selectedItem.status ?? "") && (
+                  <button
+                    onClick={() => { setSkipDialogItem(selectedItem); setSkipReason(""); }}
+                    disabled={skipping}
+                    className="px-4 py-2 bg-gray-500 text-white rounded text-sm font-medium hover:bg-gray-600 disabled:opacity-50"
+                  >
+                    評価スキップ
+                  </button>
+                )}
                 {selectedItem.evalId && detailBasePath && (
                   <button
                     onClick={() => {
@@ -703,7 +754,7 @@ export default function EvaluationListTable({
                           <tr>
                             <th className="text-left px-3 py-2 font-medium text-gray-600">項目</th>
                             {cols.map((c) => (
-                              <th key={c.key} className={`text-center px-3 py-2 font-medium w-20 ${c.color}`}>
+                              <th key={c.key} className={`text-center px-3 py-2 font-medium w-20 whitespace-nowrap ${c.color}`}>
                                 {c.label}
                               </th>
                             ))}
@@ -748,6 +799,55 @@ export default function EvaluationListTable({
               ) : (
                 <p className="text-center py-8 text-gray-400">まだ評価が開始されていません</p>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* スキップ理由入力ダイアログ */}
+      {skipDialogItem && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+            <h3 className="font-bold text-gray-800 mb-1">評価スキップの確認</h3>
+            <p className="text-sm text-gray-500 mb-4">
+              {skipDialogItem.employee.name} の全評価をスキップして社長へ直接送ります。
+            </p>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              スキップ理由 <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              value={skipReason}
+              onChange={(e) => setSkipReason(e.target.value)}
+              placeholder="例：育児休業中、長期病欠中"
+              rows={3}
+              autoFocus
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 resize-none"
+            />
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={async () => {
+                  if (!skipReason.trim()) return;
+                  setSkipping(true);
+                  try {
+                    await onSkipEvaluation!(skipDialogItem, skipReason.trim());
+                    setSkipDialogItem(null);
+                    setSelectedItem(null);
+                    router.refresh();
+                  } finally {
+                    setSkipping(false);
+                  }
+                }}
+                disabled={skipping || !skipReason.trim()}
+                className="flex-1 bg-gray-600 text-white py-2 rounded text-sm font-medium hover:bg-gray-700 disabled:opacity-50"
+              >
+                {skipping ? "処理中..." : "スキップする"}
+              </button>
+              <button
+                onClick={() => setSkipDialogItem(null)}
+                className="flex-1 border border-gray-300 py-2 rounded text-sm font-medium hover:bg-gray-50"
+              >
+                キャンセル
+              </button>
             </div>
           </div>
         </div>

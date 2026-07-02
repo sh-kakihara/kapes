@@ -51,6 +51,7 @@ export type EvaluationMinAggregateOutputType = {
   director_id: string | null
   executive_id: string | null
   submitted_to_executive_at: Date | null
+  skip_reason: string | null
 }
 
 export type EvaluationMaxAggregateOutputType = {
@@ -70,6 +71,7 @@ export type EvaluationMaxAggregateOutputType = {
   director_id: string | null
   executive_id: string | null
   submitted_to_executive_at: Date | null
+  skip_reason: string | null
 }
 
 export type EvaluationCountAggregateOutputType = {
@@ -89,6 +91,7 @@ export type EvaluationCountAggregateOutputType = {
   director_id: number
   executive_id: number
   submitted_to_executive_at: number
+  skip_reason: number
   _all: number
 }
 
@@ -118,6 +121,7 @@ export type EvaluationMinAggregateInputType = {
   director_id?: true
   executive_id?: true
   submitted_to_executive_at?: true
+  skip_reason?: true
 }
 
 export type EvaluationMaxAggregateInputType = {
@@ -137,6 +141,7 @@ export type EvaluationMaxAggregateInputType = {
   director_id?: true
   executive_id?: true
   submitted_to_executive_at?: true
+  skip_reason?: true
 }
 
 export type EvaluationCountAggregateInputType = {
@@ -156,6 +161,7 @@ export type EvaluationCountAggregateInputType = {
   director_id?: true
   executive_id?: true
   submitted_to_executive_at?: true
+  skip_reason?: true
   _all?: true
 }
 
@@ -262,6 +268,7 @@ export type EvaluationGroupByOutputType = {
   director_id: string | null
   executive_id: string | null
   submitted_to_executive_at: Date | null
+  skip_reason: string | null
   _count: EvaluationCountAggregateOutputType | null
   _avg: EvaluationAvgAggregateOutputType | null
   _sum: EvaluationSumAggregateOutputType | null
@@ -304,6 +311,7 @@ export type EvaluationWhereInput = {
   director_id?: Prisma.StringNullableFilter<"Evaluation"> | string | null
   executive_id?: Prisma.StringNullableFilter<"Evaluation"> | string | null
   submitted_to_executive_at?: Prisma.DateTimeNullableFilter<"Evaluation"> | Date | string | null
+  skip_reason?: Prisma.StringNullableFilter<"Evaluation"> | string | null
   period?: Prisma.XOR<Prisma.EvaluationPeriodScalarRelationFilter, Prisma.EvaluationPeriodWhereInput>
   employee?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   leader?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -330,6 +338,7 @@ export type EvaluationOrderByWithRelationInput = {
   director_id?: Prisma.SortOrderInput | Prisma.SortOrder
   executive_id?: Prisma.SortOrderInput | Prisma.SortOrder
   submitted_to_executive_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  skip_reason?: Prisma.SortOrderInput | Prisma.SortOrder
   period?: Prisma.EvaluationPeriodOrderByWithRelationInput
   employee?: Prisma.UserOrderByWithRelationInput
   leader?: Prisma.UserOrderByWithRelationInput
@@ -360,6 +369,7 @@ export type EvaluationWhereUniqueInput = Prisma.AtLeast<{
   director_id?: Prisma.StringNullableFilter<"Evaluation"> | string | null
   executive_id?: Prisma.StringNullableFilter<"Evaluation"> | string | null
   submitted_to_executive_at?: Prisma.DateTimeNullableFilter<"Evaluation"> | Date | string | null
+  skip_reason?: Prisma.StringNullableFilter<"Evaluation"> | string | null
   period?: Prisma.XOR<Prisma.EvaluationPeriodScalarRelationFilter, Prisma.EvaluationPeriodWhereInput>
   employee?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   leader?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -386,6 +396,7 @@ export type EvaluationOrderByWithAggregationInput = {
   director_id?: Prisma.SortOrderInput | Prisma.SortOrder
   executive_id?: Prisma.SortOrderInput | Prisma.SortOrder
   submitted_to_executive_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  skip_reason?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.EvaluationCountOrderByAggregateInput
   _avg?: Prisma.EvaluationAvgOrderByAggregateInput
   _max?: Prisma.EvaluationMaxOrderByAggregateInput
@@ -413,6 +424,7 @@ export type EvaluationScalarWhereWithAggregatesInput = {
   director_id?: Prisma.StringNullableWithAggregatesFilter<"Evaluation"> | string | null
   executive_id?: Prisma.StringNullableWithAggregatesFilter<"Evaluation"> | string | null
   submitted_to_executive_at?: Prisma.DateTimeNullableWithAggregatesFilter<"Evaluation"> | Date | string | null
+  skip_reason?: Prisma.StringNullableWithAggregatesFilter<"Evaluation"> | string | null
 }
 
 export type EvaluationCreateInput = {
@@ -426,6 +438,7 @@ export type EvaluationCreateInput = {
   submitted_to_director_at?: Date | string | null
   submitted_to_president_at?: Date | string | null
   submitted_to_executive_at?: Date | string | null
+  skip_reason?: string | null
   period: Prisma.EvaluationPeriodCreateNestedOneWithoutEvaluationsInput
   employee: Prisma.UserCreateNestedOneWithoutSelf_evaluationsInput
   leader?: Prisma.UserCreateNestedOneWithoutLeader_evaluationsInput
@@ -452,6 +465,7 @@ export type EvaluationUncheckedCreateInput = {
   director_id?: string | null
   executive_id?: string | null
   submitted_to_executive_at?: Date | string | null
+  skip_reason?: string | null
   scores?: Prisma.EvaluationScoreUncheckedCreateNestedManyWithoutEvaluationInput
 }
 
@@ -466,6 +480,7 @@ export type EvaluationUpdateInput = {
   submitted_to_director_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submitted_to_president_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   period?: Prisma.EvaluationPeriodUpdateOneRequiredWithoutEvaluationsNestedInput
   employee?: Prisma.UserUpdateOneRequiredWithoutSelf_evaluationsNestedInput
   leader?: Prisma.UserUpdateOneWithoutLeader_evaluationsNestedInput
@@ -492,6 +507,7 @@ export type EvaluationUncheckedUpdateInput = {
   director_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   executive_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scores?: Prisma.EvaluationScoreUncheckedUpdateManyWithoutEvaluationNestedInput
 }
 
@@ -512,6 +528,7 @@ export type EvaluationCreateManyInput = {
   director_id?: string | null
   executive_id?: string | null
   submitted_to_executive_at?: Date | string | null
+  skip_reason?: string | null
 }
 
 export type EvaluationUpdateManyMutationInput = {
@@ -525,6 +542,7 @@ export type EvaluationUpdateManyMutationInput = {
   submitted_to_director_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submitted_to_president_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type EvaluationUncheckedUpdateManyInput = {
@@ -544,6 +562,7 @@ export type EvaluationUncheckedUpdateManyInput = {
   director_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   executive_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type EvaluationListRelationFilter = {
@@ -578,6 +597,7 @@ export type EvaluationCountOrderByAggregateInput = {
   director_id?: Prisma.SortOrder
   executive_id?: Prisma.SortOrder
   submitted_to_executive_at?: Prisma.SortOrder
+  skip_reason?: Prisma.SortOrder
 }
 
 export type EvaluationAvgOrderByAggregateInput = {
@@ -601,6 +621,7 @@ export type EvaluationMaxOrderByAggregateInput = {
   director_id?: Prisma.SortOrder
   executive_id?: Prisma.SortOrder
   submitted_to_executive_at?: Prisma.SortOrder
+  skip_reason?: Prisma.SortOrder
 }
 
 export type EvaluationMinOrderByAggregateInput = {
@@ -620,6 +641,7 @@ export type EvaluationMinOrderByAggregateInput = {
   director_id?: Prisma.SortOrder
   executive_id?: Prisma.SortOrder
   submitted_to_executive_at?: Prisma.SortOrder
+  skip_reason?: Prisma.SortOrder
 }
 
 export type EvaluationSumOrderByAggregateInput = {
@@ -912,6 +934,7 @@ export type EvaluationCreateWithoutEmployeeInput = {
   submitted_to_director_at?: Date | string | null
   submitted_to_president_at?: Date | string | null
   submitted_to_executive_at?: Date | string | null
+  skip_reason?: string | null
   period: Prisma.EvaluationPeriodCreateNestedOneWithoutEvaluationsInput
   leader?: Prisma.UserCreateNestedOneWithoutLeader_evaluationsInput
   manager?: Prisma.UserCreateNestedOneWithoutManager_evaluationsInput
@@ -936,6 +959,7 @@ export type EvaluationUncheckedCreateWithoutEmployeeInput = {
   director_id?: string | null
   executive_id?: string | null
   submitted_to_executive_at?: Date | string | null
+  skip_reason?: string | null
   scores?: Prisma.EvaluationScoreUncheckedCreateNestedManyWithoutEvaluationInput
 }
 
@@ -960,6 +984,7 @@ export type EvaluationCreateWithoutLeaderInput = {
   submitted_to_director_at?: Date | string | null
   submitted_to_president_at?: Date | string | null
   submitted_to_executive_at?: Date | string | null
+  skip_reason?: string | null
   period: Prisma.EvaluationPeriodCreateNestedOneWithoutEvaluationsInput
   employee: Prisma.UserCreateNestedOneWithoutSelf_evaluationsInput
   manager?: Prisma.UserCreateNestedOneWithoutManager_evaluationsInput
@@ -984,6 +1009,7 @@ export type EvaluationUncheckedCreateWithoutLeaderInput = {
   director_id?: string | null
   executive_id?: string | null
   submitted_to_executive_at?: Date | string | null
+  skip_reason?: string | null
   scores?: Prisma.EvaluationScoreUncheckedCreateNestedManyWithoutEvaluationInput
 }
 
@@ -1008,6 +1034,7 @@ export type EvaluationCreateWithoutManagerInput = {
   submitted_to_director_at?: Date | string | null
   submitted_to_president_at?: Date | string | null
   submitted_to_executive_at?: Date | string | null
+  skip_reason?: string | null
   period: Prisma.EvaluationPeriodCreateNestedOneWithoutEvaluationsInput
   employee: Prisma.UserCreateNestedOneWithoutSelf_evaluationsInput
   leader?: Prisma.UserCreateNestedOneWithoutLeader_evaluationsInput
@@ -1032,6 +1059,7 @@ export type EvaluationUncheckedCreateWithoutManagerInput = {
   director_id?: string | null
   executive_id?: string | null
   submitted_to_executive_at?: Date | string | null
+  skip_reason?: string | null
   scores?: Prisma.EvaluationScoreUncheckedCreateNestedManyWithoutEvaluationInput
 }
 
@@ -1056,6 +1084,7 @@ export type EvaluationCreateWithoutDirectorInput = {
   submitted_to_director_at?: Date | string | null
   submitted_to_president_at?: Date | string | null
   submitted_to_executive_at?: Date | string | null
+  skip_reason?: string | null
   period: Prisma.EvaluationPeriodCreateNestedOneWithoutEvaluationsInput
   employee: Prisma.UserCreateNestedOneWithoutSelf_evaluationsInput
   leader?: Prisma.UserCreateNestedOneWithoutLeader_evaluationsInput
@@ -1080,6 +1109,7 @@ export type EvaluationUncheckedCreateWithoutDirectorInput = {
   manager_id?: string | null
   executive_id?: string | null
   submitted_to_executive_at?: Date | string | null
+  skip_reason?: string | null
   scores?: Prisma.EvaluationScoreUncheckedCreateNestedManyWithoutEvaluationInput
 }
 
@@ -1104,6 +1134,7 @@ export type EvaluationCreateWithoutExecutiveInput = {
   submitted_to_director_at?: Date | string | null
   submitted_to_president_at?: Date | string | null
   submitted_to_executive_at?: Date | string | null
+  skip_reason?: string | null
   period: Prisma.EvaluationPeriodCreateNestedOneWithoutEvaluationsInput
   employee: Prisma.UserCreateNestedOneWithoutSelf_evaluationsInput
   leader?: Prisma.UserCreateNestedOneWithoutLeader_evaluationsInput
@@ -1128,6 +1159,7 @@ export type EvaluationUncheckedCreateWithoutExecutiveInput = {
   manager_id?: string | null
   director_id?: string | null
   submitted_to_executive_at?: Date | string | null
+  skip_reason?: string | null
   scores?: Prisma.EvaluationScoreUncheckedCreateNestedManyWithoutEvaluationInput
 }
 
@@ -1177,6 +1209,7 @@ export type EvaluationScalarWhereInput = {
   director_id?: Prisma.StringNullableFilter<"Evaluation"> | string | null
   executive_id?: Prisma.StringNullableFilter<"Evaluation"> | string | null
   submitted_to_executive_at?: Prisma.DateTimeNullableFilter<"Evaluation"> | Date | string | null
+  skip_reason?: Prisma.StringNullableFilter<"Evaluation"> | string | null
 }
 
 export type EvaluationUpsertWithWhereUniqueWithoutLeaderInput = {
@@ -1254,6 +1287,7 @@ export type EvaluationCreateWithoutPeriodInput = {
   submitted_to_director_at?: Date | string | null
   submitted_to_president_at?: Date | string | null
   submitted_to_executive_at?: Date | string | null
+  skip_reason?: string | null
   employee: Prisma.UserCreateNestedOneWithoutSelf_evaluationsInput
   leader?: Prisma.UserCreateNestedOneWithoutLeader_evaluationsInput
   manager?: Prisma.UserCreateNestedOneWithoutManager_evaluationsInput
@@ -1278,6 +1312,7 @@ export type EvaluationUncheckedCreateWithoutPeriodInput = {
   director_id?: string | null
   executive_id?: string | null
   submitted_to_executive_at?: Date | string | null
+  skip_reason?: string | null
   scores?: Prisma.EvaluationScoreUncheckedCreateNestedManyWithoutEvaluationInput
 }
 
@@ -1318,6 +1353,7 @@ export type EvaluationCreateWithoutScoresInput = {
   submitted_to_director_at?: Date | string | null
   submitted_to_president_at?: Date | string | null
   submitted_to_executive_at?: Date | string | null
+  skip_reason?: string | null
   period: Prisma.EvaluationPeriodCreateNestedOneWithoutEvaluationsInput
   employee: Prisma.UserCreateNestedOneWithoutSelf_evaluationsInput
   leader?: Prisma.UserCreateNestedOneWithoutLeader_evaluationsInput
@@ -1343,6 +1379,7 @@ export type EvaluationUncheckedCreateWithoutScoresInput = {
   director_id?: string | null
   executive_id?: string | null
   submitted_to_executive_at?: Date | string | null
+  skip_reason?: string | null
 }
 
 export type EvaluationCreateOrConnectWithoutScoresInput = {
@@ -1372,6 +1409,7 @@ export type EvaluationUpdateWithoutScoresInput = {
   submitted_to_director_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submitted_to_president_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   period?: Prisma.EvaluationPeriodUpdateOneRequiredWithoutEvaluationsNestedInput
   employee?: Prisma.UserUpdateOneRequiredWithoutSelf_evaluationsNestedInput
   leader?: Prisma.UserUpdateOneWithoutLeader_evaluationsNestedInput
@@ -1397,6 +1435,7 @@ export type EvaluationUncheckedUpdateWithoutScoresInput = {
   director_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   executive_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type EvaluationCreateManyEmployeeInput = {
@@ -1415,6 +1454,7 @@ export type EvaluationCreateManyEmployeeInput = {
   director_id?: string | null
   executive_id?: string | null
   submitted_to_executive_at?: Date | string | null
+  skip_reason?: string | null
 }
 
 export type EvaluationCreateManyLeaderInput = {
@@ -1433,6 +1473,7 @@ export type EvaluationCreateManyLeaderInput = {
   director_id?: string | null
   executive_id?: string | null
   submitted_to_executive_at?: Date | string | null
+  skip_reason?: string | null
 }
 
 export type EvaluationCreateManyManagerInput = {
@@ -1451,6 +1492,7 @@ export type EvaluationCreateManyManagerInput = {
   director_id?: string | null
   executive_id?: string | null
   submitted_to_executive_at?: Date | string | null
+  skip_reason?: string | null
 }
 
 export type EvaluationCreateManyDirectorInput = {
@@ -1469,6 +1511,7 @@ export type EvaluationCreateManyDirectorInput = {
   manager_id?: string | null
   executive_id?: string | null
   submitted_to_executive_at?: Date | string | null
+  skip_reason?: string | null
 }
 
 export type EvaluationCreateManyExecutiveInput = {
@@ -1487,6 +1530,7 @@ export type EvaluationCreateManyExecutiveInput = {
   manager_id?: string | null
   director_id?: string | null
   submitted_to_executive_at?: Date | string | null
+  skip_reason?: string | null
 }
 
 export type EvaluationUpdateWithoutEmployeeInput = {
@@ -1500,6 +1544,7 @@ export type EvaluationUpdateWithoutEmployeeInput = {
   submitted_to_director_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submitted_to_president_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   period?: Prisma.EvaluationPeriodUpdateOneRequiredWithoutEvaluationsNestedInput
   leader?: Prisma.UserUpdateOneWithoutLeader_evaluationsNestedInput
   manager?: Prisma.UserUpdateOneWithoutManager_evaluationsNestedInput
@@ -1524,6 +1569,7 @@ export type EvaluationUncheckedUpdateWithoutEmployeeInput = {
   director_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   executive_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scores?: Prisma.EvaluationScoreUncheckedUpdateManyWithoutEvaluationNestedInput
 }
 
@@ -1543,6 +1589,7 @@ export type EvaluationUncheckedUpdateManyWithoutEmployeeInput = {
   director_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   executive_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type EvaluationUpdateWithoutLeaderInput = {
@@ -1556,6 +1603,7 @@ export type EvaluationUpdateWithoutLeaderInput = {
   submitted_to_director_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submitted_to_president_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   period?: Prisma.EvaluationPeriodUpdateOneRequiredWithoutEvaluationsNestedInput
   employee?: Prisma.UserUpdateOneRequiredWithoutSelf_evaluationsNestedInput
   manager?: Prisma.UserUpdateOneWithoutManager_evaluationsNestedInput
@@ -1580,6 +1628,7 @@ export type EvaluationUncheckedUpdateWithoutLeaderInput = {
   director_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   executive_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scores?: Prisma.EvaluationScoreUncheckedUpdateManyWithoutEvaluationNestedInput
 }
 
@@ -1599,6 +1648,7 @@ export type EvaluationUncheckedUpdateManyWithoutLeaderInput = {
   director_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   executive_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type EvaluationUpdateWithoutManagerInput = {
@@ -1612,6 +1662,7 @@ export type EvaluationUpdateWithoutManagerInput = {
   submitted_to_director_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submitted_to_president_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   period?: Prisma.EvaluationPeriodUpdateOneRequiredWithoutEvaluationsNestedInput
   employee?: Prisma.UserUpdateOneRequiredWithoutSelf_evaluationsNestedInput
   leader?: Prisma.UserUpdateOneWithoutLeader_evaluationsNestedInput
@@ -1636,6 +1687,7 @@ export type EvaluationUncheckedUpdateWithoutManagerInput = {
   director_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   executive_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scores?: Prisma.EvaluationScoreUncheckedUpdateManyWithoutEvaluationNestedInput
 }
 
@@ -1655,6 +1707,7 @@ export type EvaluationUncheckedUpdateManyWithoutManagerInput = {
   director_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   executive_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type EvaluationUpdateWithoutDirectorInput = {
@@ -1668,6 +1721,7 @@ export type EvaluationUpdateWithoutDirectorInput = {
   submitted_to_director_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submitted_to_president_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   period?: Prisma.EvaluationPeriodUpdateOneRequiredWithoutEvaluationsNestedInput
   employee?: Prisma.UserUpdateOneRequiredWithoutSelf_evaluationsNestedInput
   leader?: Prisma.UserUpdateOneWithoutLeader_evaluationsNestedInput
@@ -1692,6 +1746,7 @@ export type EvaluationUncheckedUpdateWithoutDirectorInput = {
   manager_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   executive_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scores?: Prisma.EvaluationScoreUncheckedUpdateManyWithoutEvaluationNestedInput
 }
 
@@ -1711,6 +1766,7 @@ export type EvaluationUncheckedUpdateManyWithoutDirectorInput = {
   manager_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   executive_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type EvaluationUpdateWithoutExecutiveInput = {
@@ -1724,6 +1780,7 @@ export type EvaluationUpdateWithoutExecutiveInput = {
   submitted_to_director_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submitted_to_president_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   period?: Prisma.EvaluationPeriodUpdateOneRequiredWithoutEvaluationsNestedInput
   employee?: Prisma.UserUpdateOneRequiredWithoutSelf_evaluationsNestedInput
   leader?: Prisma.UserUpdateOneWithoutLeader_evaluationsNestedInput
@@ -1748,6 +1805,7 @@ export type EvaluationUncheckedUpdateWithoutExecutiveInput = {
   manager_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   director_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scores?: Prisma.EvaluationScoreUncheckedUpdateManyWithoutEvaluationNestedInput
 }
 
@@ -1767,6 +1825,7 @@ export type EvaluationUncheckedUpdateManyWithoutExecutiveInput = {
   manager_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   director_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type EvaluationCreateManyPeriodInput = {
@@ -1785,6 +1844,7 @@ export type EvaluationCreateManyPeriodInput = {
   director_id?: string | null
   executive_id?: string | null
   submitted_to_executive_at?: Date | string | null
+  skip_reason?: string | null
 }
 
 export type EvaluationUpdateWithoutPeriodInput = {
@@ -1798,6 +1858,7 @@ export type EvaluationUpdateWithoutPeriodInput = {
   submitted_to_director_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submitted_to_president_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee?: Prisma.UserUpdateOneRequiredWithoutSelf_evaluationsNestedInput
   leader?: Prisma.UserUpdateOneWithoutLeader_evaluationsNestedInput
   manager?: Prisma.UserUpdateOneWithoutManager_evaluationsNestedInput
@@ -1822,6 +1883,7 @@ export type EvaluationUncheckedUpdateWithoutPeriodInput = {
   director_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   executive_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scores?: Prisma.EvaluationScoreUncheckedUpdateManyWithoutEvaluationNestedInput
 }
 
@@ -1841,6 +1903,7 @@ export type EvaluationUncheckedUpdateManyWithoutPeriodInput = {
   director_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   executive_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitted_to_executive_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  skip_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -1891,6 +1954,7 @@ export type EvaluationSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   director_id?: boolean
   executive_id?: boolean
   submitted_to_executive_at?: boolean
+  skip_reason?: boolean
   period?: boolean | Prisma.EvaluationPeriodDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   leader?: boolean | Prisma.Evaluation$leaderArgs<ExtArgs>
@@ -1918,6 +1982,7 @@ export type EvaluationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   director_id?: boolean
   executive_id?: boolean
   submitted_to_executive_at?: boolean
+  skip_reason?: boolean
   period?: boolean | Prisma.EvaluationPeriodDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   leader?: boolean | Prisma.Evaluation$leaderArgs<ExtArgs>
@@ -1943,6 +2008,7 @@ export type EvaluationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   director_id?: boolean
   executive_id?: boolean
   submitted_to_executive_at?: boolean
+  skip_reason?: boolean
   period?: boolean | Prisma.EvaluationPeriodDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   leader?: boolean | Prisma.Evaluation$leaderArgs<ExtArgs>
@@ -1968,9 +2034,10 @@ export type EvaluationSelectScalar = {
   director_id?: boolean
   executive_id?: boolean
   submitted_to_executive_at?: boolean
+  skip_reason?: boolean
 }
 
-export type EvaluationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "period_id" | "employee_id" | "status" | "version" | "created_at" | "updated_at" | "submitted_to_leader_at" | "submitted_to_manager_at" | "submitted_to_director_at" | "submitted_to_president_at" | "leader_id" | "manager_id" | "director_id" | "executive_id" | "submitted_to_executive_at", ExtArgs["result"]["evaluation"]>
+export type EvaluationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "period_id" | "employee_id" | "status" | "version" | "created_at" | "updated_at" | "submitted_to_leader_at" | "submitted_to_manager_at" | "submitted_to_director_at" | "submitted_to_president_at" | "leader_id" | "manager_id" | "director_id" | "executive_id" | "submitted_to_executive_at" | "skip_reason", ExtArgs["result"]["evaluation"]>
 export type EvaluationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   period?: boolean | Prisma.EvaluationPeriodDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -2041,6 +2108,10 @@ export type $EvaluationPayload<ExtArgs extends runtime.Types.Extensions.Internal
      */
     executive_id: string | null
     submitted_to_executive_at: Date | null
+    /**
+     * 評価スキップ理由（育休・長期病欠など）
+     */
+    skip_reason: string | null
   }, ExtArgs["result"]["evaluation"]>
   composites: {}
 }
@@ -2487,6 +2558,7 @@ export interface EvaluationFieldRefs {
   readonly director_id: Prisma.FieldRef<"Evaluation", 'String'>
   readonly executive_id: Prisma.FieldRef<"Evaluation", 'String'>
   readonly submitted_to_executive_at: Prisma.FieldRef<"Evaluation", 'DateTime'>
+  readonly skip_reason: Prisma.FieldRef<"Evaluation", 'String'>
 }
     
 
