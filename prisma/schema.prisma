@@ -1,0 +1,326 @@
+// 人事評価システム KAPES — Prisma スキーマ
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// ユーザーロール
+enum Role {
+  ADMIN      // システム管理者
+  PRESIDENT  // 社長
+  EXECUTIVE  // 執行役員
+  DIRECTOR   // 部長
+  MANAGER    // 課長
+  LEADER     // リーダー
+  STAFF      // 一般社員
+}
+
+/// 評価ステータス
+enum EvaluationStatus {
+  DRAFT                   // 下書き（未提出）
+  SUBMITTED_TO_LEADER     // リーダーへ提出済み
+  SUBMITTED_TO_MANAGER    // 課長へ提出済み
+  SUBMITTED_TO_DIRECTOR   // 部長へ提出済み
+  SUBMITTED_TO_EXECUTIVE  // 執行役員へ提出済み
+  SUBMITTED_TO_PRESIDENT  // 社長へ提出済み
+  COMPLETED               // 完了
+}
+
+// ============================================================
+// マスタ
+// ============================================================
+
+/// 部署
+model Department {
+  id           String    @id @default(cuid())
+  name         String    @unique /// 部署名
+  skip_director    Boolean  @default(false) /// 課長評価後に部長をスキップして社長へ提出
+  skip_evaluation  Boolean  @default(false) /// 評価フロー対象外（自己/課長/部長評価なし）
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+  deleted_at   DateTime?
+
+  sections   Section[]
+  users      User[]
+}
+
+/// 課
+model Section {
+  id            String     @id @default(cuid())
+  name          String     /// 課名
+  has_leader    Boolean    @default(false) /// リーダー評価あり（課単位）
+  department_id String
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @updatedAt
+  deleted_at    DateTime?
+
+  department    Department @relation(fields: [department_id], references: [id])
+  groups        Group[]
+  users         User[]
+
+  @@unique([department_id, name])
+}
+
+/// グループ
+model Group {
+  id         String    @id @default(cuid())
+  name       String    /// グループ名
+  section_id String
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  section    Section   @relation(fields: [section_id], references: [id])
+  users      User[]
+
+  @@unique([section_id, name])
+}
+
+/// 社員
+model User {
+  id              String    @id @default(cuid())
+  employee_number String?   @unique /// 社員番号
+  login_id        String    @unique /// ログインID
+  name            String    /// 氏名
+  password_hash   String
+  role            Role      @default(STAFF)
+  department_id   String?   /// 所属部署
+  section_id      String?   /// 所属課
+  group_id        String?   /// 所属グループ
+  employee_type   String?   /// 社員種別（柿原工業/柿原技研/実習生）
+  hire_date       DateTime? /// 入社年月日
+  resign_date     DateTime? /// 退社年月日（在籍中はnull）
+  is_active              Boolean   @default(true)
+  is_first_login         Boolean   @default(true) /// 初回ログインフラグ
+  can_view_evaluations   Boolean   @default(false) /// 評価閲覧権限（部長画面を閲覧専用で開放）
+  last_login_at   DateTime?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+  deleted_at      DateTime?
+
+  department    Department? @relation(fields: [department_id], references: [id])
+  section       Section?    @relation(fields: [section_id], references: [id])
+  group         Group?      @relation(fields: [group_id], references: [id])
+
+  self_evaluations      Evaluation[] @relation("EvaluationEmployee")
+  leader_evaluations    Evaluation[] @relation("EvaluationLeader")
+  manager_evaluations   Evaluation[] @relation("EvaluationManager")
+  director_evaluations  Evaluation[] @relation("EvaluationDirector")
+  executive_evaluations Evaluation[] @relation("EvaluationExecutive")
+  employee_records      EmployeeRecord[]
+  inflation_overrides   InflationEmployee[]
+}
+
+/// 社員台帳（年度別）
+model EmployeeRecord {
+  id          String @id @default(cuid())
+  user_id     String
+  fiscal_year Int    /// 対象年度（例: 2026）
+
+  // 個人情報（表示は最新年度の値を使用）
+  job_title        String?   /// 役職（台帳）
+  employment_type  String?   /// 雇用形態
+  hire_date        DateTime? /// 入社年月日
+  birth_date       DateTime? /// 生年月日
+  gender           String?   /// 性別
+  education        String?   /// 最終学歴
+  training_period  String?   /// 実習生期
+
+  // 年度別データ
+  prev_annual_income         Int?    /// 前年度年収
+  curr_base_salary           Int?    /// 基本給
+  curr_position_allowance    Int?    /// 役職手当
+  curr_salary_increase       Int?    /// 昇給額
+  curr_summer_bonus          Int?    /// 夏期賞与額
+  curr_summer_director_eval  String? /// 夏期部長評価
+  curr_summer_president_eval String? /// 夏期社長評価 (A+/A/B+/B/C)
+  curr_winter_bonus          Int?    /// 冬期賞与額
+  curr_winter_director_eval  String? /// 冬期部長評価
+  curr_winter_president_eval String? /// 冬期社長評価
+  curr_notes                 String? /// 備考
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String?
+  updated_by String?
+
+  user User @relation(fields: [user_id], references: [id])
+
+  @@unique([user_id, fiscal_year])
+}
+
+/// 評価期間
+model EvaluationPeriod {
+  id               String    @id @default(cuid())
+  name             String    @unique /// 例: 2026年度上期
+  start_date       DateTime
+  end_date         DateTime
+  self_deadline    DateTime? /// 自己評価の提出期限（期限内は修正可）
+  leader_deadline  DateTime? /// リーダー評価の提出期限
+  manager_deadline DateTime? /// 課長評価の提出期限
+  director_deadline DateTime? /// 部長評価の提出期限
+  is_active        Boolean   @default(true)
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+
+  evaluations Evaluation[]
+}
+
+// ============================================================
+// 評価
+// ============================================================
+
+/// 評価レコード（社員×評価期間で1件）
+model Evaluation {
+  id          String           @id @default(cuid())
+  period_id   String
+  employee_id String           /// 評価対象社員
+  status      EvaluationStatus @default(DRAFT)
+  version     Int              @default(0)
+  created_at  DateTime         @default(now())
+  updated_at  DateTime         @updatedAt
+
+  // 提出日時
+  submitted_to_leader_at    DateTime?
+  submitted_to_manager_at   DateTime?
+  submitted_to_director_at  DateTime?
+  submitted_to_president_at DateTime?
+
+  // 評価者
+  leader_id    String? /// リーダー
+  manager_id   String? /// 課長
+  director_id  String? /// 部長
+  executive_id String? /// 執行役員
+
+  // 提出日時（執行役員）
+  submitted_to_executive_at DateTime?
+
+  period    EvaluationPeriod @relation(fields: [period_id], references: [id])
+  employee  User             @relation("EvaluationEmployee", fields: [employee_id], references: [id])
+  leader    User?            @relation("EvaluationLeader", fields: [leader_id], references: [id])
+  manager   User?            @relation("EvaluationManager", fields: [manager_id], references: [id])
+  director  User?            @relation("EvaluationDirector", fields: [director_id], references: [id])
+  executive User?            @relation("EvaluationExecutive", fields: [executive_id], references: [id])
+
+  scores EvaluationScore[]
+
+  @@unique([period_id, employee_id])
+}
+
+/// 通知書設定（システム全体で1件）
+model NoticeConfig {
+  id                  String   @id @default(cuid())
+  representative_name String   @default("代表取締役　柿原邦博") /// 代表取締役名
+  updated_at          DateTime @updatedAt
+  updated_by          String?
+}
+
+/// 通知書（昇給・賞与）
+model NoticeDocument {
+  id          String   @id @default(cuid())
+  type        String   /// "昇給通知" | "賞与通知"
+  fiscal_year Int      /// 対象年度
+  season      String   /// "夏期" | "冬期"
+  notice_date         String   @default("") /// 通知日 YYYY-MM-DD
+  comment             String   @default("") @db.Text /// 本文コメント
+  representative_name String   @default("代表取締役　柿原邦博") /// 代表取締役名
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  created_by  String?
+  updated_by  String?
+
+  @@unique([type, fiscal_year, season])
+}
+
+/// 加算金・支給額期間（2026年度夏期 等）
+model AttendancePeriod {
+  id         String   @id @default(cuid())
+  name       String   @unique /// "2026年度夏期" など
+  sort_key   String   @default("") /// ソート用（name と同値で可）
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String?
+  updated_by String?
+
+  records AttendanceRecord[]
+}
+
+/// 加算金・支給額明細（出勤情報）
+model AttendanceRecord {
+  id                   String   @id @default(cuid())
+  period_id            String
+  employee_number      String   /// 社員番号
+  name                 String   @default("") /// 氏名
+  work_days            Decimal? @db.Decimal(8, 2) /// 出勤日数
+  paid_leave_days      Decimal? @db.Decimal(8, 2) /// 有休日数
+  absent_days          Decimal? @db.Decimal(8, 2) /// 欠勤日数
+  late_early_hours     Decimal? @db.Decimal(8, 2) /// 遅早時間
+  overtime_hours       Decimal? @db.Decimal(8, 2) /// 普通残業時間
+  night_overtime_hours Decimal? @db.Decimal(8, 2) /// 深夜残業時間
+  holiday_hours        Decimal? @db.Decimal(8, 2) /// 休日出勤時間
+  legal_holiday_hours  Decimal? @db.Decimal(8, 2) /// 法定休出時間
+  bonus_eligible       Boolean  @default(true)      /// 加算金支給対象（falseなら0円）
+  bonus_amount         Decimal? @db.Decimal(10, 2) /// 加算金（有休・欠勤・遅早から算出）
+  base_salary          Decimal? @db.Decimal(10, 2) /// 基本給
+  position_allowance   Decimal? @db.Decimal(10, 2) /// 役職手当
+  payment_amount       Decimal? @db.Decimal(10, 2) /// 支給額
+  notes                String?  @db.Text            /// 備考
+  created_at           DateTime @default(now())
+  updated_at           DateTime @updatedAt
+  created_by           String?
+  updated_by           String?
+
+  period AttendancePeriod @relation(fields: [period_id], references: [id], onDelete: Cascade)
+
+  @@unique([period_id, employee_number])
+}
+
+/// インフレ手当 期別設定
+model InflationSetting {
+  id          String   @id @default(cuid())
+  fiscal_year Int      /// 対象年度
+  season      String   /// "夏期" | "冬期"
+  enabled     Boolean  @default(true) /// 支給する/しない
+  notice_date String   @default("") /// 支給日 YYYY-MM-DD（年齢・在籍期間の基準日）
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  created_by  String?
+  updated_by  String?
+
+  overrides InflationEmployee[]
+
+  @@unique([fiscal_year, season])
+}
+
+/// インフレ手当 個人上書き
+model InflationEmployee {
+  id         String @id @default(cuid())
+  setting_id String
+  user_id    String
+  amount     Int    /// 手動上書き額（円）
+
+  setting InflationSetting @relation(fields: [setting_id], references: [id], onDelete: Cascade)
+  user    User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([setting_id, user_id])
+}
+
+/// 評価スコア（11項目）
+model EvaluationScore {
+  id            String  @id @default(cuid())
+  evaluation_id String
+  item_code     String  /// 評価項目コード（ITEM_01〜ITEM_11）
+  evaluator     String  /// "self" | "leader" | "manager" | "director"
+
+  score   Int?    /// 1〜5
+  comment String? /// コメント
+
+  evaluation Evaluation @relation(fields: [evaluation_id], references: [id], onDelete: Cascade)
+
+  @@unique([evaluation_id, item_code, evaluator])
+}

@@ -1,0 +1,2 @@
+ALTER TABLE "User" ADD COLUMN "hire_date" TIMESTAMP(3);
+ALTER TABLE "User" ADD COLUMN "resign_date" TIMESTAMP(3);

@@ -1,0 +1,1 @@
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "can_view_evaluations" BOOLEAN NOT NULL DEFAULT false;
