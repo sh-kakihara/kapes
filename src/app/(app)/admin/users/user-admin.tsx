@@ -7,7 +7,7 @@ import {
   flexRender, type ColumnDef, type SortingState, type ColumnFiltersState,
   type FilterFn, type Column,
 } from "@tanstack/react-table";
-import { createUser, updateUser, deleteUser, importUsersFromCsv } from "@/server/admin";
+import { createUser, updateUser, deleteUser, importUsersFromCsv, bulkSetCanViewNotices } from "@/server/admin";
 import { ROLE_LABELS } from "@/lib/constants";
 
 const NONE_SELECTED = "__none__";
@@ -124,7 +124,7 @@ type Section = { id: string; name: string; has_leader: boolean; groups: Group[] 
 type Department = { id: string; name: string; sections: Section[] };
 type User = {
   id: string; employee_number: string | null; login_id: string; name: string; role: string;
-  is_active: boolean; employee_type: string | null; can_view_evaluations: boolean;
+  is_active: boolean; employee_type: string | null; can_view_evaluations: boolean; can_view_notices: boolean;
   hire_date: Date | null; resign_date: Date | null;
   department: Department | null;
   section: Section | null;
@@ -162,7 +162,7 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
   const [form, setForm] = useState({
     employee_number: "", login_id: "", name: "", password: "", role: "STAFF",
     department_id: "", section_id: "", group_id: "", is_active: true, employee_type: "",
-    can_view_evaluations: false, hire_date: "", resign_date: "",
+    can_view_evaluations: false, can_view_notices: false, hire_date: "", resign_date: "",
   });
 
   const isDirector = form.role === "DIRECTOR";
@@ -175,7 +175,7 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
   const groups = (!isManagerOrAbove && sectionHasLeader) ? (selectedSection?.groups ?? []) : [];
 
   function openNew() {
-    setForm({ employee_number: "", login_id: "", name: "", password: "", role: "STAFF", department_id: "", section_id: "", group_id: "", is_active: true, employee_type: "", can_view_evaluations: false, hire_date: "", resign_date: "" });
+    setForm({ employee_number: "", login_id: "", name: "", password: "", role: "STAFF", department_id: "", section_id: "", group_id: "", is_active: true, employee_type: "", can_view_evaluations: false, can_view_notices: false, hire_date: "", resign_date: "" });
     setFormError("");
     setEditUser(null);
     setShowForm(true);
@@ -192,6 +192,7 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
       is_active: u.is_active,
       employee_type: u.employee_type ?? "",
       can_view_evaluations: u.can_view_evaluations ?? false,
+      can_view_notices: u.can_view_notices ?? false,
       hire_date: u.hire_date ? new Date(u.hire_date).toISOString().slice(0, 10) : "",
       resign_date: u.resign_date ? new Date(u.resign_date).toISOString().slice(0, 10) : "",
     });
@@ -215,6 +216,7 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
           password: form.password || undefined,
           employee_type: form.employee_type || undefined,
           can_view_evaluations: form.can_view_evaluations,
+          can_view_notices: form.can_view_notices,
           hire_date: form.hire_date || undefined,
           resign_date: form.resign_date || undefined,
         });
@@ -382,6 +384,33 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
           CSVインポート
           <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleCsvImport} />
         </label>
+      </div>
+
+      {/* 通知書一括設定 */}
+      <div className="flex items-center gap-3 mb-3 p-2 bg-amber-50 border border-amber-200 rounded-lg">
+        <span className="text-xs font-medium text-amber-800">通知書表示 一括設定（表示中の社員 {table.getFilteredRowModel().rows.length} 名）:</span>
+        <button
+          onClick={async () => {
+            const ids = table.getFilteredRowModel().rows.map((r) => r.original.id);
+            if (ids.length === 0) return;
+            await bulkSetCanViewNotices(ids, true);
+            setMessage(`通知書表示を ${ids.length} 名にONにしました`);
+          }}
+          className="px-3 py-1 text-xs bg-amber-500 text-white rounded hover:bg-amber-600 font-medium"
+        >
+          一括ON
+        </button>
+        <button
+          onClick={async () => {
+            const ids = table.getFilteredRowModel().rows.map((r) => r.original.id);
+            if (ids.length === 0) return;
+            await bulkSetCanViewNotices(ids, false);
+            setMessage(`通知書表示を ${ids.length} 名からOFFにしました`);
+          }}
+          className="px-3 py-1 text-xs bg-gray-500 text-white rounded hover:bg-gray-600 font-medium"
+        >
+          一括OFF
+        </button>
       </div>
 
       {importResult.length > 0 && (
@@ -557,6 +586,13 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
                   </label>
                 </div>
               )}
+              <div className="flex items-center gap-2">
+                <input type="checkbox" id="can_view_notices" checked={form.can_view_notices}
+                  onChange={(e) => setForm({ ...form, can_view_notices: e.target.checked })} />
+                <label htmlFor="can_view_notices" className="text-xs text-gray-700">
+                  通知書メニューを表示する
+                </label>
+              </div>
               {formError && (
                 <p className="text-sm text-red-500 bg-red-50 border border-red-200 rounded px-3 py-2">{formError}</p>
               )}

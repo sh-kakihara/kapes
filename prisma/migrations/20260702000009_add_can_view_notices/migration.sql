@@ -1,0 +1,1 @@
+ALTER TABLE "User" ADD COLUMN "can_view_notices" BOOLEAN NOT NULL DEFAULT false;

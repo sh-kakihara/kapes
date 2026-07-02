@@ -11,6 +11,7 @@ type Props = {
   representative: string;
   comment: string;
   items: BonusNoticeEmployee[];
+  backHref?: string;
 };
 
 /** カンマ区切り数値（円なし） */
@@ -40,6 +41,7 @@ export default function BonusPrintView({
   representative,
   comment,
   items,
+  backHref,
 }: Props) {
   const wareki = notice_date ? toWareki(notice_date) : "";
 
@@ -60,7 +62,7 @@ export default function BonusPrintView({
     <>
       {/* コントロールバー（印刷時非表示） */}
       <div className="no-print fixed top-0 left-0 right-0 z-50 bg-gray-800 text-white px-6 py-3 flex items-center gap-4 flex-wrap">
-        <a href={`/admin/notices/bonus?year=${fiscal_year}`} className="text-sm text-gray-300 hover:text-white">← 戻る</a>
+        <a href={backHref ?? `/admin/notices/bonus?year=${fiscal_year}`} className="text-sm text-gray-300 hover:text-white">← 戻る</a>
         <span className="text-sm text-gray-300">{fiscal_year}年度{season} 賞与通知</span>
         {!notice_date && (
           <span className="text-yellow-300 text-xs">⚠ 支給日が未設定です。戻って設定してください。</span>

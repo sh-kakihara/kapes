@@ -40,6 +40,7 @@ export type UserMinAggregateOutputType = {
   is_active: boolean | null
   is_first_login: boolean | null
   can_view_evaluations: boolean | null
+  can_view_notices: boolean | null
   last_login_at: Date | null
   created_at: Date | null
   updated_at: Date | null
@@ -62,6 +63,7 @@ export type UserMaxAggregateOutputType = {
   is_active: boolean | null
   is_first_login: boolean | null
   can_view_evaluations: boolean | null
+  can_view_notices: boolean | null
   last_login_at: Date | null
   created_at: Date | null
   updated_at: Date | null
@@ -84,6 +86,7 @@ export type UserCountAggregateOutputType = {
   is_active: number
   is_first_login: number
   can_view_evaluations: number
+  can_view_notices: number
   last_login_at: number
   created_at: number
   updated_at: number
@@ -108,6 +111,7 @@ export type UserMinAggregateInputType = {
   is_active?: true
   is_first_login?: true
   can_view_evaluations?: true
+  can_view_notices?: true
   last_login_at?: true
   created_at?: true
   updated_at?: true
@@ -130,6 +134,7 @@ export type UserMaxAggregateInputType = {
   is_active?: true
   is_first_login?: true
   can_view_evaluations?: true
+  can_view_notices?: true
   last_login_at?: true
   created_at?: true
   updated_at?: true
@@ -152,6 +157,7 @@ export type UserCountAggregateInputType = {
   is_active?: true
   is_first_login?: true
   can_view_evaluations?: true
+  can_view_notices?: true
   last_login_at?: true
   created_at?: true
   updated_at?: true
@@ -247,6 +253,7 @@ export type UserGroupByOutputType = {
   is_active: boolean
   is_first_login: boolean
   can_view_evaluations: boolean
+  can_view_notices: boolean
   last_login_at: Date | null
   created_at: Date
   updated_at: Date
@@ -290,6 +297,7 @@ export type UserWhereInput = {
   is_active?: Prisma.BoolFilter<"User"> | boolean
   is_first_login?: Prisma.BoolFilter<"User"> | boolean
   can_view_evaluations?: Prisma.BoolFilter<"User"> | boolean
+  can_view_notices?: Prisma.BoolFilter<"User"> | boolean
   last_login_at?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   created_at?: Prisma.DateTimeFilter<"User"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -322,6 +330,7 @@ export type UserOrderByWithRelationInput = {
   is_active?: Prisma.SortOrder
   is_first_login?: Prisma.SortOrder
   can_view_evaluations?: Prisma.SortOrder
+  can_view_notices?: Prisma.SortOrder
   last_login_at?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -357,6 +366,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   is_active?: Prisma.BoolFilter<"User"> | boolean
   is_first_login?: Prisma.BoolFilter<"User"> | boolean
   can_view_evaluations?: Prisma.BoolFilter<"User"> | boolean
+  can_view_notices?: Prisma.BoolFilter<"User"> | boolean
   last_login_at?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   created_at?: Prisma.DateTimeFilter<"User"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -389,6 +399,7 @@ export type UserOrderByWithAggregationInput = {
   is_active?: Prisma.SortOrder
   is_first_login?: Prisma.SortOrder
   can_view_evaluations?: Prisma.SortOrder
+  can_view_notices?: Prisma.SortOrder
   last_login_at?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -417,6 +428,7 @@ export type UserScalarWhereWithAggregatesInput = {
   is_active?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   is_first_login?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   can_view_evaluations?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  can_view_notices?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   last_login_at?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   created_at?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -436,6 +448,7 @@ export type UserCreateInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -468,6 +481,7 @@ export type UserUncheckedCreateInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -494,6 +508,7 @@ export type UserUpdateInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -526,6 +541,7 @@ export type UserUncheckedUpdateInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -555,6 +571,7 @@ export type UserCreateManyInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -574,6 +591,7 @@ export type UserUpdateManyMutationInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -596,6 +614,7 @@ export type UserUncheckedUpdateManyInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -628,6 +647,7 @@ export type UserCountOrderByAggregateInput = {
   is_active?: Prisma.SortOrder
   is_first_login?: Prisma.SortOrder
   can_view_evaluations?: Prisma.SortOrder
+  can_view_notices?: Prisma.SortOrder
   last_login_at?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -650,6 +670,7 @@ export type UserMaxOrderByAggregateInput = {
   is_active?: Prisma.SortOrder
   is_first_login?: Prisma.SortOrder
   can_view_evaluations?: Prisma.SortOrder
+  can_view_notices?: Prisma.SortOrder
   last_login_at?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -672,6 +693,7 @@ export type UserMinOrderByAggregateInput = {
   is_active?: Prisma.SortOrder
   is_first_login?: Prisma.SortOrder
   can_view_evaluations?: Prisma.SortOrder
+  can_view_notices?: Prisma.SortOrder
   last_login_at?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -941,6 +963,7 @@ export type UserCreateWithoutDepartmentInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -971,6 +994,7 @@ export type UserUncheckedCreateWithoutDepartmentInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -1029,6 +1053,7 @@ export type UserScalarWhereInput = {
   is_active?: Prisma.BoolFilter<"User"> | boolean
   is_first_login?: Prisma.BoolFilter<"User"> | boolean
   can_view_evaluations?: Prisma.BoolFilter<"User"> | boolean
+  can_view_notices?: Prisma.BoolFilter<"User"> | boolean
   last_login_at?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   created_at?: Prisma.DateTimeFilter<"User"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -1048,6 +1073,7 @@ export type UserCreateWithoutSectionInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -1078,6 +1104,7 @@ export type UserUncheckedCreateWithoutSectionInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -1130,6 +1157,7 @@ export type UserCreateWithoutGroupInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -1160,6 +1188,7 @@ export type UserUncheckedCreateWithoutGroupInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -1212,6 +1241,7 @@ export type UserCreateWithoutEmployee_recordsInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -1243,6 +1273,7 @@ export type UserUncheckedCreateWithoutEmployee_recordsInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -1284,6 +1315,7 @@ export type UserUpdateWithoutEmployee_recordsInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1315,6 +1347,7 @@ export type UserUncheckedUpdateWithoutEmployee_recordsInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1340,6 +1373,7 @@ export type UserCreateWithoutSelf_evaluationsInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -1371,6 +1405,7 @@ export type UserUncheckedCreateWithoutSelf_evaluationsInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -1401,6 +1436,7 @@ export type UserCreateWithoutLeader_evaluationsInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -1432,6 +1468,7 @@ export type UserUncheckedCreateWithoutLeader_evaluationsInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -1462,6 +1499,7 @@ export type UserCreateWithoutManager_evaluationsInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -1493,6 +1531,7 @@ export type UserUncheckedCreateWithoutManager_evaluationsInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -1523,6 +1562,7 @@ export type UserCreateWithoutDirector_evaluationsInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -1554,6 +1594,7 @@ export type UserUncheckedCreateWithoutDirector_evaluationsInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -1584,6 +1625,7 @@ export type UserCreateWithoutExecutive_evaluationsInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -1615,6 +1657,7 @@ export type UserUncheckedCreateWithoutExecutive_evaluationsInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -1656,6 +1699,7 @@ export type UserUpdateWithoutSelf_evaluationsInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1687,6 +1731,7 @@ export type UserUncheckedUpdateWithoutSelf_evaluationsInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1723,6 +1768,7 @@ export type UserUpdateWithoutLeader_evaluationsInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1754,6 +1800,7 @@ export type UserUncheckedUpdateWithoutLeader_evaluationsInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1790,6 +1837,7 @@ export type UserUpdateWithoutManager_evaluationsInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1821,6 +1869,7 @@ export type UserUncheckedUpdateWithoutManager_evaluationsInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1857,6 +1906,7 @@ export type UserUpdateWithoutDirector_evaluationsInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1888,6 +1938,7 @@ export type UserUncheckedUpdateWithoutDirector_evaluationsInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1924,6 +1975,7 @@ export type UserUpdateWithoutExecutive_evaluationsInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1955,6 +2007,7 @@ export type UserUncheckedUpdateWithoutExecutive_evaluationsInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1980,6 +2033,7 @@ export type UserCreateWithoutInflation_overridesInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -2011,6 +2065,7 @@ export type UserUncheckedCreateWithoutInflation_overridesInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -2052,6 +2107,7 @@ export type UserUpdateWithoutInflation_overridesInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2083,6 +2139,7 @@ export type UserUncheckedUpdateWithoutInflation_overridesInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2110,6 +2167,7 @@ export type UserCreateManyDepartmentInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -2129,6 +2187,7 @@ export type UserUpdateWithoutDepartmentInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2159,6 +2218,7 @@ export type UserUncheckedUpdateWithoutDepartmentInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2187,6 +2247,7 @@ export type UserUncheckedUpdateManyWithoutDepartmentInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2208,6 +2269,7 @@ export type UserCreateManySectionInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -2227,6 +2289,7 @@ export type UserUpdateWithoutSectionInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2257,6 +2320,7 @@ export type UserUncheckedUpdateWithoutSectionInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2285,6 +2349,7 @@ export type UserUncheckedUpdateManyWithoutSectionInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2306,6 +2371,7 @@ export type UserCreateManyGroupInput = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -2325,6 +2391,7 @@ export type UserUpdateWithoutGroupInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2355,6 +2422,7 @@ export type UserUncheckedUpdateWithoutGroupInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2383,6 +2451,7 @@ export type UserUncheckedUpdateManyWithoutGroupInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
   can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2490,6 +2559,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -2523,6 +2593,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -2548,6 +2619,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -2573,13 +2645,14 @@ export type UserSelectScalar = {
   is_active?: boolean
   is_first_login?: boolean
   can_view_evaluations?: boolean
+  can_view_notices?: boolean
   last_login_at?: boolean
   created_at?: boolean
   updated_at?: boolean
   deleted_at?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employee_number" | "login_id" | "name" | "password_hash" | "role" | "department_id" | "section_id" | "group_id" | "employee_type" | "hire_date" | "resign_date" | "is_active" | "is_first_login" | "can_view_evaluations" | "last_login_at" | "created_at" | "updated_at" | "deleted_at", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employee_number" | "login_id" | "name" | "password_hash" | "role" | "department_id" | "section_id" | "group_id" | "employee_type" | "hire_date" | "resign_date" | "is_active" | "is_first_login" | "can_view_evaluations" | "can_view_notices" | "last_login_at" | "created_at" | "updated_at" | "deleted_at", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   department?: boolean | Prisma.User$departmentArgs<ExtArgs>
   section?: boolean | Prisma.User$sectionArgs<ExtArgs>
@@ -2667,6 +2740,10 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      * 評価閲覧権限（部長画面を閲覧専用で開放）
      */
     can_view_evaluations: boolean
+    /**
+     * 通知書閲覧権限（個人通知書メニューを表示）
+     */
+    can_view_notices: boolean
     last_login_at: Date | null
     created_at: Date
     updated_at: Date
@@ -3119,6 +3196,7 @@ export interface UserFieldRefs {
   readonly is_active: Prisma.FieldRef<"User", 'Boolean'>
   readonly is_first_login: Prisma.FieldRef<"User", 'Boolean'>
   readonly can_view_evaluations: Prisma.FieldRef<"User", 'Boolean'>
+  readonly can_view_notices: Prisma.FieldRef<"User", 'Boolean'>
   readonly last_login_at: Prisma.FieldRef<"User", 'DateTime'>
   readonly created_at: Prisma.FieldRef<"User", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"User", 'DateTime'>

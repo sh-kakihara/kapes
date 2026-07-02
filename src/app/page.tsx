@@ -17,6 +17,7 @@ export default async function RootPage() {
     select: {
       employee_type: true,
       can_view_evaluations: true,
+      can_view_notices: true,
       department: { select: { skip_evaluation: true } },
       section: { select: { has_leader: true } },
     },
@@ -25,6 +26,7 @@ export default async function RootPage() {
   const skipEvaluation = dbUser?.department?.skip_evaluation ?? false;
   const sectionHasLeader = dbUser?.section?.has_leader ?? false;
   const canViewEvaluations = dbUser?.can_view_evaluations ?? false;
+  const canViewNotices = dbUser?.can_view_notices ?? false;
 
   const menus: { href: string; label: string; description: string; color: string }[] = [];
 
@@ -54,6 +56,9 @@ export default async function RootPage() {
   }
   if (!isTrainee && !skipEvaluation && role !== "PRESIDENT") {
     menus.push({ href: "/history", label: "自己評価履歴", description: "過去の自己評価を期間ごとに閲覧する", color: "bg-slate-500 hover:bg-slate-600" });
+  }
+  if (canViewNotices) {
+    menus.push({ href: "/my-notices", label: "通知書", description: "昇給・賞与通知書を閲覧・印刷する", color: "bg-amber-600 hover:bg-amber-700" });
   }
 
   return (

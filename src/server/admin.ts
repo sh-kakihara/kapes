@@ -56,7 +56,7 @@ export async function updateUser(id: string, data: {
   employee_number?: string; name: string; role: Role;
   department_id?: string; section_id?: string; group_id?: string;
   is_active: boolean; password?: string; employee_type?: string;
-  can_view_evaluations?: boolean; hire_date?: string; resign_date?: string;
+  can_view_evaluations?: boolean; can_view_notices?: boolean; hire_date?: string; resign_date?: string;
 }) {
   await requireAdmin();
   const password_hash = data.password ? await bcrypt.hash(data.password, 10) : undefined;
@@ -72,6 +72,7 @@ export async function updateUser(id: string, data: {
       is_active: data.is_active,
       employee_type: data.employee_type || null,
       can_view_evaluations: data.can_view_evaluations ?? false,
+      can_view_notices: data.can_view_notices ?? false,
       hire_date: data.hire_date ? new Date(data.hire_date) : null,
       resign_date: data.resign_date ? new Date(data.resign_date) : null,
       ...(password_hash ? { password_hash } : {}),
@@ -91,6 +92,15 @@ export async function deleteUser(id: string) {
   await prisma.user.update({ where: { id }, data: { deleted_at: new Date(), is_active: false } });
   revalidatePath("/admin/users");
   revalidatePath("/admin/employees");
+}
+
+export async function bulkSetCanViewNotices(userIds: string[], enabled: boolean) {
+  await requireAdmin();
+  await prisma.user.updateMany({
+    where: { id: { in: userIds }, deleted_at: null },
+    data: { can_view_notices: enabled },
+  });
+  revalidatePath("/admin/users");
 }
 
 export async function getDepartments() {

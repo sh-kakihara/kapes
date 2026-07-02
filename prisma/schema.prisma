@@ -98,6 +98,7 @@ model User {
   is_active              Boolean   @default(true)
   is_first_login         Boolean   @default(true) /// 初回ログインフラグ
   can_view_evaluations   Boolean   @default(false) /// 評価閲覧権限（部長画面を閲覧専用で開放）
+  can_view_notices       Boolean   @default(false) /// 通知書閲覧権限（個人通知書メニューを表示）
   last_login_at   DateTime?
   created_at      DateTime  @default(now())
   updated_at      DateTime  @updatedAt

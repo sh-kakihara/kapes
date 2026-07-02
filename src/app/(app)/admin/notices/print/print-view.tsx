@@ -19,9 +19,10 @@ type Props = {
   comment: string;
   representative: string;
   items: NoticeItem[];
+  backHref?: string;
 };
 
-export default function PrintView({ fiscal_year, notice_date, comment, representative, items }: Props) {
+export default function PrintView({ fiscal_year, notice_date, comment, representative, items, backHref }: Props) {
   const wareki = notice_date ? toWareki(notice_date) : "";
 
   // 3人ずつのページに分割（全ページ）
@@ -41,7 +42,7 @@ export default function PrintView({ fiscal_year, notice_date, comment, represent
     <>
       {/* コントロールバー（印刷時非表示） */}
       <div className="no-print fixed top-0 left-0 right-0 z-50 bg-gray-800 text-white px-6 py-3 flex items-center gap-4 flex-wrap">
-        <a href={`/admin/notices/salary?year=${fiscal_year}`} className="text-sm text-gray-300 hover:text-white">← 戻る</a>
+        <a href={backHref ?? `/admin/notices/salary?year=${fiscal_year}`} className="text-sm text-gray-300 hover:text-white">← 戻る</a>
         <span className="text-sm text-gray-300">{fiscal_year}年度 昇給通知</span>
         {!notice_date && (
           <span className="text-yellow-300 text-xs">⚠ 昇給日が未設定です。戻って設定してください。</span>

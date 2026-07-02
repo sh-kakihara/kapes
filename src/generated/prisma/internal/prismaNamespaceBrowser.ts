@@ -137,6 +137,7 @@ export const UserScalarFieldEnum = {
   is_active: 'is_active',
   is_first_login: 'is_first_login',
   can_view_evaluations: 'can_view_evaluations',
+  can_view_notices: 'can_view_notices',
   last_login_at: 'last_login_at',
   created_at: 'created_at',
   updated_at: 'updated_at',
