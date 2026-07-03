@@ -40,7 +40,12 @@ export default async function EmployeeLedgerPage({
     orderBy: { start_date: "desc" },
   });
 
-  if (activePeriod) {
+  // 評価期間の年度を名称から抽出（例: "2026年度冬期" → 2026）
+  const periodFiscalYear = activePeriod
+    ? parseInt(activePeriod.name.match(/^(\d{4})年度/)?.[1] ?? "0")
+    : 0;
+
+  if (activePeriod && periodFiscalYear === selectedYear) {
     const isSummer = activePeriod.name.includes("夏");
     const isWinter = activePeriod.name.includes("冬");
     const targetField = isSummer
@@ -174,7 +179,7 @@ export default async function EmployeeLedgerPage({
         initialRows={rows}
         availableYears={allYears}
         selectedYear={selectedYear}
-        isAdmin={session.user.role === "ADMIN"}
+        isAdmin={["ADMIN", "PRESIDENT"].includes(session.user.role)}
       />
     </div>
   );

@@ -63,6 +63,7 @@ model Section {
   department    Department @relation(fields: [department_id], references: [id])
   groups        Group[]
   users         User[]
+  users2        User[]     @relation("UserSection2")
 
   @@unique([department_id, name])
 }
@@ -92,6 +93,8 @@ model User {
   role            Role      @default(STAFF)
   department_id   String?   /// 所属部署
   section_id      String?   /// 所属課
+  section2_id     String?   /// 所属課２（兼務等・FK、旧仕様）
+  section2_name   String?   /// 所属課２（自由テキスト）
   group_id        String?   /// 所属グループ
   employee_type   String?   /// 社員種別（柿原工業/柿原技研/実習生）
   hire_date       DateTime? /// 入社年月日
@@ -107,6 +110,7 @@ model User {
 
   department    Department? @relation(fields: [department_id], references: [id])
   section       Section?    @relation(fields: [section_id], references: [id])
+  section2      Section?    @relation("UserSection2", fields: [section2_id], references: [id])
   group         Group?      @relation(fields: [group_id], references: [id])
 
   self_evaluations      Evaluation[] @relation("EvaluationEmployee")
@@ -131,7 +135,10 @@ model EmployeeRecord {
   birth_date       DateTime? /// 生年月日
   gender           String?   /// 性別
   education        String?   /// 最終学歴
-  training_period  String?   /// 実習生期
+  training_period       String?   /// 実習生期
+  tech_intern_1_date    DateTime? /// 技能実習生１号 開始日
+  tech_intern_3_date    DateTime? /// 技能実習生３号 開始日
+  specified_skilled_date DateTime? /// 特定技能 開始日
 
   // 年度別データ
   prev_annual_income         Int?    /// 前年度年収

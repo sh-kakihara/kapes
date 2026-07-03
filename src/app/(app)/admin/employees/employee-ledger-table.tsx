@@ -6,16 +6,19 @@ import {
   useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel,
   getFacetedRowModel, getFacetedUniqueValues,
   flexRender, type ColumnDef, type SortingState, type ColumnFiltersState,
-  type FilterFn, type Column,
+  type Column, type FilterFn,
 } from "@tanstack/react-table";
 import { upsertEmployeeRecord, importEmployeeRecordsCsv, createFiscalYearRecords, type EmployeeRecordData } from "@/server/employee-record";
+import { updateUserSection2 } from "@/server/admin";
 import { downloadCsv, parseCsvFile } from "@/lib/csv-utils";
 
-// col[0]=社員番号 col[1..6]=基本情報 col[7]=対象年度 col[8..17]=給与・評価
+// col[0]=社員番号 col[1]=課２ col[2..10]=基本情報 col[11]=対象年度 col[12..21]=給与・評価
 function makeLedgerCsvHeaders(_fy: number): string[] {
   return [
     "社員番号",
+    "課２",
     "雇用形態", "入社年月日", "生年月日", "性別", "最終学歴", "実習生期",
+    "技能実習生１号開始日", "技能実習生３号開始日", "特定技能開始日",
     "対象年度",
     "前年度年収", "基本給", "役職手当", "昇給額",
     "夏期賞与", "夏部長評価", "夏社長評価",
@@ -26,6 +29,13 @@ function makeLedgerCsvHeaders(_fy: number): string[] {
 const PRESIDENT_EVAL_OPTIONS = ["A+", "A", "B+", "B", "C"];
 const NONE_SELECTED = "__none__";
 
+const multiSelectFilter: FilterFn<Row> = (row, columnId, filterValue: string[]) => {
+  if (!filterValue || filterValue.length === 0) return true;
+  if (filterValue[0] === NONE_SELECTED) return false;
+  return filterValue.includes(String(row.getValue(columnId) ?? ""));
+};
+multiSelectFilter.autoRemove = (val: string[]) => !val || val.length === 0;
+
 // ---------- types ----------
 type User = {
   id: string;
@@ -35,6 +45,8 @@ type User = {
   employee_type: string | null;
   department: { name: string } | null;
   section: { name: string } | null;
+  section2: { name: string } | null;
+  section2_name: string | null;
 };
 type EmpRecord = {
   id?: string;
@@ -71,14 +83,6 @@ function rec(row: Row, key: string) {
   return ((row.record ?? {}) as Record<string, unknown>)[key];
 }
 
-// ---------- FacetedFilter ----------
-const multiSelectFilter: FilterFn<Row> = (row, columnId, filterValue: string[]) => {
-  if (!filterValue || filterValue.length === 0) return true;
-  if (filterValue[0] === NONE_SELECTED) return false;
-  return filterValue.includes(String(row.getValue(columnId) ?? ""));
-};
-multiSelectFilter.autoRemove = (val: string[]) => !val || val.length === 0;
-
 function FacetedFilter({ column, title }: { column: Column<Row, unknown>; title: string }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -86,21 +90,31 @@ function FacetedFilter({ column, title }: { column: Column<Row, unknown>; title:
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node)) { setOpen(false); setSearch(""); }
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
   const uniqueValues = useMemo(
-    () => Array.from(column.getFacetedUniqueValues().keys()).filter((v) => v !== "").sort(),
+    () => column.getCanFilter() ? Array.from(column.getFacetedUniqueValues().keys()).filter((v) => v !== "").sort() : [],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [column.getFacetedUniqueValues()]
   );
+
+  useEffect(() => {
+    if (search === "") { column.setFilterValue([]); return; }
+    const lower = search.toLowerCase();
+    const matches = uniqueValues.filter((v) => String(v).toLowerCase().includes(lower)).map(String);
+    column.setFilterValue(matches.length > 0 ? matches : [NONE_SELECTED]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
+
   const filtered = useMemo(
     () => uniqueValues.filter((v) => String(v).toLowerCase().includes(search.toLowerCase())),
     [uniqueValues, search]
   );
+
   const filterValue = (column.getFilterValue() as string[]) ?? [];
   const isAllSelected = filterValue.length === 0;
   const isNoneSelected = filterValue.length === 1 && filterValue[0] === NONE_SELECTED;
@@ -119,6 +133,7 @@ function FacetedFilter({ column, title }: { column: Column<Row, unknown>; title:
     if (next.length === 0) column.setFilterValue([NONE_SELECTED]);
     else if (next.length === uniqueValues.length) column.setFilterValue([]);
     else column.setFilterValue(next);
+    setSearch("");
   }
 
   return (
@@ -128,28 +143,26 @@ function FacetedFilter({ column, title }: { column: Column<Row, unknown>; title:
           <span className="truncate">{title}</span>
           <span className="text-gray-400 shrink-0">{sortDir === "asc" ? "▲" : sortDir === "desc" ? "▼" : "⇅"}</span>
         </button>
-        <button onClick={() => setOpen((v) => !v)} className={`shrink-0 px-0.5 hover:text-blue-600 ${isFiltered ? "text-blue-600" : "text-gray-400"}`} title="絞り込み">☰</button>
+        <button onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }} className={`shrink-0 hover:text-blue-700 ${isFiltered ? "text-blue-600" : "text-gray-400"}`} title="フィルター">
+          {isFiltered ? "▼" : "▽"}
+        </button>
       </div>
       {open && (
-        <div className="absolute left-0 top-full mt-1 z-50 bg-white border border-gray-200 rounded-lg shadow-xl min-w-44 max-w-56 p-2">
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="検索..."
-            className="w-full border border-gray-200 rounded px-2 py-1 text-xs mb-2 focus:outline-none focus:border-blue-400" autoFocus />
+        <div className="absolute left-0 top-full mt-1 z-50 bg-white border border-gray-200 rounded-lg shadow-lg w-44 p-2">
+          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="検索..." className="w-full border border-gray-200 rounded px-2 py-1 text-xs mb-2 focus:outline-none focus:ring-1 focus:ring-blue-400" autoFocus />
           <div className="max-h-48 overflow-y-auto space-y-0.5">
-            <label className="flex items-center gap-2 px-1.5 py-1 rounded hover:bg-gray-50 cursor-pointer text-xs border-b border-gray-100 mb-1 pb-2">
+            <label className="flex items-center gap-2 px-1.5 py-1 rounded hover:bg-gray-50 cursor-pointer text-xs">
               <input type="checkbox" checked={isAllSelected} onChange={toggleAll} className="w-3.5 h-3.5 accent-blue-600" />
-              <span className="font-medium text-gray-700">（すべて選択）</span>
+              <span className="text-gray-700 font-medium">（すべて選択）</span>
             </label>
-            {filtered.length === 0 && <p className="text-xs text-gray-400 px-1.5 py-1">該当なし</p>}
             {filtered.map((val) => (
               <label key={String(val)} className="flex items-center gap-2 px-1.5 py-1 rounded hover:bg-gray-50 cursor-pointer text-xs">
                 <input type="checkbox" checked={isChecked(String(val))} onChange={() => toggleValue(String(val))} className="w-3.5 h-3.5 accent-blue-600" />
-                <span className="text-gray-700 truncate">{String(val) || "（空白）"}</span>
+                <span className="text-gray-700 truncate">{val || "（空白）"}</span>
               </label>
             ))}
           </div>
-          {isFiltered && (
-            <button onClick={toggleAll} className="mt-2 w-full text-xs text-blue-600 hover:underline text-left px-1.5">フィルターをクリア</button>
-          )}
+          {isFiltered && <button onClick={toggleAll} className="mt-2 w-full text-xs text-blue-600 hover:underline text-left px-1.5">フィルターをクリア</button>}
         </div>
       )}
     </div>
@@ -166,6 +179,53 @@ declare module "@tanstack/react-table" {
   }
 }
 
+// ---------- MoneyInput ----------
+function MoneyInput({ value, onChange }: { value: number | null | undefined; onChange: (v: number | null) => void }) {
+  const [focused, setFocused] = useState(false);
+  const [inputVal, setInputVal] = useState(value != null ? String(value) : "");
+
+  // 外部 value が変わったとき（初期化など）に同期
+  useEffect(() => {
+    if (!focused) setInputVal(value != null ? String(value) : "");
+  }, [value, focused]);
+
+  function handleFocus() {
+    setFocused(true);
+    setInputVal(value != null ? String(value) : "");
+  }
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const raw = e.target.value.replace(/[^0-9]/g, "");
+    setInputVal(raw);
+    onChange(raw === "" ? null : Number(raw));
+  }
+
+  function handleBlur() {
+    setFocused(false);
+  }
+
+  const display = focused
+    ? inputVal
+    : value != null
+    ? "¥" + value.toLocaleString("ja-JP")
+    : "";
+
+  return (
+    <div className="relative">
+      <input
+        type="text"
+        inputMode="numeric"
+        value={display}
+        onChange={handleChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        className="w-full border border-gray-300 rounded px-2 py-1 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-400"
+        placeholder="¥0"
+      />
+    </div>
+  );
+}
+
 // ---------- EditModal ----------
 const MONEY_KEYS = new Set([
   "prev_annual_income",
@@ -178,7 +238,7 @@ const PRESIDENT_EVAL_KEYS = new Set([
 const DIRECTOR_EVAL_KEYS = new Set([
   "curr_summer_director_eval","curr_winter_director_eval",
 ]);
-const DATE_KEYS = new Set(["hire_date","birth_date"]);
+const DATE_KEYS = new Set(["hire_date","birth_date","tech_intern_1_date","tech_intern_3_date","specified_skilled_date"]);
 const NOTES_KEYS = new Set(["prev_notes","curr_notes"]);
 
 function toFormData(record: EmpRecord | null): EmployeeRecordData {
@@ -208,7 +268,10 @@ function makeEditFields(fy: number) {
         { key: "birth_date",       label: "生年月日",   span: 1 },
         { key: "gender",           label: "性別",       span: 1 },
         { key: "education",        label: "最終学歴",   span: 1 },
-        { key: "training_period",  label: "実習生期",   span: 1 },
+        { key: "training_period",       label: "実習生期",       span: 1 },
+        { key: "tech_intern_1_date",    label: "技能実習生１号", span: 1 },
+        { key: "tech_intern_3_date",    label: "技能実習生３号", span: 1 },
+        { key: "specified_skilled_date",label: "特定技能",       span: 1 },
       ],
     },
     {
@@ -234,6 +297,9 @@ function makeEditFields(fy: number) {
 
 function EditModal({ row, fiscalYear, onClose, onSaved }: { row: Row; fiscalYear: number; onClose: () => void; onSaved: () => void }) {
   const [form, setForm] = useState<EmployeeRecordData>(toFormData(row.record));
+  const [section2Name, setSection2Name] = useState<string>(
+    row.user.section2_name ?? row.user.section2?.name ?? ""
+  );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -243,10 +309,18 @@ function EditModal({ row, fiscalYear, onClose, onSaved }: { row: Row; fiscalYear
 
   async function handleSave() {
     setSaving(true); setError("");
-    const res = await upsertEmployeeRecord(row.user.id, fiscalYear, form);
-    setSaving(false);
-    if (res.ok) onSaved();
-    else setError("保存に失敗しました");
+    try {
+      const [res] = await Promise.all([
+        upsertEmployeeRecord(row.user.id, fiscalYear, form),
+        updateUserSection2(row.user.id, section2Name || null),
+      ]);
+      setSaving(false);
+      if (res.ok) onSaved();
+      else setError("保存に失敗しました");
+    } catch (e) {
+      setSaving(false);
+      setError("保存に失敗しました: " + (e instanceof Error ? e.message : String(e)));
+    }
   }
 
   function renderField(key: string) {
@@ -269,9 +343,10 @@ function EditModal({ row, fiscalYear, onClose, onSaved }: { row: Row; fiscalYear
     }
     if (MONEY_KEYS.has(key)) {
       return (
-        <input type="number" value={value == null ? "" : String(value)}
-          onChange={(e) => setField(key, e.target.value === "" ? null : Number(e.target.value))}
-          className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
+        <MoneyInput
+          value={value as number | null | undefined}
+          onChange={(v) => setField(key, v)}
+        />
       );
     }
     if (DATE_KEYS.has(key)) {
@@ -305,23 +380,42 @@ function EditModal({ row, fiscalYear, onClose, onSaved }: { row: Row; fiscalYear
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl font-bold">✕</button>
         </div>
         <div className="px-6 py-4 space-y-6">
-          {makeEditFields(fiscalYear).map((sec) => (
-            <div key={sec.section}>
-              <h3 className="text-sm font-bold text-gray-700 mb-3 pb-1 border-b">{sec.section}</h3>
-              <div className="grid grid-cols-2 gap-3">
-                {sec.fields.map(({ key, label, span }) =>
-                  key.startsWith("__spacer") ? (
-                    <div key={key} />
-                  ) : (
-                    <div key={key} className={span === 2 ? "col-span-2" : ""}>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label>
-                      {renderField(key)}
+          {makeEditFields(fiscalYear).map((sec) => {
+            const isKakihara = ["柿原工業", "柿原技研"].includes(row.user.employee_type ?? "");
+            const INTERN_KEYS = new Set(["training_period", "tech_intern_1_date", "tech_intern_3_date", "specified_skilled_date"]);
+            return (
+              <div key={sec.section}>
+                <h3 className="text-sm font-bold text-gray-700 mb-3 pb-1 border-b">{sec.section}</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {sec.section === "個人情報" && (
+                    <>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">課２</label>
+                      <input
+                        type="text"
+                        value={section2Name}
+                        onChange={(e) => setSection2Name(e.target.value)}
+                        className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        placeholder="任意の課名を入力"
+                      />
                     </div>
-                  )
-                )}
+                    <div />
+                    </>
+                  )}
+                  {sec.fields.map(({ key, label, span }) => {
+                    if (key.startsWith("__spacer")) return <div key={key} />;
+                    if (isKakihara && INTERN_KEYS.has(key)) return null;
+                    return (
+                      <div key={key} className={span === 2 ? "col-span-2" : ""}>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label>
+                        {renderField(key)}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
         {error && <p className="px-6 text-red-500 text-sm">{error}</p>}
         <div className="px-6 py-4 border-t flex justify-end gap-3 sticky bottom-0 bg-white">
@@ -338,7 +432,7 @@ function EditModal({ row, fiscalYear, onClose, onSaved }: { row: Row; fiscalYear
 
 // ---------- column definitions ----------
 // グループ境界列のキーセット（右境界線を強調）
-const GROUP_LAST_KEYS = new Set(["job_title", "training_period", "curr_notes"]);
+const GROUP_LAST_KEYS = new Set(["job_title", "specified_skilled_years", "curr_notes"]);
 
 function makeColumns(refDate: Date): ColumnDef<Row>[] {
   function faceted(id: string, label: string, accessorFn: (r: Row) => string, opts?: { stickyLeft?: number; noFilter?: boolean }): ColumnDef<Row> {
@@ -355,7 +449,8 @@ function makeColumns(refDate: Date): ColumnDef<Row>[] {
     faceted("name",            "氏名",     (r) => r.user.name,                  { stickyLeft: 96 }),
     faceted("department",      "部署",     (r) => r.user.department?.name ?? "", { stickyLeft: 176 }),
     faceted("section",         "課",       (r) => r.user.section?.name ?? "",    { stickyLeft: 256 }),
-    faceted("job_title",       "役職",     (r) => (rec(r, "job_title") as string) ?? "", { stickyLeft: 336 }),
+    faceted("section2",        "課２",     (r) => r.user.section2_name ?? r.user.section2?.name ?? "",   { stickyLeft: 336 }),
+    faceted("job_title",       "役職",     (r) => (rec(r, "job_title") as string) ?? "", { stickyLeft: 416 }),
     // 基本情報（非sticky）
     faceted("employee_type",   "社員種別", (r) => r.user.employee_type ?? ""),
     faceted("employment_type", "雇用形態", (r) => (rec(r, "employment_type") as string) ?? ""),
@@ -365,7 +460,13 @@ function makeColumns(refDate: Date): ColumnDef<Row>[] {
     faceted("age",             "年齢",      (r) => calcAge(rec(r, "birth_date") as string | null, refDate)),
     faceted("gender",           "性別",      (r) => (rec(r, "gender") as string) ?? ""),
     faceted("education",        "最終学歴",  (r) => (rec(r, "education") as string) ?? ""),
-    faceted("training_period",  "実習生期",  (r) => (rec(r, "training_period") as string) ?? ""),
+    faceted("training_period",       "実習生期",        (r) => (rec(r, "training_period") as string) ?? ""),
+    faceted("tech_intern_1_date",    "技能実習生１号",  (r) => fmtDate(rec(r, "tech_intern_1_date") as string | null)),
+    faceted("tech_intern_1_years",   "（１号）年数",   (r) => calcYears(rec(r, "tech_intern_1_date") as string | null, refDate)),
+    faceted("tech_intern_3_date",    "技能実習生３号",  (r) => fmtDate(rec(r, "tech_intern_3_date") as string | null)),
+    faceted("tech_intern_3_years",   "（３号）年数",   (r) => calcYears(rec(r, "tech_intern_3_date") as string | null, refDate)),
+    faceted("specified_skilled_date","特定技能",        (r) => fmtDate(rec(r, "specified_skilled_date") as string | null)),
+    faceted("specified_skilled_years","（特定）年数",  (r) => calcYears(rec(r, "specified_skilled_date") as string | null, refDate)),
     // 今年度
     faceted("prev_annual_income",      "前年度年収", (r) => fmt(rec(r, "prev_annual_income") as number)),
     faceted("curr_base_salary",        "基本給",   (r) => fmt(rec(r, "curr_base_salary") as number)),
@@ -386,16 +487,17 @@ function makeColumns(refDate: Date): ColumnDef<Row>[] {
 }
 
 // グループヘッダー定義（列数は COLUMNS に合わせる）
-function makeColGroupSpans(fy: number) {
+function makeColGroupSpans(fy: number, showInternCols: boolean) {
   return [
     { label: "基本情報",     count: 14 },
-    { label: `${fy}年度`, count: 14 },
+    ...(showInternCols ? [{ label: "実習生情報", count: 7 }] : []),
+    { label: `${fy}年度`, count: 15 },
   ];
 }
 
 // 列幅マップ（sticky列はpx、それ以外はtailwind）
 const COL_WIDTH: Record<string, string> = {
-  employee_number: "w-24", name: "w-20", department: "w-20", section: "w-20", job_title: "w-24",
+  employee_number: "w-24", name: "w-20", department: "w-20", section: "w-20", section2: "w-20", job_title: "w-24",
   employee_type: "w-24", employment_type: "w-24",
   hire_date: "w-28", years: "w-20", birth_date: "w-28", age: "w-14", gender: "w-14", education: "w-28", training_period: "w-24",
   prev_annual_income: "w-28", curr_base_salary: "w-24", curr_position_allowance: "w-24", curr_salary_increase: "w-20",
@@ -431,7 +533,6 @@ export default function EmployeeLedgerTable({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fiscalYear = selectedYear;
-  const colGroupSpans = useMemo(() => makeColGroupSpans(fiscalYear), [fiscalYear]);
 
   // 基準日（勤続年数・年齢の計算基準）
   const [refDateStr, setRefDateStr] = useState<string>(() => {
@@ -497,9 +598,7 @@ export default function EmployeeLedgerTable({
   }, []);
 
   const [sorting, setSorting] = useState<SortingState>([{ id: "employee_number", desc: false }]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([
-    { id: "employee_type", value: ["柿原工業", "柿原技研"] },
-  ]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const columns = useMemo(() => makeColumns(refDate), [refDate]);
 
@@ -507,9 +606,13 @@ export default function EmployeeLedgerTable({
   // data の参照を refDateStr に連動させる
   const tableData = useMemo(() => rows.map(r => ({ ...r })), [rows, refDateStr]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const KAKIHARA_TYPES = new Set(["柿原工業", "柿原技研"]);
+  const INTERN_COL_KEYS = ["training_period", "tech_intern_1_date", "tech_intern_1_years", "tech_intern_3_date", "tech_intern_3_years", "specified_skilled_date", "specified_skilled_years"];
+
   const table = useReactTable({
     data: tableData,
     columns,
+    filterFns: { multiSelectFilter },
     state: { sorting, columnFilters },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -522,6 +625,13 @@ export default function EmployeeLedgerTable({
 
   const visibleRows = table.getRowModel().rows;
 
+  // フィルタ後の行に実習生以外（柿原工業/技研）しかいない場合は実習生情報列を非表示
+  const showInternCols = visibleRows.length === 0 || visibleRows.some(
+    (r) => !KAKIHARA_TYPES.has(r.original.user.employee_type ?? "")
+  );
+  const internColSet = new Set(INTERN_COL_KEYS);
+  const colGroupSpans = makeColGroupSpans(fiscalYear, showInternCols);
+
   async function handleSaved() {
     setEditRow(null);
     router.refresh();
@@ -529,12 +639,13 @@ export default function EmployeeLedgerTable({
 
   function handleDownloadTemplate() {
     const headers = makeLedgerCsvHeaders(fiscalYear);
-    // 社員番号 + 基本情報6列 + 対象年度 + 給与・評価10列
-    // col[7]=対象年度 はデフォルトで fiscalYear を埋める
+    // 社員番号 + 基本情報9列 + 対象年度 + 給与・評価10列
+    // col[10]=対象年度 はデフォルトで fiscalYear を埋める
     const dataRows = rows.map((row) => {
       const cols = Array(headers.length).fill("") as string[];
       cols[0] = row.user.employee_number ?? "";
-      cols[7] = String(fiscalYear); // 対象年度
+      cols[1] = row.user.section2_name ?? row.user.section2?.name ?? "";
+      cols[11] = String(fiscalYear); // 対象年度
       return cols;
     });
     downloadCsv("社員台帳テンプレート.csv", [headers, ...dataRows]);
@@ -542,8 +653,11 @@ export default function EmployeeLedgerTable({
 
   function handleExport() {
     const headers = [
-      "社員番号", "氏名", "部署", "課", "役職", "社員種別", "雇用形態",
+      "社員番号", "氏名", "部署", "課", "課２", "役職", "社員種別", "雇用形態",
       "入社年月日", "勤続年数", "生年月日", "年齢", "性別", "最終学歴", "実習生期",
+      "技能実習生１号開始日", "技能実習生１号年数",
+      "技能実習生３号開始日", "技能実習生３号年数",
+      "特定技能開始日", "特定技能年数",
       "対象年度",
       "前年度年収", "基本給", "役職手当", "昇給額",
       "夏期賞与", "夏部長評価", "夏社長評価",
@@ -556,6 +670,7 @@ export default function EmployeeLedgerTable({
         r.user.name,
         r.user.department?.name ?? "",
         r.user.section?.name ?? "",
+        r.user.section2_name ?? r.user.section2?.name ?? "",
         (rec(r, "job_title") as string) ?? "",
         r.user.employee_type ?? "",
         (rec(r, "employment_type") as string) ?? "",
@@ -566,6 +681,12 @@ export default function EmployeeLedgerTable({
         (rec(r, "gender") as string) ?? "",
         (rec(r, "education") as string) ?? "",
         (rec(r, "training_period") as string) ?? "",
+        fmtDate(rec(r, "tech_intern_1_date") as string | null),
+        calcYears(rec(r, "tech_intern_1_date") as string | null, refDate),
+        fmtDate(rec(r, "tech_intern_3_date") as string | null),
+        calcYears(rec(r, "tech_intern_3_date") as string | null, refDate),
+        fmtDate(rec(r, "specified_skilled_date") as string | null),
+        calcYears(rec(r, "specified_skilled_date") as string | null, refDate),
         String(fiscalYear),
         fmt(rec(r, "prev_annual_income") as number),
         fmt(rec(r, "curr_base_salary") as number),
@@ -593,8 +714,9 @@ export default function EmployeeLedgerTable({
       const result = await importEmployeeRecordsCsv(allRows);
       setImportResult(result);
       if (result.imported > 0) router.refresh();
-    } catch {
-      setImportResult({ imported: 0, errors: [{ line: 0, message: "ファイルの読み込みに失敗しました" }] });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setImportResult({ imported: 0, errors: [{ line: 0, message: `ファイルの読み込みに失敗しました: ${msg}` }] });
     } finally {
       setImporting(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -606,7 +728,7 @@ export default function EmployeeLedgerTable({
       {/* 年度タブ */}
       {availableYears.length > 0 && (
         <div className="flex gap-1 mb-4 border-b border-gray-200 items-end flex-wrap">
-          {availableYears.map((y) => (
+          {[...availableYears].sort((a, b) => a - b).map((y) => (
             <button
               key={y}
               onClick={() => router.push(`?year=${y}`)}
@@ -716,7 +838,7 @@ export default function EmployeeLedgerTable({
             </tr>
             {/* 列ヘッダー */}
             <tr>
-              {table.getFlatHeaders().map((header) => {
+              {table.getFlatHeaders().filter((h) => showInternCols || !internColSet.has(h.column.id)).map((header) => {
                 const meta = header.column.columnDef.meta;
                 const isSticky = meta?.stickyLeft !== undefined;
                 const id = header.column.id;
@@ -730,17 +852,7 @@ export default function EmployeeLedgerTable({
                       ${isSticky ? "sticky z-20 bg-gray-50 shadow-[1px_0_0_#e5e7eb]" : ""}`}
                     style={isSticky ? { left: meta!.stickyLeft } : undefined}
                   >
-                    {meta?.noFilter ? (
-                      <span className="flex items-center gap-1 px-1 text-xs font-medium text-gray-600 cursor-pointer hover:text-blue-700"
-                        onClick={() => header.column.toggleSorting(header.column.getIsSorted() === "asc")}>
-                        {flexRender(header.column.columnDef.header, header.getContext())}
-                        <span className="text-gray-400 text-[10px]">
-                          {header.column.getIsSorted() === "asc" ? "▲" : header.column.getIsSorted() === "desc" ? "▼" : ""}
-                        </span>
-                      </span>
-                    ) : (
-                      <FacetedFilter column={header.column} title={String(header.column.columnDef.header)} />
-                    )}
+                    <FacetedFilter column={header.column} title={String(header.column.columnDef.header)} />
                   </th>
                 );
               })}
@@ -750,7 +862,7 @@ export default function EmployeeLedgerTable({
           <tbody>
             {visibleRows.map((row) => (
               <tr key={row.id} className="border-b group hover:bg-blue-50 transition-colors">
-                {row.getVisibleCells().map((cell) => {
+                {row.getVisibleCells().filter((c) => showInternCols || !internColSet.has(c.column.id)).map((cell) => {
                   const meta = cell.column.columnDef.meta;
                   const isSticky = meta?.stickyLeft !== undefined;
                   const id = cell.column.id;

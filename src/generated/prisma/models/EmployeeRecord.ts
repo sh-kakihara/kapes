@@ -57,6 +57,9 @@ export type EmployeeRecordMinAggregateOutputType = {
   gender: string | null
   education: string | null
   training_period: string | null
+  tech_intern_1_date: Date | null
+  tech_intern_3_date: Date | null
+  specified_skilled_date: Date | null
   prev_annual_income: number | null
   curr_base_salary: number | null
   curr_position_allowance: number | null
@@ -85,6 +88,9 @@ export type EmployeeRecordMaxAggregateOutputType = {
   gender: string | null
   education: string | null
   training_period: string | null
+  tech_intern_1_date: Date | null
+  tech_intern_3_date: Date | null
+  specified_skilled_date: Date | null
   prev_annual_income: number | null
   curr_base_salary: number | null
   curr_position_allowance: number | null
@@ -113,6 +119,9 @@ export type EmployeeRecordCountAggregateOutputType = {
   gender: number
   education: number
   training_period: number
+  tech_intern_1_date: number
+  tech_intern_3_date: number
+  specified_skilled_date: number
   prev_annual_income: number
   curr_base_salary: number
   curr_position_allowance: number
@@ -163,6 +172,9 @@ export type EmployeeRecordMinAggregateInputType = {
   gender?: true
   education?: true
   training_period?: true
+  tech_intern_1_date?: true
+  tech_intern_3_date?: true
+  specified_skilled_date?: true
   prev_annual_income?: true
   curr_base_salary?: true
   curr_position_allowance?: true
@@ -191,6 +203,9 @@ export type EmployeeRecordMaxAggregateInputType = {
   gender?: true
   education?: true
   training_period?: true
+  tech_intern_1_date?: true
+  tech_intern_3_date?: true
+  specified_skilled_date?: true
   prev_annual_income?: true
   curr_base_salary?: true
   curr_position_allowance?: true
@@ -219,6 +234,9 @@ export type EmployeeRecordCountAggregateInputType = {
   gender?: true
   education?: true
   training_period?: true
+  tech_intern_1_date?: true
+  tech_intern_3_date?: true
+  specified_skilled_date?: true
   prev_annual_income?: true
   curr_base_salary?: true
   curr_position_allowance?: true
@@ -334,6 +352,9 @@ export type EmployeeRecordGroupByOutputType = {
   gender: string | null
   education: string | null
   training_period: string | null
+  tech_intern_1_date: Date | null
+  tech_intern_3_date: Date | null
+  specified_skilled_date: Date | null
   prev_annual_income: number | null
   curr_base_salary: number | null
   curr_position_allowance: number | null
@@ -385,6 +406,9 @@ export type EmployeeRecordWhereInput = {
   gender?: Prisma.StringNullableFilter<"EmployeeRecord"> | string | null
   education?: Prisma.StringNullableFilter<"EmployeeRecord"> | string | null
   training_period?: Prisma.StringNullableFilter<"EmployeeRecord"> | string | null
+  tech_intern_1_date?: Prisma.DateTimeNullableFilter<"EmployeeRecord"> | Date | string | null
+  tech_intern_3_date?: Prisma.DateTimeNullableFilter<"EmployeeRecord"> | Date | string | null
+  specified_skilled_date?: Prisma.DateTimeNullableFilter<"EmployeeRecord"> | Date | string | null
   prev_annual_income?: Prisma.IntNullableFilter<"EmployeeRecord"> | number | null
   curr_base_salary?: Prisma.IntNullableFilter<"EmployeeRecord"> | number | null
   curr_position_allowance?: Prisma.IntNullableFilter<"EmployeeRecord"> | number | null
@@ -414,6 +438,9 @@ export type EmployeeRecordOrderByWithRelationInput = {
   gender?: Prisma.SortOrderInput | Prisma.SortOrder
   education?: Prisma.SortOrderInput | Prisma.SortOrder
   training_period?: Prisma.SortOrderInput | Prisma.SortOrder
+  tech_intern_1_date?: Prisma.SortOrderInput | Prisma.SortOrder
+  tech_intern_3_date?: Prisma.SortOrderInput | Prisma.SortOrder
+  specified_skilled_date?: Prisma.SortOrderInput | Prisma.SortOrder
   prev_annual_income?: Prisma.SortOrderInput | Prisma.SortOrder
   curr_base_salary?: Prisma.SortOrderInput | Prisma.SortOrder
   curr_position_allowance?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -447,6 +474,9 @@ export type EmployeeRecordWhereUniqueInput = Prisma.AtLeast<{
   gender?: Prisma.StringNullableFilter<"EmployeeRecord"> | string | null
   education?: Prisma.StringNullableFilter<"EmployeeRecord"> | string | null
   training_period?: Prisma.StringNullableFilter<"EmployeeRecord"> | string | null
+  tech_intern_1_date?: Prisma.DateTimeNullableFilter<"EmployeeRecord"> | Date | string | null
+  tech_intern_3_date?: Prisma.DateTimeNullableFilter<"EmployeeRecord"> | Date | string | null
+  specified_skilled_date?: Prisma.DateTimeNullableFilter<"EmployeeRecord"> | Date | string | null
   prev_annual_income?: Prisma.IntNullableFilter<"EmployeeRecord"> | number | null
   curr_base_salary?: Prisma.IntNullableFilter<"EmployeeRecord"> | number | null
   curr_position_allowance?: Prisma.IntNullableFilter<"EmployeeRecord"> | number | null
@@ -476,6 +506,9 @@ export type EmployeeRecordOrderByWithAggregationInput = {
   gender?: Prisma.SortOrderInput | Prisma.SortOrder
   education?: Prisma.SortOrderInput | Prisma.SortOrder
   training_period?: Prisma.SortOrderInput | Prisma.SortOrder
+  tech_intern_1_date?: Prisma.SortOrderInput | Prisma.SortOrder
+  tech_intern_3_date?: Prisma.SortOrderInput | Prisma.SortOrder
+  specified_skilled_date?: Prisma.SortOrderInput | Prisma.SortOrder
   prev_annual_income?: Prisma.SortOrderInput | Prisma.SortOrder
   curr_base_salary?: Prisma.SortOrderInput | Prisma.SortOrder
   curr_position_allowance?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -512,6 +545,9 @@ export type EmployeeRecordScalarWhereWithAggregatesInput = {
   gender?: Prisma.StringNullableWithAggregatesFilter<"EmployeeRecord"> | string | null
   education?: Prisma.StringNullableWithAggregatesFilter<"EmployeeRecord"> | string | null
   training_period?: Prisma.StringNullableWithAggregatesFilter<"EmployeeRecord"> | string | null
+  tech_intern_1_date?: Prisma.DateTimeNullableWithAggregatesFilter<"EmployeeRecord"> | Date | string | null
+  tech_intern_3_date?: Prisma.DateTimeNullableWithAggregatesFilter<"EmployeeRecord"> | Date | string | null
+  specified_skilled_date?: Prisma.DateTimeNullableWithAggregatesFilter<"EmployeeRecord"> | Date | string | null
   prev_annual_income?: Prisma.IntNullableWithAggregatesFilter<"EmployeeRecord"> | number | null
   curr_base_salary?: Prisma.IntNullableWithAggregatesFilter<"EmployeeRecord"> | number | null
   curr_position_allowance?: Prisma.IntNullableWithAggregatesFilter<"EmployeeRecord"> | number | null
@@ -539,6 +575,9 @@ export type EmployeeRecordCreateInput = {
   gender?: string | null
   education?: string | null
   training_period?: string | null
+  tech_intern_1_date?: Date | string | null
+  tech_intern_3_date?: Date | string | null
+  specified_skilled_date?: Date | string | null
   prev_annual_income?: number | null
   curr_base_salary?: number | null
   curr_position_allowance?: number | null
@@ -568,6 +607,9 @@ export type EmployeeRecordUncheckedCreateInput = {
   gender?: string | null
   education?: string | null
   training_period?: string | null
+  tech_intern_1_date?: Date | string | null
+  tech_intern_3_date?: Date | string | null
+  specified_skilled_date?: Date | string | null
   prev_annual_income?: number | null
   curr_base_salary?: number | null
   curr_position_allowance?: number | null
@@ -595,6 +637,9 @@ export type EmployeeRecordUpdateInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   training_period?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tech_intern_1_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tech_intern_3_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  specified_skilled_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prev_annual_income?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   curr_base_salary?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   curr_position_allowance?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -624,6 +669,9 @@ export type EmployeeRecordUncheckedUpdateInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   training_period?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tech_intern_1_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tech_intern_3_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  specified_skilled_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prev_annual_income?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   curr_base_salary?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   curr_position_allowance?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -652,6 +700,9 @@ export type EmployeeRecordCreateManyInput = {
   gender?: string | null
   education?: string | null
   training_period?: string | null
+  tech_intern_1_date?: Date | string | null
+  tech_intern_3_date?: Date | string | null
+  specified_skilled_date?: Date | string | null
   prev_annual_income?: number | null
   curr_base_salary?: number | null
   curr_position_allowance?: number | null
@@ -679,6 +730,9 @@ export type EmployeeRecordUpdateManyMutationInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   training_period?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tech_intern_1_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tech_intern_3_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  specified_skilled_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prev_annual_income?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   curr_base_salary?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   curr_position_allowance?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -707,6 +761,9 @@ export type EmployeeRecordUncheckedUpdateManyInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   training_period?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tech_intern_1_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tech_intern_3_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  specified_skilled_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prev_annual_income?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   curr_base_salary?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   curr_position_allowance?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -750,6 +807,9 @@ export type EmployeeRecordCountOrderByAggregateInput = {
   gender?: Prisma.SortOrder
   education?: Prisma.SortOrder
   training_period?: Prisma.SortOrder
+  tech_intern_1_date?: Prisma.SortOrder
+  tech_intern_3_date?: Prisma.SortOrder
+  specified_skilled_date?: Prisma.SortOrder
   prev_annual_income?: Prisma.SortOrder
   curr_base_salary?: Prisma.SortOrder
   curr_position_allowance?: Prisma.SortOrder
@@ -788,6 +848,9 @@ export type EmployeeRecordMaxOrderByAggregateInput = {
   gender?: Prisma.SortOrder
   education?: Prisma.SortOrder
   training_period?: Prisma.SortOrder
+  tech_intern_1_date?: Prisma.SortOrder
+  tech_intern_3_date?: Prisma.SortOrder
+  specified_skilled_date?: Prisma.SortOrder
   prev_annual_income?: Prisma.SortOrder
   curr_base_salary?: Prisma.SortOrder
   curr_position_allowance?: Prisma.SortOrder
@@ -816,6 +879,9 @@ export type EmployeeRecordMinOrderByAggregateInput = {
   gender?: Prisma.SortOrder
   education?: Prisma.SortOrder
   training_period?: Prisma.SortOrder
+  tech_intern_1_date?: Prisma.SortOrder
+  tech_intern_3_date?: Prisma.SortOrder
+  specified_skilled_date?: Prisma.SortOrder
   prev_annual_income?: Prisma.SortOrder
   curr_base_salary?: Prisma.SortOrder
   curr_position_allowance?: Prisma.SortOrder
@@ -911,6 +977,9 @@ export type EmployeeRecordCreateWithoutUserInput = {
   gender?: string | null
   education?: string | null
   training_period?: string | null
+  tech_intern_1_date?: Date | string | null
+  tech_intern_3_date?: Date | string | null
+  specified_skilled_date?: Date | string | null
   prev_annual_income?: number | null
   curr_base_salary?: number | null
   curr_position_allowance?: number | null
@@ -938,6 +1007,9 @@ export type EmployeeRecordUncheckedCreateWithoutUserInput = {
   gender?: string | null
   education?: string | null
   training_period?: string | null
+  tech_intern_1_date?: Date | string | null
+  tech_intern_3_date?: Date | string | null
+  specified_skilled_date?: Date | string | null
   prev_annual_income?: number | null
   curr_base_salary?: number | null
   curr_position_allowance?: number | null
@@ -995,6 +1067,9 @@ export type EmployeeRecordScalarWhereInput = {
   gender?: Prisma.StringNullableFilter<"EmployeeRecord"> | string | null
   education?: Prisma.StringNullableFilter<"EmployeeRecord"> | string | null
   training_period?: Prisma.StringNullableFilter<"EmployeeRecord"> | string | null
+  tech_intern_1_date?: Prisma.DateTimeNullableFilter<"EmployeeRecord"> | Date | string | null
+  tech_intern_3_date?: Prisma.DateTimeNullableFilter<"EmployeeRecord"> | Date | string | null
+  specified_skilled_date?: Prisma.DateTimeNullableFilter<"EmployeeRecord"> | Date | string | null
   prev_annual_income?: Prisma.IntNullableFilter<"EmployeeRecord"> | number | null
   curr_base_salary?: Prisma.IntNullableFilter<"EmployeeRecord"> | number | null
   curr_position_allowance?: Prisma.IntNullableFilter<"EmployeeRecord"> | number | null
@@ -1022,6 +1097,9 @@ export type EmployeeRecordCreateManyUserInput = {
   gender?: string | null
   education?: string | null
   training_period?: string | null
+  tech_intern_1_date?: Date | string | null
+  tech_intern_3_date?: Date | string | null
+  specified_skilled_date?: Date | string | null
   prev_annual_income?: number | null
   curr_base_salary?: number | null
   curr_position_allowance?: number | null
@@ -1049,6 +1127,9 @@ export type EmployeeRecordUpdateWithoutUserInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   training_period?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tech_intern_1_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tech_intern_3_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  specified_skilled_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prev_annual_income?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   curr_base_salary?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   curr_position_allowance?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1076,6 +1157,9 @@ export type EmployeeRecordUncheckedUpdateWithoutUserInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   training_period?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tech_intern_1_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tech_intern_3_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  specified_skilled_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prev_annual_income?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   curr_base_salary?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   curr_position_allowance?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1103,6 +1187,9 @@ export type EmployeeRecordUncheckedUpdateManyWithoutUserInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   training_period?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tech_intern_1_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tech_intern_3_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  specified_skilled_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prev_annual_income?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   curr_base_salary?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   curr_position_allowance?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1133,6 +1220,9 @@ export type EmployeeRecordSelect<ExtArgs extends runtime.Types.Extensions.Intern
   gender?: boolean
   education?: boolean
   training_period?: boolean
+  tech_intern_1_date?: boolean
+  tech_intern_3_date?: boolean
+  specified_skilled_date?: boolean
   prev_annual_income?: boolean
   curr_base_salary?: boolean
   curr_position_allowance?: boolean
@@ -1162,6 +1252,9 @@ export type EmployeeRecordSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   gender?: boolean
   education?: boolean
   training_period?: boolean
+  tech_intern_1_date?: boolean
+  tech_intern_3_date?: boolean
+  specified_skilled_date?: boolean
   prev_annual_income?: boolean
   curr_base_salary?: boolean
   curr_position_allowance?: boolean
@@ -1191,6 +1284,9 @@ export type EmployeeRecordSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   gender?: boolean
   education?: boolean
   training_period?: boolean
+  tech_intern_1_date?: boolean
+  tech_intern_3_date?: boolean
+  specified_skilled_date?: boolean
   prev_annual_income?: boolean
   curr_base_salary?: boolean
   curr_position_allowance?: boolean
@@ -1220,6 +1316,9 @@ export type EmployeeRecordSelectScalar = {
   gender?: boolean
   education?: boolean
   training_period?: boolean
+  tech_intern_1_date?: boolean
+  tech_intern_3_date?: boolean
+  specified_skilled_date?: boolean
   prev_annual_income?: boolean
   curr_base_salary?: boolean
   curr_position_allowance?: boolean
@@ -1237,7 +1336,7 @@ export type EmployeeRecordSelectScalar = {
   updated_by?: boolean
 }
 
-export type EmployeeRecordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "user_id" | "fiscal_year" | "job_title" | "employment_type" | "hire_date" | "birth_date" | "gender" | "education" | "training_period" | "prev_annual_income" | "curr_base_salary" | "curr_position_allowance" | "curr_salary_increase" | "curr_summer_bonus" | "curr_summer_director_eval" | "curr_summer_president_eval" | "curr_winter_bonus" | "curr_winter_director_eval" | "curr_winter_president_eval" | "curr_notes" | "created_at" | "updated_at" | "created_by" | "updated_by", ExtArgs["result"]["employeeRecord"]>
+export type EmployeeRecordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "user_id" | "fiscal_year" | "job_title" | "employment_type" | "hire_date" | "birth_date" | "gender" | "education" | "training_period" | "tech_intern_1_date" | "tech_intern_3_date" | "specified_skilled_date" | "prev_annual_income" | "curr_base_salary" | "curr_position_allowance" | "curr_salary_increase" | "curr_summer_bonus" | "curr_summer_director_eval" | "curr_summer_president_eval" | "curr_winter_bonus" | "curr_winter_director_eval" | "curr_winter_president_eval" | "curr_notes" | "created_at" | "updated_at" | "created_by" | "updated_by", ExtArgs["result"]["employeeRecord"]>
 export type EmployeeRecordInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -1288,6 +1387,18 @@ export type $EmployeeRecordPayload<ExtArgs extends runtime.Types.Extensions.Inte
      * 実習生期
      */
     training_period: string | null
+    /**
+     * 技能実習生１号 開始日
+     */
+    tech_intern_1_date: Date | null
+    /**
+     * 技能実習生３号 開始日
+     */
+    tech_intern_3_date: Date | null
+    /**
+     * 特定技能 開始日
+     */
+    specified_skilled_date: Date | null
     /**
      * 前年度年収
      */
@@ -1770,6 +1881,9 @@ export interface EmployeeRecordFieldRefs {
   readonly gender: Prisma.FieldRef<"EmployeeRecord", 'String'>
   readonly education: Prisma.FieldRef<"EmployeeRecord", 'String'>
   readonly training_period: Prisma.FieldRef<"EmployeeRecord", 'String'>
+  readonly tech_intern_1_date: Prisma.FieldRef<"EmployeeRecord", 'DateTime'>
+  readonly tech_intern_3_date: Prisma.FieldRef<"EmployeeRecord", 'DateTime'>
+  readonly specified_skilled_date: Prisma.FieldRef<"EmployeeRecord", 'DateTime'>
   readonly prev_annual_income: Prisma.FieldRef<"EmployeeRecord", 'Int'>
   readonly curr_base_salary: Prisma.FieldRef<"EmployeeRecord", 'Int'>
   readonly curr_position_allowance: Prisma.FieldRef<"EmployeeRecord", 'Int'>

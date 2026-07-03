@@ -33,6 +33,8 @@ export type UserMinAggregateOutputType = {
   role: $Enums.Role | null
   department_id: string | null
   section_id: string | null
+  section2_id: string | null
+  section2_name: string | null
   group_id: string | null
   employee_type: string | null
   hire_date: Date | null
@@ -56,6 +58,8 @@ export type UserMaxAggregateOutputType = {
   role: $Enums.Role | null
   department_id: string | null
   section_id: string | null
+  section2_id: string | null
+  section2_name: string | null
   group_id: string | null
   employee_type: string | null
   hire_date: Date | null
@@ -79,6 +83,8 @@ export type UserCountAggregateOutputType = {
   role: number
   department_id: number
   section_id: number
+  section2_id: number
+  section2_name: number
   group_id: number
   employee_type: number
   hire_date: number
@@ -104,6 +110,8 @@ export type UserMinAggregateInputType = {
   role?: true
   department_id?: true
   section_id?: true
+  section2_id?: true
+  section2_name?: true
   group_id?: true
   employee_type?: true
   hire_date?: true
@@ -127,6 +135,8 @@ export type UserMaxAggregateInputType = {
   role?: true
   department_id?: true
   section_id?: true
+  section2_id?: true
+  section2_name?: true
   group_id?: true
   employee_type?: true
   hire_date?: true
@@ -150,6 +160,8 @@ export type UserCountAggregateInputType = {
   role?: true
   department_id?: true
   section_id?: true
+  section2_id?: true
+  section2_name?: true
   group_id?: true
   employee_type?: true
   hire_date?: true
@@ -246,6 +258,8 @@ export type UserGroupByOutputType = {
   role: $Enums.Role
   department_id: string | null
   section_id: string | null
+  section2_id: string | null
+  section2_name: string | null
   group_id: string | null
   employee_type: string | null
   hire_date: Date | null
@@ -290,6 +304,8 @@ export type UserWhereInput = {
   role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
   department_id?: Prisma.StringNullableFilter<"User"> | string | null
   section_id?: Prisma.StringNullableFilter<"User"> | string | null
+  section2_id?: Prisma.StringNullableFilter<"User"> | string | null
+  section2_name?: Prisma.StringNullableFilter<"User"> | string | null
   group_id?: Prisma.StringNullableFilter<"User"> | string | null
   employee_type?: Prisma.StringNullableFilter<"User"> | string | null
   hire_date?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -304,6 +320,7 @@ export type UserWhereInput = {
   deleted_at?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   department?: Prisma.XOR<Prisma.DepartmentNullableScalarRelationFilter, Prisma.DepartmentWhereInput> | null
   section?: Prisma.XOR<Prisma.SectionNullableScalarRelationFilter, Prisma.SectionWhereInput> | null
+  section2?: Prisma.XOR<Prisma.SectionNullableScalarRelationFilter, Prisma.SectionWhereInput> | null
   group?: Prisma.XOR<Prisma.GroupNullableScalarRelationFilter, Prisma.GroupWhereInput> | null
   self_evaluations?: Prisma.EvaluationListRelationFilter
   leader_evaluations?: Prisma.EvaluationListRelationFilter
@@ -323,6 +340,8 @@ export type UserOrderByWithRelationInput = {
   role?: Prisma.SortOrder
   department_id?: Prisma.SortOrderInput | Prisma.SortOrder
   section_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  section2_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  section2_name?: Prisma.SortOrderInput | Prisma.SortOrder
   group_id?: Prisma.SortOrderInput | Prisma.SortOrder
   employee_type?: Prisma.SortOrderInput | Prisma.SortOrder
   hire_date?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -337,6 +356,7 @@ export type UserOrderByWithRelationInput = {
   deleted_at?: Prisma.SortOrderInput | Prisma.SortOrder
   department?: Prisma.DepartmentOrderByWithRelationInput
   section?: Prisma.SectionOrderByWithRelationInput
+  section2?: Prisma.SectionOrderByWithRelationInput
   group?: Prisma.GroupOrderByWithRelationInput
   self_evaluations?: Prisma.EvaluationOrderByRelationAggregateInput
   leader_evaluations?: Prisma.EvaluationOrderByRelationAggregateInput
@@ -359,6 +379,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
   department_id?: Prisma.StringNullableFilter<"User"> | string | null
   section_id?: Prisma.StringNullableFilter<"User"> | string | null
+  section2_id?: Prisma.StringNullableFilter<"User"> | string | null
+  section2_name?: Prisma.StringNullableFilter<"User"> | string | null
   group_id?: Prisma.StringNullableFilter<"User"> | string | null
   employee_type?: Prisma.StringNullableFilter<"User"> | string | null
   hire_date?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -373,6 +395,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   deleted_at?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   department?: Prisma.XOR<Prisma.DepartmentNullableScalarRelationFilter, Prisma.DepartmentWhereInput> | null
   section?: Prisma.XOR<Prisma.SectionNullableScalarRelationFilter, Prisma.SectionWhereInput> | null
+  section2?: Prisma.XOR<Prisma.SectionNullableScalarRelationFilter, Prisma.SectionWhereInput> | null
   group?: Prisma.XOR<Prisma.GroupNullableScalarRelationFilter, Prisma.GroupWhereInput> | null
   self_evaluations?: Prisma.EvaluationListRelationFilter
   leader_evaluations?: Prisma.EvaluationListRelationFilter
@@ -392,6 +415,8 @@ export type UserOrderByWithAggregationInput = {
   role?: Prisma.SortOrder
   department_id?: Prisma.SortOrderInput | Prisma.SortOrder
   section_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  section2_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  section2_name?: Prisma.SortOrderInput | Prisma.SortOrder
   group_id?: Prisma.SortOrderInput | Prisma.SortOrder
   employee_type?: Prisma.SortOrderInput | Prisma.SortOrder
   hire_date?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -421,6 +446,8 @@ export type UserScalarWhereWithAggregatesInput = {
   role?: Prisma.EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
   department_id?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   section_id?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  section2_id?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  section2_name?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   group_id?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   employee_type?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   hire_date?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
@@ -442,6 +469,7 @@ export type UserCreateInput = {
   name: string
   password_hash: string
   role?: $Enums.Role
+  section2_name?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
   resign_date?: Date | string | null
@@ -455,6 +483,7 @@ export type UserCreateInput = {
   deleted_at?: Date | string | null
   department?: Prisma.DepartmentCreateNestedOneWithoutUsersInput
   section?: Prisma.SectionCreateNestedOneWithoutUsersInput
+  section2?: Prisma.SectionCreateNestedOneWithoutUsers2Input
   group?: Prisma.GroupCreateNestedOneWithoutUsersInput
   self_evaluations?: Prisma.EvaluationCreateNestedManyWithoutEmployeeInput
   leader_evaluations?: Prisma.EvaluationCreateNestedManyWithoutLeaderInput
@@ -474,6 +503,8 @@ export type UserUncheckedCreateInput = {
   role?: $Enums.Role
   department_id?: string | null
   section_id?: string | null
+  section2_id?: string | null
+  section2_name?: string | null
   group_id?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
@@ -502,6 +533,7 @@ export type UserUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resign_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -515,6 +547,7 @@ export type UserUpdateInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   department?: Prisma.DepartmentUpdateOneWithoutUsersNestedInput
   section?: Prisma.SectionUpdateOneWithoutUsersNestedInput
+  section2?: Prisma.SectionUpdateOneWithoutUsers2NestedInput
   group?: Prisma.GroupUpdateOneWithoutUsersNestedInput
   self_evaluations?: Prisma.EvaluationUpdateManyWithoutEmployeeNestedInput
   leader_evaluations?: Prisma.EvaluationUpdateManyWithoutLeaderNestedInput
@@ -534,6 +567,8 @@ export type UserUncheckedUpdateInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   department_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   section_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   group_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -564,6 +599,8 @@ export type UserCreateManyInput = {
   role?: $Enums.Role
   department_id?: string | null
   section_id?: string | null
+  section2_id?: string | null
+  section2_name?: string | null
   group_id?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
@@ -585,6 +622,7 @@ export type UserUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resign_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -607,6 +645,8 @@ export type UserUncheckedUpdateManyInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   department_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   section_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   group_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -640,6 +680,8 @@ export type UserCountOrderByAggregateInput = {
   role?: Prisma.SortOrder
   department_id?: Prisma.SortOrder
   section_id?: Prisma.SortOrder
+  section2_id?: Prisma.SortOrder
+  section2_name?: Prisma.SortOrder
   group_id?: Prisma.SortOrder
   employee_type?: Prisma.SortOrder
   hire_date?: Prisma.SortOrder
@@ -663,6 +705,8 @@ export type UserMaxOrderByAggregateInput = {
   role?: Prisma.SortOrder
   department_id?: Prisma.SortOrder
   section_id?: Prisma.SortOrder
+  section2_id?: Prisma.SortOrder
+  section2_name?: Prisma.SortOrder
   group_id?: Prisma.SortOrder
   employee_type?: Prisma.SortOrder
   hire_date?: Prisma.SortOrder
@@ -686,6 +730,8 @@ export type UserMinOrderByAggregateInput = {
   role?: Prisma.SortOrder
   department_id?: Prisma.SortOrder
   section_id?: Prisma.SortOrder
+  section2_id?: Prisma.SortOrder
+  section2_name?: Prisma.SortOrder
   group_id?: Prisma.SortOrder
   employee_type?: Prisma.SortOrder
   hire_date?: Prisma.SortOrder
@@ -759,10 +805,24 @@ export type UserCreateNestedManyWithoutSectionInput = {
   connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
 }
 
+export type UserCreateNestedManyWithoutSection2Input = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSection2Input, Prisma.UserUncheckedCreateWithoutSection2Input> | Prisma.UserCreateWithoutSection2Input[] | Prisma.UserUncheckedCreateWithoutSection2Input[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSection2Input | Prisma.UserCreateOrConnectWithoutSection2Input[]
+  createMany?: Prisma.UserCreateManySection2InputEnvelope
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+}
+
 export type UserUncheckedCreateNestedManyWithoutSectionInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutSectionInput, Prisma.UserUncheckedCreateWithoutSectionInput> | Prisma.UserCreateWithoutSectionInput[] | Prisma.UserUncheckedCreateWithoutSectionInput[]
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutSectionInput | Prisma.UserCreateOrConnectWithoutSectionInput[]
   createMany?: Prisma.UserCreateManySectionInputEnvelope
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+}
+
+export type UserUncheckedCreateNestedManyWithoutSection2Input = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSection2Input, Prisma.UserUncheckedCreateWithoutSection2Input> | Prisma.UserCreateWithoutSection2Input[] | Prisma.UserUncheckedCreateWithoutSection2Input[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSection2Input | Prisma.UserCreateOrConnectWithoutSection2Input[]
+  createMany?: Prisma.UserCreateManySection2InputEnvelope
   connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
 }
 
@@ -780,6 +840,20 @@ export type UserUpdateManyWithoutSectionNestedInput = {
   deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
 }
 
+export type UserUpdateManyWithoutSection2NestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSection2Input, Prisma.UserUncheckedCreateWithoutSection2Input> | Prisma.UserCreateWithoutSection2Input[] | Prisma.UserUncheckedCreateWithoutSection2Input[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSection2Input | Prisma.UserCreateOrConnectWithoutSection2Input[]
+  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutSection2Input | Prisma.UserUpsertWithWhereUniqueWithoutSection2Input[]
+  createMany?: Prisma.UserCreateManySection2InputEnvelope
+  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  update?: Prisma.UserUpdateWithWhereUniqueWithoutSection2Input | Prisma.UserUpdateWithWhereUniqueWithoutSection2Input[]
+  updateMany?: Prisma.UserUpdateManyWithWhereWithoutSection2Input | Prisma.UserUpdateManyWithWhereWithoutSection2Input[]
+  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+}
+
 export type UserUncheckedUpdateManyWithoutSectionNestedInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutSectionInput, Prisma.UserUncheckedCreateWithoutSectionInput> | Prisma.UserCreateWithoutSectionInput[] | Prisma.UserUncheckedCreateWithoutSectionInput[]
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutSectionInput | Prisma.UserCreateOrConnectWithoutSectionInput[]
@@ -791,6 +865,20 @@ export type UserUncheckedUpdateManyWithoutSectionNestedInput = {
   connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
   update?: Prisma.UserUpdateWithWhereUniqueWithoutSectionInput | Prisma.UserUpdateWithWhereUniqueWithoutSectionInput[]
   updateMany?: Prisma.UserUpdateManyWithWhereWithoutSectionInput | Prisma.UserUpdateManyWithWhereWithoutSectionInput[]
+  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+}
+
+export type UserUncheckedUpdateManyWithoutSection2NestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSection2Input, Prisma.UserUncheckedCreateWithoutSection2Input> | Prisma.UserCreateWithoutSection2Input[] | Prisma.UserUncheckedCreateWithoutSection2Input[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSection2Input | Prisma.UserCreateOrConnectWithoutSection2Input[]
+  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutSection2Input | Prisma.UserUpsertWithWhereUniqueWithoutSection2Input[]
+  createMany?: Prisma.UserCreateManySection2InputEnvelope
+  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  update?: Prisma.UserUpdateWithWhereUniqueWithoutSection2Input | Prisma.UserUpdateWithWhereUniqueWithoutSection2Input[]
+  updateMany?: Prisma.UserUpdateManyWithWhereWithoutSection2Input | Prisma.UserUpdateManyWithWhereWithoutSection2Input[]
   deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
 }
 
@@ -957,6 +1045,7 @@ export type UserCreateWithoutDepartmentInput = {
   name: string
   password_hash: string
   role?: $Enums.Role
+  section2_name?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
   resign_date?: Date | string | null
@@ -969,6 +1058,7 @@ export type UserCreateWithoutDepartmentInput = {
   updated_at?: Date | string
   deleted_at?: Date | string | null
   section?: Prisma.SectionCreateNestedOneWithoutUsersInput
+  section2?: Prisma.SectionCreateNestedOneWithoutUsers2Input
   group?: Prisma.GroupCreateNestedOneWithoutUsersInput
   self_evaluations?: Prisma.EvaluationCreateNestedManyWithoutEmployeeInput
   leader_evaluations?: Prisma.EvaluationCreateNestedManyWithoutLeaderInput
@@ -987,6 +1077,8 @@ export type UserUncheckedCreateWithoutDepartmentInput = {
   password_hash: string
   role?: $Enums.Role
   section_id?: string | null
+  section2_id?: string | null
+  section2_name?: string | null
   group_id?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
@@ -1046,6 +1138,8 @@ export type UserScalarWhereInput = {
   role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
   department_id?: Prisma.StringNullableFilter<"User"> | string | null
   section_id?: Prisma.StringNullableFilter<"User"> | string | null
+  section2_id?: Prisma.StringNullableFilter<"User"> | string | null
+  section2_name?: Prisma.StringNullableFilter<"User"> | string | null
   group_id?: Prisma.StringNullableFilter<"User"> | string | null
   employee_type?: Prisma.StringNullableFilter<"User"> | string | null
   hire_date?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -1067,6 +1161,7 @@ export type UserCreateWithoutSectionInput = {
   name: string
   password_hash: string
   role?: $Enums.Role
+  section2_name?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
   resign_date?: Date | string | null
@@ -1079,6 +1174,7 @@ export type UserCreateWithoutSectionInput = {
   updated_at?: Date | string
   deleted_at?: Date | string | null
   department?: Prisma.DepartmentCreateNestedOneWithoutUsersInput
+  section2?: Prisma.SectionCreateNestedOneWithoutUsers2Input
   group?: Prisma.GroupCreateNestedOneWithoutUsersInput
   self_evaluations?: Prisma.EvaluationCreateNestedManyWithoutEmployeeInput
   leader_evaluations?: Prisma.EvaluationCreateNestedManyWithoutLeaderInput
@@ -1097,6 +1193,8 @@ export type UserUncheckedCreateWithoutSectionInput = {
   password_hash: string
   role?: $Enums.Role
   department_id?: string | null
+  section2_id?: string | null
+  section2_name?: string | null
   group_id?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
@@ -1128,6 +1226,78 @@ export type UserCreateManySectionInputEnvelope = {
   skipDuplicates?: boolean
 }
 
+export type UserCreateWithoutSection2Input = {
+  id?: string
+  employee_number?: string | null
+  login_id: string
+  name: string
+  password_hash: string
+  role?: $Enums.Role
+  section2_name?: string | null
+  employee_type?: string | null
+  hire_date?: Date | string | null
+  resign_date?: Date | string | null
+  is_active?: boolean
+  is_first_login?: boolean
+  can_view_evaluations?: boolean
+  can_view_notices?: boolean
+  last_login_at?: Date | string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  deleted_at?: Date | string | null
+  department?: Prisma.DepartmentCreateNestedOneWithoutUsersInput
+  section?: Prisma.SectionCreateNestedOneWithoutUsersInput
+  group?: Prisma.GroupCreateNestedOneWithoutUsersInput
+  self_evaluations?: Prisma.EvaluationCreateNestedManyWithoutEmployeeInput
+  leader_evaluations?: Prisma.EvaluationCreateNestedManyWithoutLeaderInput
+  manager_evaluations?: Prisma.EvaluationCreateNestedManyWithoutManagerInput
+  director_evaluations?: Prisma.EvaluationCreateNestedManyWithoutDirectorInput
+  executive_evaluations?: Prisma.EvaluationCreateNestedManyWithoutExecutiveInput
+  employee_records?: Prisma.EmployeeRecordCreateNestedManyWithoutUserInput
+  inflation_overrides?: Prisma.InflationEmployeeCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutSection2Input = {
+  id?: string
+  employee_number?: string | null
+  login_id: string
+  name: string
+  password_hash: string
+  role?: $Enums.Role
+  department_id?: string | null
+  section_id?: string | null
+  section2_name?: string | null
+  group_id?: string | null
+  employee_type?: string | null
+  hire_date?: Date | string | null
+  resign_date?: Date | string | null
+  is_active?: boolean
+  is_first_login?: boolean
+  can_view_evaluations?: boolean
+  can_view_notices?: boolean
+  last_login_at?: Date | string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  deleted_at?: Date | string | null
+  self_evaluations?: Prisma.EvaluationUncheckedCreateNestedManyWithoutEmployeeInput
+  leader_evaluations?: Prisma.EvaluationUncheckedCreateNestedManyWithoutLeaderInput
+  manager_evaluations?: Prisma.EvaluationUncheckedCreateNestedManyWithoutManagerInput
+  director_evaluations?: Prisma.EvaluationUncheckedCreateNestedManyWithoutDirectorInput
+  executive_evaluations?: Prisma.EvaluationUncheckedCreateNestedManyWithoutExecutiveInput
+  employee_records?: Prisma.EmployeeRecordUncheckedCreateNestedManyWithoutUserInput
+  inflation_overrides?: Prisma.InflationEmployeeUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutSection2Input = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSection2Input, Prisma.UserUncheckedCreateWithoutSection2Input>
+}
+
+export type UserCreateManySection2InputEnvelope = {
+  data: Prisma.UserCreateManySection2Input | Prisma.UserCreateManySection2Input[]
+  skipDuplicates?: boolean
+}
+
 export type UserUpsertWithWhereUniqueWithoutSectionInput = {
   where: Prisma.UserWhereUniqueInput
   update: Prisma.XOR<Prisma.UserUpdateWithoutSectionInput, Prisma.UserUncheckedUpdateWithoutSectionInput>
@@ -1144,6 +1314,22 @@ export type UserUpdateManyWithWhereWithoutSectionInput = {
   data: Prisma.XOR<Prisma.UserUpdateManyMutationInput, Prisma.UserUncheckedUpdateManyWithoutSectionInput>
 }
 
+export type UserUpsertWithWhereUniqueWithoutSection2Input = {
+  where: Prisma.UserWhereUniqueInput
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSection2Input, Prisma.UserUncheckedUpdateWithoutSection2Input>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSection2Input, Prisma.UserUncheckedCreateWithoutSection2Input>
+}
+
+export type UserUpdateWithWhereUniqueWithoutSection2Input = {
+  where: Prisma.UserWhereUniqueInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSection2Input, Prisma.UserUncheckedUpdateWithoutSection2Input>
+}
+
+export type UserUpdateManyWithWhereWithoutSection2Input = {
+  where: Prisma.UserScalarWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateManyMutationInput, Prisma.UserUncheckedUpdateManyWithoutSection2Input>
+}
+
 export type UserCreateWithoutGroupInput = {
   id?: string
   employee_number?: string | null
@@ -1151,6 +1337,7 @@ export type UserCreateWithoutGroupInput = {
   name: string
   password_hash: string
   role?: $Enums.Role
+  section2_name?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
   resign_date?: Date | string | null
@@ -1164,6 +1351,7 @@ export type UserCreateWithoutGroupInput = {
   deleted_at?: Date | string | null
   department?: Prisma.DepartmentCreateNestedOneWithoutUsersInput
   section?: Prisma.SectionCreateNestedOneWithoutUsersInput
+  section2?: Prisma.SectionCreateNestedOneWithoutUsers2Input
   self_evaluations?: Prisma.EvaluationCreateNestedManyWithoutEmployeeInput
   leader_evaluations?: Prisma.EvaluationCreateNestedManyWithoutLeaderInput
   manager_evaluations?: Prisma.EvaluationCreateNestedManyWithoutManagerInput
@@ -1182,6 +1370,8 @@ export type UserUncheckedCreateWithoutGroupInput = {
   role?: $Enums.Role
   department_id?: string | null
   section_id?: string | null
+  section2_id?: string | null
+  section2_name?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
   resign_date?: Date | string | null
@@ -1235,6 +1425,7 @@ export type UserCreateWithoutEmployee_recordsInput = {
   name: string
   password_hash: string
   role?: $Enums.Role
+  section2_name?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
   resign_date?: Date | string | null
@@ -1248,6 +1439,7 @@ export type UserCreateWithoutEmployee_recordsInput = {
   deleted_at?: Date | string | null
   department?: Prisma.DepartmentCreateNestedOneWithoutUsersInput
   section?: Prisma.SectionCreateNestedOneWithoutUsersInput
+  section2?: Prisma.SectionCreateNestedOneWithoutUsers2Input
   group?: Prisma.GroupCreateNestedOneWithoutUsersInput
   self_evaluations?: Prisma.EvaluationCreateNestedManyWithoutEmployeeInput
   leader_evaluations?: Prisma.EvaluationCreateNestedManyWithoutLeaderInput
@@ -1266,6 +1458,8 @@ export type UserUncheckedCreateWithoutEmployee_recordsInput = {
   role?: $Enums.Role
   department_id?: string | null
   section_id?: string | null
+  section2_id?: string | null
+  section2_name?: string | null
   group_id?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
@@ -1309,6 +1503,7 @@ export type UserUpdateWithoutEmployee_recordsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resign_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1322,6 +1517,7 @@ export type UserUpdateWithoutEmployee_recordsInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   department?: Prisma.DepartmentUpdateOneWithoutUsersNestedInput
   section?: Prisma.SectionUpdateOneWithoutUsersNestedInput
+  section2?: Prisma.SectionUpdateOneWithoutUsers2NestedInput
   group?: Prisma.GroupUpdateOneWithoutUsersNestedInput
   self_evaluations?: Prisma.EvaluationUpdateManyWithoutEmployeeNestedInput
   leader_evaluations?: Prisma.EvaluationUpdateManyWithoutLeaderNestedInput
@@ -1340,6 +1536,8 @@ export type UserUncheckedUpdateWithoutEmployee_recordsInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   department_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   section_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   group_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1367,6 +1565,7 @@ export type UserCreateWithoutSelf_evaluationsInput = {
   name: string
   password_hash: string
   role?: $Enums.Role
+  section2_name?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
   resign_date?: Date | string | null
@@ -1380,6 +1579,7 @@ export type UserCreateWithoutSelf_evaluationsInput = {
   deleted_at?: Date | string | null
   department?: Prisma.DepartmentCreateNestedOneWithoutUsersInput
   section?: Prisma.SectionCreateNestedOneWithoutUsersInput
+  section2?: Prisma.SectionCreateNestedOneWithoutUsers2Input
   group?: Prisma.GroupCreateNestedOneWithoutUsersInput
   leader_evaluations?: Prisma.EvaluationCreateNestedManyWithoutLeaderInput
   manager_evaluations?: Prisma.EvaluationCreateNestedManyWithoutManagerInput
@@ -1398,6 +1598,8 @@ export type UserUncheckedCreateWithoutSelf_evaluationsInput = {
   role?: $Enums.Role
   department_id?: string | null
   section_id?: string | null
+  section2_id?: string | null
+  section2_name?: string | null
   group_id?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
@@ -1430,6 +1632,7 @@ export type UserCreateWithoutLeader_evaluationsInput = {
   name: string
   password_hash: string
   role?: $Enums.Role
+  section2_name?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
   resign_date?: Date | string | null
@@ -1443,6 +1646,7 @@ export type UserCreateWithoutLeader_evaluationsInput = {
   deleted_at?: Date | string | null
   department?: Prisma.DepartmentCreateNestedOneWithoutUsersInput
   section?: Prisma.SectionCreateNestedOneWithoutUsersInput
+  section2?: Prisma.SectionCreateNestedOneWithoutUsers2Input
   group?: Prisma.GroupCreateNestedOneWithoutUsersInput
   self_evaluations?: Prisma.EvaluationCreateNestedManyWithoutEmployeeInput
   manager_evaluations?: Prisma.EvaluationCreateNestedManyWithoutManagerInput
@@ -1461,6 +1665,8 @@ export type UserUncheckedCreateWithoutLeader_evaluationsInput = {
   role?: $Enums.Role
   department_id?: string | null
   section_id?: string | null
+  section2_id?: string | null
+  section2_name?: string | null
   group_id?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
@@ -1493,6 +1699,7 @@ export type UserCreateWithoutManager_evaluationsInput = {
   name: string
   password_hash: string
   role?: $Enums.Role
+  section2_name?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
   resign_date?: Date | string | null
@@ -1506,6 +1713,7 @@ export type UserCreateWithoutManager_evaluationsInput = {
   deleted_at?: Date | string | null
   department?: Prisma.DepartmentCreateNestedOneWithoutUsersInput
   section?: Prisma.SectionCreateNestedOneWithoutUsersInput
+  section2?: Prisma.SectionCreateNestedOneWithoutUsers2Input
   group?: Prisma.GroupCreateNestedOneWithoutUsersInput
   self_evaluations?: Prisma.EvaluationCreateNestedManyWithoutEmployeeInput
   leader_evaluations?: Prisma.EvaluationCreateNestedManyWithoutLeaderInput
@@ -1524,6 +1732,8 @@ export type UserUncheckedCreateWithoutManager_evaluationsInput = {
   role?: $Enums.Role
   department_id?: string | null
   section_id?: string | null
+  section2_id?: string | null
+  section2_name?: string | null
   group_id?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
@@ -1556,6 +1766,7 @@ export type UserCreateWithoutDirector_evaluationsInput = {
   name: string
   password_hash: string
   role?: $Enums.Role
+  section2_name?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
   resign_date?: Date | string | null
@@ -1569,6 +1780,7 @@ export type UserCreateWithoutDirector_evaluationsInput = {
   deleted_at?: Date | string | null
   department?: Prisma.DepartmentCreateNestedOneWithoutUsersInput
   section?: Prisma.SectionCreateNestedOneWithoutUsersInput
+  section2?: Prisma.SectionCreateNestedOneWithoutUsers2Input
   group?: Prisma.GroupCreateNestedOneWithoutUsersInput
   self_evaluations?: Prisma.EvaluationCreateNestedManyWithoutEmployeeInput
   leader_evaluations?: Prisma.EvaluationCreateNestedManyWithoutLeaderInput
@@ -1587,6 +1799,8 @@ export type UserUncheckedCreateWithoutDirector_evaluationsInput = {
   role?: $Enums.Role
   department_id?: string | null
   section_id?: string | null
+  section2_id?: string | null
+  section2_name?: string | null
   group_id?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
@@ -1619,6 +1833,7 @@ export type UserCreateWithoutExecutive_evaluationsInput = {
   name: string
   password_hash: string
   role?: $Enums.Role
+  section2_name?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
   resign_date?: Date | string | null
@@ -1632,6 +1847,7 @@ export type UserCreateWithoutExecutive_evaluationsInput = {
   deleted_at?: Date | string | null
   department?: Prisma.DepartmentCreateNestedOneWithoutUsersInput
   section?: Prisma.SectionCreateNestedOneWithoutUsersInput
+  section2?: Prisma.SectionCreateNestedOneWithoutUsers2Input
   group?: Prisma.GroupCreateNestedOneWithoutUsersInput
   self_evaluations?: Prisma.EvaluationCreateNestedManyWithoutEmployeeInput
   leader_evaluations?: Prisma.EvaluationCreateNestedManyWithoutLeaderInput
@@ -1650,6 +1866,8 @@ export type UserUncheckedCreateWithoutExecutive_evaluationsInput = {
   role?: $Enums.Role
   department_id?: string | null
   section_id?: string | null
+  section2_id?: string | null
+  section2_name?: string | null
   group_id?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
@@ -1693,6 +1911,7 @@ export type UserUpdateWithoutSelf_evaluationsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resign_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1706,6 +1925,7 @@ export type UserUpdateWithoutSelf_evaluationsInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   department?: Prisma.DepartmentUpdateOneWithoutUsersNestedInput
   section?: Prisma.SectionUpdateOneWithoutUsersNestedInput
+  section2?: Prisma.SectionUpdateOneWithoutUsers2NestedInput
   group?: Prisma.GroupUpdateOneWithoutUsersNestedInput
   leader_evaluations?: Prisma.EvaluationUpdateManyWithoutLeaderNestedInput
   manager_evaluations?: Prisma.EvaluationUpdateManyWithoutManagerNestedInput
@@ -1724,6 +1944,8 @@ export type UserUncheckedUpdateWithoutSelf_evaluationsInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   department_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   section_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   group_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1762,6 +1984,7 @@ export type UserUpdateWithoutLeader_evaluationsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resign_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1775,6 +1998,7 @@ export type UserUpdateWithoutLeader_evaluationsInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   department?: Prisma.DepartmentUpdateOneWithoutUsersNestedInput
   section?: Prisma.SectionUpdateOneWithoutUsersNestedInput
+  section2?: Prisma.SectionUpdateOneWithoutUsers2NestedInput
   group?: Prisma.GroupUpdateOneWithoutUsersNestedInput
   self_evaluations?: Prisma.EvaluationUpdateManyWithoutEmployeeNestedInput
   manager_evaluations?: Prisma.EvaluationUpdateManyWithoutManagerNestedInput
@@ -1793,6 +2017,8 @@ export type UserUncheckedUpdateWithoutLeader_evaluationsInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   department_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   section_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   group_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1831,6 +2057,7 @@ export type UserUpdateWithoutManager_evaluationsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resign_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1844,6 +2071,7 @@ export type UserUpdateWithoutManager_evaluationsInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   department?: Prisma.DepartmentUpdateOneWithoutUsersNestedInput
   section?: Prisma.SectionUpdateOneWithoutUsersNestedInput
+  section2?: Prisma.SectionUpdateOneWithoutUsers2NestedInput
   group?: Prisma.GroupUpdateOneWithoutUsersNestedInput
   self_evaluations?: Prisma.EvaluationUpdateManyWithoutEmployeeNestedInput
   leader_evaluations?: Prisma.EvaluationUpdateManyWithoutLeaderNestedInput
@@ -1862,6 +2090,8 @@ export type UserUncheckedUpdateWithoutManager_evaluationsInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   department_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   section_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   group_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1900,6 +2130,7 @@ export type UserUpdateWithoutDirector_evaluationsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resign_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1913,6 +2144,7 @@ export type UserUpdateWithoutDirector_evaluationsInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   department?: Prisma.DepartmentUpdateOneWithoutUsersNestedInput
   section?: Prisma.SectionUpdateOneWithoutUsersNestedInput
+  section2?: Prisma.SectionUpdateOneWithoutUsers2NestedInput
   group?: Prisma.GroupUpdateOneWithoutUsersNestedInput
   self_evaluations?: Prisma.EvaluationUpdateManyWithoutEmployeeNestedInput
   leader_evaluations?: Prisma.EvaluationUpdateManyWithoutLeaderNestedInput
@@ -1931,6 +2163,8 @@ export type UserUncheckedUpdateWithoutDirector_evaluationsInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   department_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   section_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   group_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1969,6 +2203,7 @@ export type UserUpdateWithoutExecutive_evaluationsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resign_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1982,6 +2217,7 @@ export type UserUpdateWithoutExecutive_evaluationsInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   department?: Prisma.DepartmentUpdateOneWithoutUsersNestedInput
   section?: Prisma.SectionUpdateOneWithoutUsersNestedInput
+  section2?: Prisma.SectionUpdateOneWithoutUsers2NestedInput
   group?: Prisma.GroupUpdateOneWithoutUsersNestedInput
   self_evaluations?: Prisma.EvaluationUpdateManyWithoutEmployeeNestedInput
   leader_evaluations?: Prisma.EvaluationUpdateManyWithoutLeaderNestedInput
@@ -2000,6 +2236,8 @@ export type UserUncheckedUpdateWithoutExecutive_evaluationsInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   department_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   section_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   group_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2027,6 +2265,7 @@ export type UserCreateWithoutInflation_overridesInput = {
   name: string
   password_hash: string
   role?: $Enums.Role
+  section2_name?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
   resign_date?: Date | string | null
@@ -2040,6 +2279,7 @@ export type UserCreateWithoutInflation_overridesInput = {
   deleted_at?: Date | string | null
   department?: Prisma.DepartmentCreateNestedOneWithoutUsersInput
   section?: Prisma.SectionCreateNestedOneWithoutUsersInput
+  section2?: Prisma.SectionCreateNestedOneWithoutUsers2Input
   group?: Prisma.GroupCreateNestedOneWithoutUsersInput
   self_evaluations?: Prisma.EvaluationCreateNestedManyWithoutEmployeeInput
   leader_evaluations?: Prisma.EvaluationCreateNestedManyWithoutLeaderInput
@@ -2058,6 +2298,8 @@ export type UserUncheckedCreateWithoutInflation_overridesInput = {
   role?: $Enums.Role
   department_id?: string | null
   section_id?: string | null
+  section2_id?: string | null
+  section2_name?: string | null
   group_id?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
@@ -2101,6 +2343,7 @@ export type UserUpdateWithoutInflation_overridesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resign_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2114,6 +2357,7 @@ export type UserUpdateWithoutInflation_overridesInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   department?: Prisma.DepartmentUpdateOneWithoutUsersNestedInput
   section?: Prisma.SectionUpdateOneWithoutUsersNestedInput
+  section2?: Prisma.SectionUpdateOneWithoutUsers2NestedInput
   group?: Prisma.GroupUpdateOneWithoutUsersNestedInput
   self_evaluations?: Prisma.EvaluationUpdateManyWithoutEmployeeNestedInput
   leader_evaluations?: Prisma.EvaluationUpdateManyWithoutLeaderNestedInput
@@ -2132,6 +2376,8 @@ export type UserUncheckedUpdateWithoutInflation_overridesInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   department_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   section_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   group_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2160,6 +2406,8 @@ export type UserCreateManyDepartmentInput = {
   password_hash: string
   role?: $Enums.Role
   section_id?: string | null
+  section2_id?: string | null
+  section2_name?: string | null
   group_id?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
@@ -2181,6 +2429,7 @@ export type UserUpdateWithoutDepartmentInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resign_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2193,6 +2442,7 @@ export type UserUpdateWithoutDepartmentInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   section?: Prisma.SectionUpdateOneWithoutUsersNestedInput
+  section2?: Prisma.SectionUpdateOneWithoutUsers2NestedInput
   group?: Prisma.GroupUpdateOneWithoutUsersNestedInput
   self_evaluations?: Prisma.EvaluationUpdateManyWithoutEmployeeNestedInput
   leader_evaluations?: Prisma.EvaluationUpdateManyWithoutLeaderNestedInput
@@ -2211,6 +2461,8 @@ export type UserUncheckedUpdateWithoutDepartmentInput = {
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   section_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   group_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2240,6 +2492,8 @@ export type UserUncheckedUpdateManyWithoutDepartmentInput = {
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   section_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   group_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2262,6 +2516,32 @@ export type UserCreateManySectionInput = {
   password_hash: string
   role?: $Enums.Role
   department_id?: string | null
+  section2_id?: string | null
+  section2_name?: string | null
+  group_id?: string | null
+  employee_type?: string | null
+  hire_date?: Date | string | null
+  resign_date?: Date | string | null
+  is_active?: boolean
+  is_first_login?: boolean
+  can_view_evaluations?: boolean
+  can_view_notices?: boolean
+  last_login_at?: Date | string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  deleted_at?: Date | string | null
+}
+
+export type UserCreateManySection2Input = {
+  id?: string
+  employee_number?: string | null
+  login_id: string
+  name: string
+  password_hash: string
+  role?: $Enums.Role
+  department_id?: string | null
+  section_id?: string | null
+  section2_name?: string | null
   group_id?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
@@ -2283,6 +2563,7 @@ export type UserUpdateWithoutSectionInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resign_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2295,6 +2576,7 @@ export type UserUpdateWithoutSectionInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   department?: Prisma.DepartmentUpdateOneWithoutUsersNestedInput
+  section2?: Prisma.SectionUpdateOneWithoutUsers2NestedInput
   group?: Prisma.GroupUpdateOneWithoutUsersNestedInput
   self_evaluations?: Prisma.EvaluationUpdateManyWithoutEmployeeNestedInput
   leader_evaluations?: Prisma.EvaluationUpdateManyWithoutLeaderNestedInput
@@ -2313,6 +2595,8 @@ export type UserUncheckedUpdateWithoutSectionInput = {
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   department_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   group_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2342,6 +2626,94 @@ export type UserUncheckedUpdateManyWithoutSectionInput = {
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   department_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  group_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resign_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type UserUpdateWithoutSection2Input = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  employee_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  login_id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resign_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  department?: Prisma.DepartmentUpdateOneWithoutUsersNestedInput
+  section?: Prisma.SectionUpdateOneWithoutUsersNestedInput
+  group?: Prisma.GroupUpdateOneWithoutUsersNestedInput
+  self_evaluations?: Prisma.EvaluationUpdateManyWithoutEmployeeNestedInput
+  leader_evaluations?: Prisma.EvaluationUpdateManyWithoutLeaderNestedInput
+  manager_evaluations?: Prisma.EvaluationUpdateManyWithoutManagerNestedInput
+  director_evaluations?: Prisma.EvaluationUpdateManyWithoutDirectorNestedInput
+  executive_evaluations?: Prisma.EvaluationUpdateManyWithoutExecutiveNestedInput
+  employee_records?: Prisma.EmployeeRecordUpdateManyWithoutUserNestedInput
+  inflation_overrides?: Prisma.InflationEmployeeUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSection2Input = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  employee_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  login_id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  department_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  group_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resign_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  is_first_login?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_evaluations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  can_view_notices?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  last_login_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  self_evaluations?: Prisma.EvaluationUncheckedUpdateManyWithoutEmployeeNestedInput
+  leader_evaluations?: Prisma.EvaluationUncheckedUpdateManyWithoutLeaderNestedInput
+  manager_evaluations?: Prisma.EvaluationUncheckedUpdateManyWithoutManagerNestedInput
+  director_evaluations?: Prisma.EvaluationUncheckedUpdateManyWithoutDirectorNestedInput
+  executive_evaluations?: Prisma.EvaluationUncheckedUpdateManyWithoutExecutiveNestedInput
+  employee_records?: Prisma.EmployeeRecordUncheckedUpdateManyWithoutUserNestedInput
+  inflation_overrides?: Prisma.InflationEmployeeUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateManyWithoutSection2Input = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  employee_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  login_id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  department_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   group_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2365,6 +2737,8 @@ export type UserCreateManyGroupInput = {
   role?: $Enums.Role
   department_id?: string | null
   section_id?: string | null
+  section2_id?: string | null
+  section2_name?: string | null
   employee_type?: string | null
   hire_date?: Date | string | null
   resign_date?: Date | string | null
@@ -2385,6 +2759,7 @@ export type UserUpdateWithoutGroupInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resign_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2398,6 +2773,7 @@ export type UserUpdateWithoutGroupInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   department?: Prisma.DepartmentUpdateOneWithoutUsersNestedInput
   section?: Prisma.SectionUpdateOneWithoutUsersNestedInput
+  section2?: Prisma.SectionUpdateOneWithoutUsers2NestedInput
   self_evaluations?: Prisma.EvaluationUpdateManyWithoutEmployeeNestedInput
   leader_evaluations?: Prisma.EvaluationUpdateManyWithoutLeaderNestedInput
   manager_evaluations?: Prisma.EvaluationUpdateManyWithoutManagerNestedInput
@@ -2416,6 +2792,8 @@ export type UserUncheckedUpdateWithoutGroupInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   department_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   section_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resign_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2445,6 +2823,8 @@ export type UserUncheckedUpdateManyWithoutGroupInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   department_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   section_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section2_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employee_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hire_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resign_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2552,6 +2932,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   role?: boolean
   department_id?: boolean
   section_id?: boolean
+  section2_id?: boolean
+  section2_name?: boolean
   group_id?: boolean
   employee_type?: boolean
   hire_date?: boolean
@@ -2566,6 +2948,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   deleted_at?: boolean
   department?: boolean | Prisma.User$departmentArgs<ExtArgs>
   section?: boolean | Prisma.User$sectionArgs<ExtArgs>
+  section2?: boolean | Prisma.User$section2Args<ExtArgs>
   group?: boolean | Prisma.User$groupArgs<ExtArgs>
   self_evaluations?: boolean | Prisma.User$self_evaluationsArgs<ExtArgs>
   leader_evaluations?: boolean | Prisma.User$leader_evaluationsArgs<ExtArgs>
@@ -2586,6 +2969,8 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   role?: boolean
   department_id?: boolean
   section_id?: boolean
+  section2_id?: boolean
+  section2_name?: boolean
   group_id?: boolean
   employee_type?: boolean
   hire_date?: boolean
@@ -2600,6 +2985,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   deleted_at?: boolean
   department?: boolean | Prisma.User$departmentArgs<ExtArgs>
   section?: boolean | Prisma.User$sectionArgs<ExtArgs>
+  section2?: boolean | Prisma.User$section2Args<ExtArgs>
   group?: boolean | Prisma.User$groupArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -2612,6 +2998,8 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   role?: boolean
   department_id?: boolean
   section_id?: boolean
+  section2_id?: boolean
+  section2_name?: boolean
   group_id?: boolean
   employee_type?: boolean
   hire_date?: boolean
@@ -2626,6 +3014,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   deleted_at?: boolean
   department?: boolean | Prisma.User$departmentArgs<ExtArgs>
   section?: boolean | Prisma.User$sectionArgs<ExtArgs>
+  section2?: boolean | Prisma.User$section2Args<ExtArgs>
   group?: boolean | Prisma.User$groupArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -2638,6 +3027,8 @@ export type UserSelectScalar = {
   role?: boolean
   department_id?: boolean
   section_id?: boolean
+  section2_id?: boolean
+  section2_name?: boolean
   group_id?: boolean
   employee_type?: boolean
   hire_date?: boolean
@@ -2652,10 +3043,11 @@ export type UserSelectScalar = {
   deleted_at?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employee_number" | "login_id" | "name" | "password_hash" | "role" | "department_id" | "section_id" | "group_id" | "employee_type" | "hire_date" | "resign_date" | "is_active" | "is_first_login" | "can_view_evaluations" | "can_view_notices" | "last_login_at" | "created_at" | "updated_at" | "deleted_at", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employee_number" | "login_id" | "name" | "password_hash" | "role" | "department_id" | "section_id" | "section2_id" | "section2_name" | "group_id" | "employee_type" | "hire_date" | "resign_date" | "is_active" | "is_first_login" | "can_view_evaluations" | "can_view_notices" | "last_login_at" | "created_at" | "updated_at" | "deleted_at", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   department?: boolean | Prisma.User$departmentArgs<ExtArgs>
   section?: boolean | Prisma.User$sectionArgs<ExtArgs>
+  section2?: boolean | Prisma.User$section2Args<ExtArgs>
   group?: boolean | Prisma.User$groupArgs<ExtArgs>
   self_evaluations?: boolean | Prisma.User$self_evaluationsArgs<ExtArgs>
   leader_evaluations?: boolean | Prisma.User$leader_evaluationsArgs<ExtArgs>
@@ -2669,11 +3061,13 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   department?: boolean | Prisma.User$departmentArgs<ExtArgs>
   section?: boolean | Prisma.User$sectionArgs<ExtArgs>
+  section2?: boolean | Prisma.User$section2Args<ExtArgs>
   group?: boolean | Prisma.User$groupArgs<ExtArgs>
 }
 export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   department?: boolean | Prisma.User$departmentArgs<ExtArgs>
   section?: boolean | Prisma.User$sectionArgs<ExtArgs>
+  section2?: boolean | Prisma.User$section2Args<ExtArgs>
   group?: boolean | Prisma.User$groupArgs<ExtArgs>
 }
 
@@ -2682,6 +3076,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     department: Prisma.$DepartmentPayload<ExtArgs> | null
     section: Prisma.$SectionPayload<ExtArgs> | null
+    section2: Prisma.$SectionPayload<ExtArgs> | null
     group: Prisma.$GroupPayload<ExtArgs> | null
     self_evaluations: Prisma.$EvaluationPayload<ExtArgs>[]
     leader_evaluations: Prisma.$EvaluationPayload<ExtArgs>[]
@@ -2715,6 +3110,14 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      * 所属課
      */
     section_id: string | null
+    /**
+     * 所属課２（兼務等・FK、旧仕様）
+     */
+    section2_id: string | null
+    /**
+     * 所属課２（自由テキスト）
+     */
+    section2_name: string | null
     /**
      * 所属グループ
      */
@@ -3144,6 +3547,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   department<T extends Prisma.User$departmentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$departmentArgs<ExtArgs>>): Prisma.Prisma__DepartmentClient<runtime.Types.Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   section<T extends Prisma.User$sectionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sectionArgs<ExtArgs>>): Prisma.Prisma__SectionClient<runtime.Types.Result.GetResult<Prisma.$SectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  section2<T extends Prisma.User$section2Args<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$section2Args<ExtArgs>>): Prisma.Prisma__SectionClient<runtime.Types.Result.GetResult<Prisma.$SectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   group<T extends Prisma.User$groupArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$groupArgs<ExtArgs>>): Prisma.Prisma__GroupClient<runtime.Types.Result.GetResult<Prisma.$GroupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   self_evaluations<T extends Prisma.User$self_evaluationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$self_evaluationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EvaluationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   leader_evaluations<T extends Prisma.User$leader_evaluationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$leader_evaluationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EvaluationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3189,6 +3593,8 @@ export interface UserFieldRefs {
   readonly role: Prisma.FieldRef<"User", 'Role'>
   readonly department_id: Prisma.FieldRef<"User", 'String'>
   readonly section_id: Prisma.FieldRef<"User", 'String'>
+  readonly section2_id: Prisma.FieldRef<"User", 'String'>
+  readonly section2_name: Prisma.FieldRef<"User", 'String'>
   readonly group_id: Prisma.FieldRef<"User", 'String'>
   readonly employee_type: Prisma.FieldRef<"User", 'String'>
   readonly hire_date: Prisma.FieldRef<"User", 'DateTime'>
@@ -3624,6 +4030,25 @@ export type User$departmentArgs<ExtArgs extends runtime.Types.Extensions.Interna
  * User.section
  */
 export type User$sectionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Section
+   */
+  select?: Prisma.SectionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Section
+   */
+  omit?: Prisma.SectionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SectionInclude<ExtArgs> | null
+  where?: Prisma.SectionWhereInput
+}
+
+/**
+ * User.section2
+ */
+export type User$section2Args<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Section
    */

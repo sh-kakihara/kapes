@@ -21,6 +21,9 @@ export type EmployeeRecordData = {
   job_title?: string | null;
   employment_type?: string | null;
   training_period?: string | null;
+  tech_intern_1_date?: string | null;
+  tech_intern_3_date?: string | null;
+  specified_skilled_date?: string | null;
   hire_date?: string | null;
   birth_date?: string | null;
   gender?: string | null;
@@ -58,7 +61,7 @@ export async function getAvailableFiscalYears(): Promise<number[]> {
  */
 export async function createFiscalYearRecords(newYear: number): Promise<{ created: number; skipped: number }> {
   const me = await auth();
-  if (!me?.user?.id || me.user.role !== "ADMIN") forbidden();
+  if (!me?.user?.id || !["ADMIN", "PRESIDENT"].includes(me.user.role)) forbidden();
 
   const yearStart = new Date(newYear, 0, 1);
   const yearEnd   = new Date(newYear, 11, 31);
@@ -110,14 +113,16 @@ export async function createFiscalYearRecords(newYear: number): Promise<{ create
         user_id: userId,
         fiscal_year: newYear,
         // 基本情報は前年度からコピー
-        job_title:       prev?.job_title       ?? null,
-        employment_type: prev?.employment_type ?? null,
-        hire_date:       prev?.hire_date       ?? null,
-        birth_date:      prev?.birth_date      ?? null,
-        gender:          prev?.gender          ?? null,
-        education:       prev?.education       ?? null,
-        training_period: prev?.training_period ?? null,
-        // 給与・評価はすべて空
+        job_title:            prev?.job_title            ?? null,
+        employment_type:      prev?.employment_type      ?? null,
+        hire_date:            prev?.hire_date            ?? null,
+        birth_date:           prev?.birth_date           ?? null,
+        gender:               prev?.gender               ?? null,
+        education:            prev?.education            ?? null,
+        training_period:      prev?.training_period      ?? null,
+        // 基本給・役職手当は前年度からコピー、評価・賞与等は空
+        curr_base_salary:          prev?.curr_base_salary         ?? null,
+        curr_position_allowance:   prev?.curr_position_allowance  ?? null,
       },
     });
     created++;
@@ -134,8 +139,8 @@ export async function createFiscalYearRecords(newYear: number): Promise<{ create
 export async function getEmployeeRecords(selectedFiscalYear: number) {
   await requirePresidentOrAdmin();
 
-  const yearStart = new Date(selectedFiscalYear, 0, 1);   // 1月1日
-  const yearEnd   = new Date(selectedFiscalYear, 11, 31); // 12月31日
+  const yearStart = new Date(selectedFiscalYear, 4, 1);      // 5月1日（期首）
+  const yearEnd   = new Date(selectedFiscalYear + 1, 3, 30); // 翌年4月30日（期末）
 
   const users = await prisma.user.findMany({
     where: {
@@ -151,6 +156,7 @@ export async function getEmployeeRecords(selectedFiscalYear: number) {
     include: {
       department: true,
       section: true,
+      section2: true,
       employee_records: {
         where: { fiscal_year: selectedFiscalYear },
         take: 1,
@@ -174,6 +180,9 @@ export async function getEmployeeRecords(selectedFiscalYear: number) {
           gender: rec.gender,
           education: rec.education,
           training_period: rec.training_period,
+          tech_intern_1_date: rec.tech_intern_1_date,
+          tech_intern_3_date: rec.tech_intern_3_date,
+          specified_skilled_date: rec.specified_skilled_date,
           prev_annual_income: rec.prev_annual_income,
           curr_base_salary: rec.curr_base_salary,
           curr_position_allowance: rec.curr_position_allowance,
@@ -197,6 +206,8 @@ export async function getEmployeeRecords(selectedFiscalYear: number) {
         employee_type: u.employee_type,
         department: u.department,
         section: u.section,
+        section2: u.section2,
+        section2_name: u.section2_name,
       },
       record,
     };
@@ -218,6 +229,9 @@ export async function upsertEmployeeRecord(
     gender: data.gender ?? null,
     education: data.education ?? null,
     training_period: data.training_period ?? null,
+    tech_intern_1_date: data.tech_intern_1_date ? new Date(data.tech_intern_1_date) : null,
+    tech_intern_3_date: data.tech_intern_3_date ? new Date(data.tech_intern_3_date) : null,
+    specified_skilled_date: data.specified_skilled_date ? new Date(data.specified_skilled_date) : null,
     prev_annual_income: data.prev_annual_income ?? null,
     curr_base_salary: data.curr_base_salary ?? null,
     curr_position_allowance: data.curr_position_allowance ?? null,
@@ -237,6 +251,14 @@ export async function upsertEmployeeRecord(
     create: { user_id: userId, fiscal_year: fiscalYear, created_by: me.id, ...parsed },
     update: parsed,
   });
+
+  // 次年度以降のレコードにも役職を反映（既存レコードのみ・上書き）
+  if (parsed.job_title !== undefined) {
+    await prisma.employeeRecord.updateMany({
+      where: { user_id: userId, fiscal_year: { gt: fiscalYear } },
+      data: { job_title: parsed.job_title, updated_by: me.id },
+    });
+  }
 
   return { ok: true };
 }
@@ -348,6 +370,9 @@ const HEADER_TO_FIELD: Record<string, string> = {
   "性別": "gender",
   "最終学歴": "education",
   "実習生期": "training_period",
+  "技能実習生１号開始日": "tech_intern_1_date",
+  "技能実習生３号開始日": "tech_intern_3_date",
+  "特定技能開始日": "specified_skilled_date",
   "対象年度": "fiscal_year",
   "前年度年収": "prev_annual_income",
   "基本給": "curr_base_salary",
@@ -370,6 +395,9 @@ const partialRowSchemas: Record<string, z.ZodTypeAny> = {
   gender: z.string().nullable(),
   education: z.string().nullable(),
   training_period: z.string().nullable(),
+  tech_intern_1_date: dateSchema,
+  tech_intern_3_date: dateSchema,
+  specified_skilled_date: dateSchema,
   fiscal_year: fiscalYearSchema,
   prev_annual_income: numSchema,
   curr_base_salary: numSchema,
@@ -399,16 +427,20 @@ export async function importEmployeeRecordsCsv(
   const empNoIdx = headerRow.indexOf("社員番号");
   if (empNoIdx === -1) return { imported: 0, errors: [{ line: 1, message: "ヘッダー行に「社員番号」列がありません" }] };
 
-  // 更新対象フィールドのインデックスを抽出（社員番号以外）
+  // 課２列のインデックス
+  const section2Idx = headerRow.indexOf("課２");
+
+  // 更新対象フィールドのインデックスを抽出（社員番号・課２以外）
   const fieldCols: { colIdx: number; fieldKey: string }[] = [];
   for (let c = 0; c < headerRow.length; c++) {
-    if (c === empNoIdx) continue;
+    if (c === empNoIdx || c === section2Idx) continue;
     const fieldKey = HEADER_TO_FIELD[headerRow[c]];
     if (fieldKey) fieldCols.push({ colIdx: c, fieldKey });
   }
 
-  if (fieldCols.length === 0) return { imported: 0, errors: [{ line: 1, message: "更新可能な列がありません。ヘッダー名を確認してください" }] };
-  if (!fieldCols.some((f) => f.fieldKey === "fiscal_year")) {
+  const hasSection2Col = section2Idx !== -1;
+  if (fieldCols.length === 0 && !hasSection2Col) return { imported: 0, errors: [{ line: 1, message: "更新可能な列がありません。ヘッダー名を確認してください" }] };
+  if (fieldCols.length > 0 && !fieldCols.some((f) => f.fieldKey === "fiscal_year")) {
     return { imported: 0, errors: [{ line: 1, message: "「対象年度」列が必要です" }] };
   }
 
@@ -421,6 +453,8 @@ export async function importEmployeeRecordsCsv(
     const emp_no = (cols[empNoIdx] ?? "").trim();
     if (!emp_no && cols.every((c) => !c?.trim())) continue;
     if (!emp_no) { errors.push({ line, message: "社員番号が空です" }); continue; }
+
+    const section2NameValue = hasSection2Col ? (cols[section2Idx]?.trim() || null) : undefined;
 
     const raw: Record<string, unknown> = {};
     for (const { colIdx, fieldKey } of fieldCols) {
@@ -446,6 +480,8 @@ export async function importEmployeeRecordsCsv(
     }
     if (rowError) continue;
 
+    if (section2NameValue !== undefined) parsed.section2_name = section2NameValue;
+
     valid.push({ line, employee_number: emp_no, data: parsed });
   }
 
@@ -459,13 +495,25 @@ export async function importEmployeeRecordsCsv(
       continue;
     }
 
+    // 課２を User に保存
+    if (row.data.section2_name !== undefined) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { section2_name: row.data.section2_name as string | null },
+      });
+    }
+
     const fy = row.data.fiscal_year as number;
+    if (!fieldCols.some((f) => f.fieldKey === "fiscal_year")) {
+      imported++;
+      continue;
+    }
     const updateData: Record<string, unknown> = { updated_by: me.id };
     for (const { fieldKey } of fieldCols) {
       if (fieldKey === "fiscal_year") continue;
       if (fieldKey in row.data) {
         const v = row.data[fieldKey];
-        if (fieldKey === "hire_date" || fieldKey === "birth_date") {
+        if (["hire_date", "birth_date", "tech_intern_1_date", "tech_intern_3_date", "specified_skilled_date"].includes(fieldKey)) {
           updateData[fieldKey] = v ? new Date(v as string) : null;
         } else {
           updateData[fieldKey] = v;

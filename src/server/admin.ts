@@ -20,6 +20,7 @@ export async function getUsers() {
     include: {
       department: { include: { sections: { where: { deleted_at: null }, include: { groups: { where: { deleted_at: null } } } } } },
       section: { include: { groups: { where: { deleted_at: null } } } },
+      section2: { include: { groups: { where: { deleted_at: null } } } },
       group: true,
     },
     orderBy: [{ department: { name: "asc" } }, { section: { name: "asc" } }, { name: "asc" }],
@@ -28,7 +29,7 @@ export async function getUsers() {
 
 export async function createUser(data: {
   employee_number?: string; login_id: string; name: string; password: string;
-  role: Role; department_id?: string; section_id?: string; group_id?: string;
+  role: Role; department_id?: string; section_id?: string; section2_id?: string; group_id?: string;
   employee_type?: string; hire_date?: string; resign_date?: string;
 }) {
   await requireAdmin();
@@ -42,6 +43,7 @@ export async function createUser(data: {
       role: data.role,
       department_id: data.department_id || null,
       section_id: data.section_id || null,
+      section2_id: data.section2_id || null,
       group_id: data.group_id || null,
       employee_type: data.employee_type || null,
       hire_date: data.hire_date ? new Date(data.hire_date) : null,
@@ -54,7 +56,7 @@ export async function createUser(data: {
 
 export async function updateUser(id: string, data: {
   employee_number?: string; name: string; role: Role;
-  department_id?: string; section_id?: string; group_id?: string;
+  department_id?: string; section_id?: string; section2_id?: string; group_id?: string;
   is_active: boolean; password?: string; employee_type?: string;
   can_view_evaluations?: boolean; can_view_notices?: boolean; hire_date?: string; resign_date?: string;
 }) {
@@ -68,6 +70,7 @@ export async function updateUser(id: string, data: {
       role: data.role,
       department: data.department_id ? { connect: { id: data.department_id } } : { disconnect: true },
       section: data.section_id ? { connect: { id: data.section_id } } : { disconnect: true },
+      section2: data.section2_id ? { connect: { id: data.section2_id } } : { disconnect: true },
       group: data.group_id ? { connect: { id: data.group_id } } : { disconnect: true },
       is_active: data.is_active,
       employee_type: data.employee_type || null,
@@ -79,6 +82,15 @@ export async function updateUser(id: string, data: {
     },
   });
   revalidatePath("/admin/users");
+  revalidatePath("/admin/employees");
+}
+
+export async function updateUserSection2(userId: string, section2Name: string | null) {
+  await requireAdmin();
+  await prisma.user.update({
+    where: { id: userId },
+    data: { section2_name: section2Name || null },
+  });
   revalidatePath("/admin/employees");
 }
 
