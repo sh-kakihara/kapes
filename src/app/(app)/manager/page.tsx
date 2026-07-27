@@ -46,7 +46,7 @@ export default async function ManagerPage() {
           ]}
           popupColumns={[
             { key: "self",    label: "自己評価",     color: "text-blue-600" },
-            { key: "leader",  label: "リーダー評価", color: "text-orange-500", hideIfSectionNoLeader: true },
+            { key: "leader",  label: "リーダー評価", color: "text-orange-500", hideIfSectionNoLeader: true, showForRoles: ["STAFF"] },
             { key: "manager", label: "課長評価",     color: "text-green-700" },
           ]}
           onSkipEvaluation={async (item, reason) => {
@@ -89,10 +89,10 @@ export default async function ManagerPage() {
         selfUserId={session.user.id}
         hideForEvaluator="leader"
         selfHidesForEvaluator="manager"
-        showSelfForRoles={[{ evaluator: "leader", role: "LEADER" }]}
+        noManagerFallbackToSelf
         popupColumns={[
           { key: "self",   label: "自己評価",     color: "text-blue-600" },
-          { key: "leader", label: "リーダー評価", color: "text-orange-500", roleOverride: "LEADER", hideIfSectionNoLeader: true },
+          { key: "leader", label: "リーダー評価", color: "text-orange-500", hideIfSectionNoLeader: true, showForRoles: ["STAFF"] },
         ]}
         onSkipEvaluation={async (item, reason) => {
           "use server";

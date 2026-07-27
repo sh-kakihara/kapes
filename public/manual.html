@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人事評価システム 操作マニュアル</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif; font-size: 14px; color: #1a1a1a; background: #f5f5f5; }
+  .cover { background: #1e40af; color: white; padding: 60px 40px; text-align: center; }
+  .cover h1 { font-size: 32px; font-weight: bold; margin-bottom: 12px; }
+  .cover p { font-size: 16px; opacity: 0.85; margin-top: 8px; }
+  .toc { background: white; margin: 24px auto; max-width: 900px; padding: 32px 40px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+  .toc h2 { font-size: 18px; color: #1e40af; border-bottom: 2px solid #1e40af; padding-bottom: 8px; margin-bottom: 16px; }
+  .toc ol { padding-left: 20px; line-height: 2; }
+  .toc a { color: #1e40af; text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  .section { background: white; margin: 24px auto; max-width: 900px; padding: 32px 40px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+  h2.section-title { font-size: 20px; color: #1e40af; border-left: 5px solid #1e40af; padding-left: 12px; margin-bottom: 24px; }
+  h3 { font-size: 16px; font-weight: bold; color: #1e3a8a; margin: 24px 0 12px; padding: 6px 10px; background: #eff6ff; border-radius: 4px; }
+  h4 { font-size: 14px; font-weight: bold; color: #374151; margin: 16px 0 8px; }
+  p { line-height: 1.8; margin-bottom: 10px; }
+  ul, ol { padding-left: 20px; line-height: 2; margin-bottom: 10px; }
+  li { margin-bottom: 2px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 13px; }
+  th { background: #1e40af; color: white; padding: 8px 12px; text-align: left; }
+  td { padding: 8px 12px; border: 1px solid #e5e7eb; vertical-align: top; }
+  tr:nth-child(even) td { background: #f9fafb; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; margin: 1px; }
+  .badge-admin { background: #fee2e2; color: #991b1b; }
+  .badge-president { background: #fef3c7; color: #92400e; }
+  .badge-exec { background: #ede9fe; color: #4c1d95; }
+  .badge-director { background: #f3e8ff; color: #6b21a8; }
+  .badge-manager { background: #dcfce7; color: #14532d; }
+  .badge-leader { background: #ffedd5; color: #9a3412; }
+  .badge-staff { background: #dbeafe; color: #1e3a8a; }
+  .flow { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; margin: 12px 0; }
+  .flow-box { padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: bold; border: 2px solid; }
+  .flow-arrow { color: #9ca3af; font-size: 18px; }
+  .flow-note { font-size: 11px; color: #6b7280; margin-top: 4px; }
+  .note { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 6px; padding: 10px 14px; margin: 12px 0; font-size: 13px; }
+  .note::before { content: "💡 "; }
+  .warn { background: #fee2e2; border: 1px solid #fca5a5; border-radius: 6px; padding: 10px 14px; margin: 12px 0; font-size: 13px; }
+  .warn::before { content: "⚠️ "; }
+  .step { display: flex; gap: 12px; margin: 8px 0; }
+  .step-num { flex-shrink: 0; width: 24px; height: 24px; background: #1e40af; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+  .step-body { flex: 1; padding-top: 2px; }
+  @media print {
+    body { background: white; font-size: 12px; }
+    .section, .toc { box-shadow: none; margin: 0; max-width: 100%; }
+    .cover { padding: 40px; }
+    h2.section-title { page-break-before: always; }
+    table { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>人事評価システム<br>操作マニュアル</h1>
+  <p>柿原工業株式会社 / 柿原技研株式会社</p>
+  <p style="margin-top:16px; font-size:13px; opacity:0.7;">KAPES — 権限別操作ガイド・評価フロー説明書</p>
+</div>
+
+<!-- 目次 -->
+<div class="toc">
+  <h2>目次</h2>
+  <ol>
+    <li><a href="#s1">システム概要・ログイン</a></li>
+    <li><a href="#s2">権限一覧と画面アクセス</a></li>
+    <li><a href="#s3">評価フロー（全体図）</a></li>
+    <li><a href="#s4">部署別 評価フロー詳細</a></li>
+    <li><a href="#s5">権限別 操作手順</a>
+      <ol>
+        <li><a href="#s5-1">社員（STAFF / LEADER / MANAGER / DIRECTOR 自身の自己評価）</a></li>
+        <li><a href="#s5-2">リーダー（LEADER）</a></li>
+        <li><a href="#s5-3">課長（MANAGER）</a></li>
+        <li><a href="#s5-4">部長（DIRECTOR）</a></li>
+        <li><a href="#s5-5">顧問（EXECUTIVE）</a></li>
+        <li><a href="#s5-6">社長（PRESIDENT）</a></li>
+        <li><a href="#s5-7">管理者（ADMIN）</a></li>
+      </ol>
+    </li>
+    <li><a href="#s6">評価項目一覧（11項目）</a></li>
+    <li><a href="#s7">評価ステータス一覧</a></li>
+    <li><a href="#s8">よくある質問・注意事項</a></li>
+  </ol>
+</div>
+
+<!-- 1. システム概要 -->
+<div class="section" id="s1">
+  <h2 class="section-title">1. システム概要・ログイン</h2>
+
+  <h3>システムの目的</h3>
+  <p>
+    本システムは、柿原工業株式会社・柿原技研株式会社の社員を対象とした人事評価システムです。
+    社員が自己評価を入力し、リーダー・課長・部長・社長の順に評価を積み上げていくフローを電子化しています。
+  </p>
+
+  <h3>ログイン方法</h3>
+  <div class="step"><div class="step-num">1</div><div class="step-body">ブラウザでシステムのURLにアクセスします。</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-body">ログインID・パスワードを入力して「ログイン」をクリックします。</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-body">初回ログイン時はパスワード変更画面が表示されます。新しいパスワードを設定してください。</div></div>
+
+  <div class="note">パスワードを忘れた場合は、管理者（ADMIN）に連絡してリセットしてもらってください。</div>
+
+  <h3>パスワード変更</h3>
+  <p>ログイン後、画面右上の「パスワード変更」リンクからいつでも変更できます。</p>
+</div>
+
+<!-- 2. 権限一覧 -->
+<div class="section" id="s2">
+  <h2 class="section-title">2. 権限一覧と画面アクセス</h2>
+
+  <table>
+    <tr>
+      <th>権限名</th>
+      <th>表示名</th>
+      <th>アクセスできる主な画面</th>
+      <th>対象者</th>
+    </tr>
+    <tr>
+      <td><span class="badge badge-admin">ADMIN</span></td>
+      <td>管理者</td>
+      <td>ユーザー管理、社員台帳、評価期間管理、全評価閲覧、通知書作成、精勤手当・インフレ手当設定</td>
+      <td>システム管理担当者</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-president">PRESIDENT</span></td>
+      <td>社長</td>
+      <td>評価閲覧（全社員）、社員台帳</td>
+      <td>代表取締役</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-exec">EXECUTIVE</span></td>
+      <td>顧問</td>
+      <td>顧問評価（担当部署の部長評価を担当）</td>
+      <td>顧問・執行役員</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-director">DIRECTOR</span></td>
+      <td>部長</td>
+      <td>部長評価（担当部署の全課員）</td>
+      <td>各部門責任者</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-manager">MANAGER</span></td>
+      <td>課長</td>
+      <td>自己評価、課長評価（担当課員全員）、グループ・リーダー管理</td>
+      <td>課長職</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-leader">LEADER</span></td>
+      <td>リーダー</td>
+      <td>自己評価、リーダー評価（担当グループメンバー）</td>
+      <td>グループリーダー</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-staff">STAFF</span></td>
+      <td>社員</td>
+      <td>自己評価、自己評価履歴、通知書（権限付与時）</td>
+      <td>一般社員</td>
+    </tr>
+  </table>
+
+  <div class="note">「実習生」種別の社員・評価対象外部署（skip_evaluation）に設定された部署の社員は、評価フローの対象外です。</div>
+</div>
+
+<!-- 3. 評価フロー全体図 -->
+<div class="section" id="s3">
+  <h2 class="section-title">3. 評価フロー（全体図）</h2>
+
+  <p>評価は以下の順番で進みます。各段階で担当者が評価を入力・提出することで次の担当者に回ります。</p>
+
+  <h3>標準フロー（リーダー評価あり・顧問なし）</h3>
+  <div class="flow">
+    <div class="flow-box" style="background:#dbeafe;border-color:#3b82f6;color:#1e3a8a;">① 社員<br><small>自己評価</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box" style="background:#ffedd5;border-color:#f97316;color:#9a3412;">② リーダー<br><small>リーダー評価</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">③ 課長<br><small>課長評価</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box" style="background:#f3e8ff;border-color:#a855f7;color:#6b21a8;">④ 部長<br><small>部長評価</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box" style="background:#fef3c7;border-color:#f59e0b;color:#92400e;">⑤ 社長<br><small>閲覧・完了</small></div>
+  </div>
+
+  <h3>リーダー評価なしの場合（課にリーダーを設定していない）</h3>
+  <div class="flow">
+    <div class="flow-box" style="background:#dbeafe;border-color:#3b82f6;color:#1e3a8a;">① 社員<br><small>自己評価</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">② 課長<br><small>課長評価</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box" style="background:#f3e8ff;border-color:#a855f7;color:#6b21a8;">③ 部長<br><small>部長評価</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box" style="background:#fef3c7;border-color:#f59e0b;color:#92400e;">④ 社長<br><small>閲覧・完了</small></div>
+  </div>
+
+  <h3>顧問（EXECUTIVE）が在籍する部署の場合</h3>
+  <div class="flow">
+    <div class="flow-box" style="background:#dbeafe;border-color:#3b82f6;color:#1e3a8a;">① 社員<br><small>自己評価</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">② 課長<br><small>課長評価</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box" style="background:#ede9fe;border-color:#8b5cf6;color:#4c1d95;">③ 顧問<br><small>顧問評価<br>（部長役）</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box" style="background:#fef3c7;border-color:#f59e0b;color:#92400e;">④ 社長<br><small>閲覧・完了</small></div>
+  </div>
+  <p class="flow-note">※ 顧問在籍部署では部長評価の代わりに顧問が評価を行います。</p>
+
+  <h3>部長スキップ（skip_director）設定の部署</h3>
+  <div class="flow">
+    <div class="flow-box" style="background:#dbeafe;border-color:#3b82f6;color:#1e3a8a;">① 社員<br><small>自己評価</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">② 課長<br><small>課長評価</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box" style="background:#fef3c7;border-color:#f59e0b;color:#92400e;">③ 社長<br><small>閲覧・完了</small></div>
+  </div>
+  <p class="flow-note">※ 部長スキップ部署では、課長評価後に直接社長に提出されます。</p>
+</div>
+
+<!-- 4. 部署別評価フロー -->
+<div class="section" id="s4">
+  <h2 class="section-title">4. 部署別 評価フロー詳細</h2>
+
+  <p>部署ごとに「リーダー評価の有無」「部長スキップの有無」「顧問の担当」が異なります。管理者画面の「部署・課管理」で現在の設定を確認してください。</p>
+
+  <table>
+    <tr>
+      <th>フロータイプ</th>
+      <th>設定条件</th>
+      <th>評価の流れ</th>
+    </tr>
+    <tr>
+      <td><strong>フルフロー<br>（リーダーあり）</strong></td>
+      <td>課の「リーダー評価あり」= ON<br>部署の「部長スキップ」= OFF<br>顧問 = 在籍なし</td>
+      <td>社員 → リーダー → 課長 → 部長 → 社長</td>
+    </tr>
+    <tr>
+      <td><strong>標準フロー<br>（リーダーなし）</strong></td>
+      <td>課の「リーダー評価あり」= OFF<br>部署の「部長スキップ」= OFF<br>顧問 = 在籍なし</td>
+      <td>社員 → 課長 → 部長 → 社長</td>
+    </tr>
+    <tr>
+      <td><strong>顧問フロー</strong></td>
+      <td>顧問（EXECUTIVE）が同部署に在籍</td>
+      <td>社員 → （リーダー）→ 課長 → 顧問 → 社長</td>
+    </tr>
+    <tr>
+      <td><strong>部長スキップ</strong></td>
+      <td>部署の「部長スキップ」= ON</td>
+      <td>社員 → （リーダー）→ 課長 → 社長</td>
+    </tr>
+    <tr>
+      <td><strong>評価対象外</strong></td>
+      <td>部署の「評価フロー対象外」= ON<br>または社員種別 = 実習生</td>
+      <td>評価画面なし（自己評価不要）</td>
+    </tr>
+  </table>
+
+  <div class="note">
+    部署・課の設定は管理者（ADMIN）が「管理者メニュー → 部署・課管理」から変更できます。
+    設定を変更すると、次回の評価期間から新しいフローが適用されます。
+  </div>
+
+  <h3>課長・部長自身の評価フロー</h3>
+  <table>
+    <tr>
+      <th>権限</th>
+      <th>自分の評価の流れ</th>
+    </tr>
+    <tr>
+      <td><span class="badge badge-manager">課長</span></td>
+      <td>自己評価 → 部長（またはskip_directorなら社長）へ直接提出</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-director">部長</span></td>
+      <td>自己評価 → 社長へ直接提出</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-exec">顧問</span></td>
+      <td>自己評価 → 社長へ直接提出（自己評価が部長評価として扱われる）</td>
+    </tr>
+  </table>
+</div>
+
+<!-- 5. 権限別操作手順 -->
+<div class="section" id="s5">
+  <h2 class="section-title">5. 権限別 操作手順</h2>
+
+  <!-- 5-1 自己評価 -->
+  <h3 id="s5-1">5-1. 自己評価の入力（全社員共通）</h3>
+  <p>STAFF・LEADER・MANAGER・DIRECTOR 権限の社員は、評価期間中に自己評価を入力・提出します。</p>
+
+  <h4>操作手順</h4>
+  <div class="step"><div class="step-num">1</div><div class="step-body">メニューから「自己評価」をクリックします。</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-body">評価期間が表示されます。現在の期間を選択します。</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-body">11項目それぞれに <strong>1〜5点</strong> のスコアを入力します。各項目にコメントを記入することもできます。</div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-body">入力途中でも「一時保存」（下書き保存）できます。ブラウザを閉じても内容は保存されます。</div></div>
+  <div class="step"><div class="step-num">5</div><div class="step-body">全項目の入力が終わったら「提出」ボタンをクリックします。提出後は次の担当者（リーダーまたは課長）に回ります。</div></div>
+
+  <div class="warn">提出後は自己評価の内容を修正できません。提出前に内容を十分確認してください。ただし、管理者（ADMIN）が差し戻し操作を行うことで修正が可能になります。</div>
+
+  <h4>評価期間の期限について</h4>
+  <p>管理者が設定した「自己評価の提出期限」内は、提出後でも修正が可能です。期限を過ぎると修正できなくなります。</p>
+
+  <!-- 5-2 リーダー -->
+  <h3 id="s5-2">5-2. リーダー（LEADER）の操作</h3>
+  <p>担当グループのメンバーが自己評価を提出すると、リーダーの画面に表示されます。</p>
+
+  <h4>操作手順</h4>
+  <div class="step"><div class="step-num">1</div><div class="step-body">メニューから「リーダー評価」をクリックします。</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-body">担当グループの社員一覧が表示されます。ステータスが「リーダー入力中」の社員を選択します。</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-body">社員の自己評価を参照しながら、11項目のリーダー評価スコアとコメントを入力します。</div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-body">「提出」ボタンをクリックすると課長に回ります。</div></div>
+
+  <div class="note">リーダー自身の自己評価は「自己評価」メニューから別途入力します。リーダー評価画面では担当メンバーの評価のみを行います。</div>
+
+  <!-- 5-3 課長 -->
+  <h3 id="s5-3">5-3. 課長（MANAGER）の操作</h3>
+  <p>課長は担当課の全社員の課長評価を行います。また、グループとリーダーの管理も行います。</p>
+
+  <h4>課長評価の手順</h4>
+  <div class="step"><div class="step-num">1</div><div class="step-body">メニューから「課長評価」をクリックします。</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-body">担当課員の一覧が表示されます。ステータスが「課長入力中」の社員を選択します。</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-body">社員の自己評価・リーダー評価を参照しながら、11項目の課長評価スコアとコメントを入力します。</div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-body">「提出」ボタンをクリックすると部長（またはskip_director部署は社長）に回ります。</div></div>
+
+  <h4>グループ・リーダー管理</h4>
+  <div class="step"><div class="step-num">1</div><div class="step-body">メニューから「グループ・リーダー管理」をクリックします（課にリーダー評価が設定されている場合のみ表示）。</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-body">グループを選択し、そのグループのリーダーをドロップダウンから選択します。</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-body">「保存」ボタンをクリックして確定します。</div></div>
+
+  <!-- 5-4 部長 -->
+  <h3 id="s5-4">5-4. 部長（DIRECTOR）の操作</h3>
+  <p>部長は担当部署の全社員（課長含む）の部長評価を行います。</p>
+
+  <h4>操作手順</h4>
+  <div class="step"><div class="step-num">1</div><div class="step-body">メニューから「部長評価」をクリックします。</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-body">担当部署の社員一覧が表示されます。ステータスが「部長入力中」の社員を選択します。</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-body">これまでの評価（自己・リーダー・課長）を参照しながら、11項目の部長評価スコアとコメントを入力します。</div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-body">「提出」ボタンをクリックすると社長に回ります。</div></div>
+
+  <div class="note">部長自身の自己評価は「自己評価」メニューから入力し、提出すると直接社長に回ります。</div>
+
+  <!-- 5-5 顧問 -->
+  <h3 id="s5-5">5-5. 顧問（EXECUTIVE）の操作</h3>
+  <p>顧問は担当部署の評価において部長役を担います。課長評価が完了した社員の評価を行います。</p>
+
+  <h4>操作手順</h4>
+  <div class="step"><div class="step-num">1</div><div class="step-body">メニューから「顧問評価」をクリックします。</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-body">担当部署の社員一覧が表示されます。ステータスが「顧問入力中」の社員を選択します。</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-body">これまでの評価を参照しながら評価スコアとコメントを入力し、「提出」をクリックします。</div></div>
+
+  <!-- 5-6 社長 -->
+  <h3 id="s5-6">5-6. 社長（PRESIDENT）の操作</h3>
+  <p>社長は全社員の評価を閲覧します。評価の最終承認者です。</p>
+
+  <h4>評価閲覧</h4>
+  <div class="step"><div class="step-num">1</div><div class="step-body">メニューから「評価閲覧」をクリックします。</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-body">評価期間を選択します（画面右上のドロップダウン）。</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-body">全社員の評価一覧が表示されます。「詳細を見る」で各社員の全評価スコアとコメントを確認できます。</div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-body">「完了」ボタンをクリックすると評価が完了（COMPLETED）になります。</div></div>
+
+  <h4>社員台帳</h4>
+  <p>メニューから「社員台帳」を選択すると、社員の給与・賞与・評価情報を年度別に閲覧できます。</p>
+
+  <h4>定年通知（お知らせ）</h4>
+  <p>メニュー下部に、<strong>1年以内に定年（60歳）となる社員</strong>が自動的に表示されます。社員番号・氏名・定年日・残り月数が確認できます。残り3ヶ月以内は赤字で表示されます。</p>
+
+  <!-- 5-7 管理者 -->
+  <h3 id="s5-7">5-7. 管理者（ADMIN）の操作</h3>
+  <p>管理者はシステム全体の設定・管理を行います。</p>
+
+  <table>
+    <tr>
+      <th>メニュー</th>
+      <th>できること</th>
+    </tr>
+    <tr>
+      <td>ユーザー管理</td>
+      <td>社員の登録・編集・削除、パスワードリセット、権限変更、通知書表示権限の付与</td>
+    </tr>
+    <tr>
+      <td>部署・課管理</td>
+      <td>部署・課の追加・編集、リーダー評価の有無設定、部長スキップ設定、評価対象外設定</td>
+    </tr>
+    <tr>
+      <td>評価期間管理</td>
+      <td>評価期間の作成、各提出期限の設定・変更</td>
+    </tr>
+    <tr>
+      <td>全評価閲覧</td>
+      <td>全社員の全評価を閲覧、CSV出力</td>
+    </tr>
+    <tr>
+      <td>社員台帳</td>
+      <td>給与・賞与・評価情報の入力・編集・CSV出力・インポート</td>
+    </tr>
+    <tr>
+      <td>昇給・賞与通知書</td>
+      <td>通知書の作成・印刷・PDF出力</td>
+    </tr>
+    <tr>
+      <td>精勤手当・支給額設定</td>
+      <td>期ごとの出勤情報・精勤手当・欠勤控除の管理</td>
+    </tr>
+    <tr>
+      <td>インフレ手当設定</td>
+      <td>夏期・冬期のインフレ手当金額・支給日の設定</td>
+    </tr>
+  </table>
+
+  <h4>ユーザー管理 — 通知書表示権限の一括設定</h4>
+  <p>ユーザー管理画面には「通知書表示 一括設定」バーがあります。フィルターで部署・社員種別を絞り込んだ上で「一括ON」「一括OFF」ボタンを押すと、表示中の社員全員に一括で通知書表示権限を付与・解除できます。</p>
+</div>
+
+<!-- 6. 評価項目 -->
+<div class="section" id="s6">
+  <h2 class="section-title">6. 評価項目一覧（11項目）</h2>
+  <p>評価は以下の11項目について、<strong>1〜5点</strong>のスコアで行います。</p>
+
+  <table>
+    <tr>
+      <th style="width:40px;">No.</th>
+      <th style="width:200px;">項目名</th>
+      <th>評価基準（概要）</th>
+    </tr>
+    <tr><td>1</td><td>上司・部下への姿勢</td><td>上司を積極的に助け、部下や後輩への教育・指導・育成ができているか</td></tr>
+    <tr><td>2</td><td>仕事に対する勤勉・努力指導性</td><td>自ら進んで努力・学習し、周囲への指導力を発揮しているか</td></tr>
+    <tr><td>3</td><td>勤怠及び勤務態度</td><td>遅刻・欠勤がなく、社会人としての行動・自己管理ができているか</td></tr>
+    <tr><td>4</td><td>仕事の成果</td><td>業務を正確に理解し、効率的かつ問題なく遂行できているか</td></tr>
+    <tr><td>5</td><td>仕事に対する適応性</td><td>責任感を持ち、役割を状況に関わらず果たしているか</td></tr>
+    <tr><td>6</td><td>業務の知識・技能</td><td>経験年数に応じた技術力・知識を業務で発揮できているか</td></tr>
+    <tr><td>7</td><td>判断力</td><td>問題発生時に適切な判断・調整・対処ができているか</td></tr>
+    <tr><td>8</td><td>協調性</td><td>良好なコミュニケーションと十分な協調性を持って行動できているか</td></tr>
+    <tr><td>9</td><td>企画力・研究心</td><td>業務の効率化・改善につながる行動を自ら考え実行できているか</td></tr>
+    <tr><td>10</td><td>積極性・将来性</td><td>新しいスキル・知識の習得に積極的に努めているか</td></tr>
+    <tr><td>11</td><td>会社への協力性・所属部門目標達成度</td><td>全社方針に協力し、部門目標を達成できているか</td></tr>
+  </table>
+</div>
+
+<!-- 7. ステータス一覧 -->
+<div class="section" id="s7">
+  <h2 class="section-title">7. 評価ステータス一覧</h2>
+  <p>評価一覧画面で表示されるステータスの意味は以下のとおりです。</p>
+
+  <table>
+    <tr>
+      <th>ステータス</th>
+      <th>意味</th>
+      <th>次のアクション</th>
+    </tr>
+    <tr><td>自己評価未入力</td><td>社員がまだ評価を開始していない</td><td>社員が自己評価を入力・提出する</td></tr>
+    <tr><td>自己評価入力中</td><td>社員が入力中（下書き保存）</td><td>社員が提出する</td></tr>
+    <tr><td>リーダー入力中</td><td>リーダーが評価中</td><td>リーダーが入力・提出する</td></tr>
+    <tr><td>課長入力中</td><td>課長が評価中</td><td>課長が入力・提出する</td></tr>
+    <tr><td>部長入力中</td><td>部長が評価中</td><td>部長が入力・提出する</td></tr>
+    <tr><td>顧問入力中</td><td>顧問が評価中</td><td>顧問が入力・提出する</td></tr>
+    <tr><td>社長</td><td>社長の手元に届いた状態</td><td>社長が閲覧・完了にする</td></tr>
+    <tr><td>完了</td><td>評価が完了した</td><td>なし</td></tr>
+  </table>
+</div>
+
+<!-- 8. FAQ -->
+<div class="section" id="s8">
+  <h2 class="section-title">8. よくある質問・注意事項</h2>
+
+  <h3>Q. 自己評価を提出したが修正したい</h3>
+  <p>提出後は原則として修正できません。管理者（ADMIN）に連絡し、差し戻し操作（ステータスの巻き戻し）を依頼してください。ただし、「自己評価の提出期限」内であれば期限中は修正可能です。</p>
+
+  <h3>Q. 担当メンバーが自己評価を提出しない</h3>
+  <p>管理者・課長・部長は「全評価閲覧」画面でステータスを確認し、未提出の社員に声かけをしてください。</p>
+
+  <h3>Q. 評価期間が表示されない</h3>
+  <p>管理者が評価期間をまだ作成していない可能性があります。管理者に「評価期間管理」から評価期間を作成してもらってください。</p>
+
+  <h3>Q. パスワードを忘れた</h3>
+  <p>管理者（ADMIN）に連絡してください。管理者が「ユーザー管理」画面から仮パスワードに変更し、通知します。</p>
+
+  <h3>Q. 通知書メニューが表示されない</h3>
+  <p>管理者が「ユーザー管理」画面で対象社員の「通知書メニューを表示する」をONにする必要があります。</p>
+
+  <h3>Q. 評価対象外の社員が表示されない</h3>
+  <p>以下の社員は評価フローの対象外のため、評価画面に表示されません。</p>
+  <ul>
+    <li>社員種別が「実習生」の社員</li>
+    <li>「評価フロー対象外」に設定された部署に所属する社員</li>
+  </ul>
+
+  <h3>注意事項</h3>
+  <ul>
+    <li>本システムは社内専用です。ログイン情報を他者に教えないでください。</li>
+    <li>使用後は必ず「ログアウト」ボタンをクリックしてください。</li>
+    <li>ブラウザの「戻る」ボタンの使用は避け、画面内のリンクやボタンで操作してください。</li>
+    <li>推奨ブラウザ: Google Chrome / Microsoft Edge（最新版）</li>
+  </ul>
+</div>
+
+<div style="text-align:center; padding: 24px; color: #9ca3af; font-size: 12px;">
+  人事評価システム KAPES 操作マニュアル　©柿原工業株式会社
+</div>
+
+</body>
+</html>

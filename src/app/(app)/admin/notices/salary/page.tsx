@@ -33,6 +33,7 @@ export default async function SalaryNoticePage({
       </div>
       <h2 className="text-xl font-bold mb-6 text-gray-800">昇給通知</h2>
       <SalaryMain
+        key={year}
         years={YEARS}
         activeYear={year}
         representative={doc?.representative_name ?? DEFAULT_REP}

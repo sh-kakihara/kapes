@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { upsertNoticeDocument } from "@/server/notice";
 import { toWareki, getSalaryNoticeText, fmtAmount, calcAgeAt } from "@/lib/wareki";
@@ -27,13 +27,53 @@ type Props = {
 export default function SalaryMain({ years, activeYear, representative, noticeDate, comment, employees }: Props) {
   const router = useRouter();
 
+  const [yearList, setYearList] = useState(years);
   const [rep, setRep] = useState(representative);
   const [notice_date, setNoticeDate] = useState(noticeDate);
   const [commentText, setCommentText] = useState(comment);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
 
+  function addNextYear() {
+    const next = Math.max(...yearList) + 1;
+    setYearList((prev) => [...prev, next]);
+    router.push(`/admin/notices/salary?year=${next}`);
+  }
+
   const wareki = notice_date ? toWareki(notice_date) : "";
+
+  const [sortState, setSortState] = useState<{ col: string; dir: "asc" | "desc" } | null>(null);
+  const [filters, setFilters] = useState<Record<string, string>>({});
+
+  function toggleSort(col: string) {
+    setSortState((prev) =>
+      prev?.col !== col ? { col, dir: "asc" }
+      : prev.dir === "asc" ? { col, dir: "desc" }
+      : null
+    );
+  }
+  function sortIcon(col: string) {
+    if (sortState?.col !== col) return "⇅";
+    return sortState.dir === "asc" ? "▲" : "▼";
+  }
+
+  const displayed = useMemo(() => {
+    let result = [...employees];
+    for (const [col, text] of Object.entries(filters)) {
+      if (!text) continue;
+      const lower = text.toLowerCase();
+      result = result.filter((r) => String((r as Record<string, unknown>)[col] ?? "").toLowerCase().includes(lower));
+    }
+    if (sortState) {
+      result.sort((a, b) => {
+        const av = (a as Record<string, unknown>)[sortState.col] ?? "";
+        const bv = (b as Record<string, unknown>)[sortState.col] ?? "";
+        if (typeof av === "number" && typeof bv === "number") return sortState.dir === "asc" ? av - bv : bv - av;
+        return sortState.dir === "asc" ? String(av).localeCompare(String(bv), "ja") : String(bv).localeCompare(String(av), "ja");
+      });
+    }
+    return result;
+  }, [employees, filters, sortState]);
 
   async function handleSave() {
     setSaving(true); setSaveMsg("");
@@ -56,8 +96,8 @@ export default function SalaryMain({ years, activeYear, representative, noticeDa
   return (
     <div>
       {/* 年タブ */}
-      <div className="flex border-b mb-5">
-        {years.map((y) => (
+      <div className="flex border-b mb-5 items-end">
+        {yearList.map((y) => (
           <button
             key={y}
             onClick={() => router.push(`/admin/notices/salary?year=${y}`)}
@@ -70,6 +110,13 @@ export default function SalaryMain({ years, activeYear, representative, noticeDa
             {y}年度
           </button>
         ))}
+        <button
+          onClick={addNextYear}
+          className="px-3 py-2 text-sm text-blue-600 hover:text-blue-800 border border-blue-300 rounded ml-2 mb-0.5"
+          title="年度を追加"
+        >
+          ＋
+        </button>
       </div>
 
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_420px]">
@@ -78,12 +125,26 @@ export default function SalaryMain({ years, activeYear, representative, noticeDa
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="bg-gray-50 text-xs text-gray-500">
-                <th className="px-3 py-2 text-left font-medium border-b">氏名</th>
+                <th className="px-3 py-2 text-left font-medium border-b">
+                  <div className="flex items-center gap-1">
+                    <span>氏名</span>
+                    <button onClick={() => toggleSort("name")} className="text-xs text-gray-400 hover:text-blue-600 shrink-0">{sortIcon("name")}</button>
+                    <input type="text" value={filters["name"] ?? ""} onChange={(e) => setFilters(f => ({...f, name: e.target.value}))} placeholder="絞込" className="w-12 border border-gray-200 rounded px-1 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-400" />
+                  </div>
+                </th>
                 <th className="px-3 py-2 text-center font-medium border-b w-14">年齢</th>
                 <th className="px-3 py-2 text-center font-medium border-b w-14">性別</th>
-                <th className="px-3 py-2 text-left font-medium border-b w-24">雇用形態</th>
+                <th className="px-3 py-2 text-left font-medium border-b w-24">
+                  <div className="flex items-center gap-1">
+                    <span>雇用形態</span>
+                    <button onClick={() => toggleSort("employment_type")} className="text-xs text-gray-400 hover:text-blue-600 shrink-0">{sortIcon("employment_type")}</button>
+                    <input type="text" value={filters["employment_type"] ?? ""} onChange={(e) => setFilters(f => ({...f, employment_type: e.target.value}))} placeholder="絞込" className="w-12 border border-gray-200 rounded px-1 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-400" />
+                  </div>
+                </th>
                 <th className="px-3 py-2 text-left font-medium border-b">昇給判定文言</th>
-                <th className="px-3 py-2 text-right font-medium border-b w-24">昇給額</th>
+                <th className="px-3 py-2 text-right font-medium border-b w-24">
+                  <div className="flex items-center justify-end gap-1"><span>昇給額</span><button onClick={() => toggleSort("salary_increase")} className="text-xs text-gray-400 hover:text-blue-600 shrink-0">{sortIcon("salary_increase")}</button></div>
+                </th>
                 <th className="px-3 py-2 text-left font-medium border-b">社長コメント（冒頭）</th>
               </tr>
             </thead>
@@ -94,7 +155,7 @@ export default function SalaryMain({ years, activeYear, representative, noticeDa
                     {activeYear}年度の社員台帳データがありません
                   </td>
                 </tr>
-              ) : employees.map((emp) => {
+              ) : displayed.map((emp) => {
                 const noticeText = getSalaryNoticeText(
                   emp.birth_date ? new Date(emp.birth_date) : null,
                   emp.gender,

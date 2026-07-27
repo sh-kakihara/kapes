@@ -146,7 +146,7 @@ export default function ManagerEvalForm({
                 </div>
               </div>
 
-              {ldr && (ldr.score !== null || ldr.comment) && (
+              {!leaderScoreIsSelf && ldr && (ldr.score !== null || ldr.comment) && (
                 <div className="bg-gray-50 rounded p-3 mb-2">
                   <p className="text-xs font-medium text-gray-500 mb-1">
                     【リーダー評価】

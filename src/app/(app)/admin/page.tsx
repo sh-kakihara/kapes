@@ -43,6 +43,10 @@ export default async function AdminPage() {
           <h3 className="font-bold text-gray-800 mb-1">インフレ手当設定</h3>
           <p className="text-sm text-gray-500">夏期・冬期のインフレ手当金額を設定</p>
         </Link>
+        <Link href="/admin/backup" className="bg-white rounded-lg border p-6 hover:border-blue-400 transition-colors">
+          <h3 className="font-bold text-gray-800 mb-1">バックアップ・リストア</h3>
+          <p className="text-sm text-gray-500">データベースのバックアップ取得・復元</p>
+        </Link>
       </div>
     </div>
   );

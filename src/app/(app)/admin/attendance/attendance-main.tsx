@@ -1,6 +1,86 @@
 ﻿"use client";
 
-import { useState, useRef, useTransition, useEffect } from "react";
+import { useState, useRef, useTransition, useEffect, useMemo, useCallback } from "react";
+
+// ---------- ColFilter ----------
+function ColFilter({
+  label,
+  colKey,
+  sortState,
+  filters,
+  onToggleSort,
+  onFilter,
+  align = "left",
+}: {
+  label: string;
+  colKey: string;
+  sortState: { col: string; dir: "asc" | "desc" } | null;
+  filters: Record<string, string>;
+  onToggleSort: (col: string) => void;
+  onFilter: (col: string, val: string) => void;
+  align?: "left" | "right";
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  useEffect(() => {
+    if (open) setTimeout(() => inputRef.current?.focus(), 50);
+  }, [open]);
+
+  const sortDir = sortState?.col === colKey ? sortState.dir : null;
+  const isFiltered = !!filters[colKey];
+
+  return (
+    <div className={`flex items-center gap-0.5 ${align === "right" ? "justify-end" : ""}`} ref={ref}>
+      <span className="whitespace-nowrap">{label}</span>
+      <button
+        onClick={() => onToggleSort(colKey)}
+        className="text-xs text-gray-400 hover:text-blue-600 px-0.5 shrink-0"
+        title="並び替え"
+      >
+        {sortDir === "asc" ? "▲" : sortDir === "desc" ? "▼" : "⇅"}
+      </button>
+      <div className="relative shrink-0">
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className={`text-xs px-0.5 hover:text-blue-600 ${isFiltered ? "text-blue-600 font-bold" : "text-gray-400"}`}
+          title="フィルター"
+        >
+          ▽
+        </button>
+        {open && (
+          <div className="absolute z-50 top-full mt-1 left-0 bg-white border border-gray-200 rounded shadow-lg p-2 min-w-[140px]">
+            <input
+              ref={inputRef}
+              type="text"
+              value={filters[colKey] ?? ""}
+              onChange={(e) => onFilter(colKey, e.target.value)}
+              placeholder="絞り込み..."
+              className="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-400"
+            />
+            {isFiltered && (
+              <button
+                onClick={() => { onFilter(colKey, ""); setOpen(false); }}
+                className="mt-1 text-xs text-gray-500 hover:text-red-500 w-full text-left"
+              >
+                クリア
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 import { calcBonus, calcPayment } from "@/lib/attendance-calc";
 import {
   createAttendancePeriod,
@@ -391,11 +471,44 @@ export default function AttendanceMain({ initialPeriods }: Props) {
   const activePeriod = periods.find((p) => p.id === activePeriodId);
   const displayRecords = activePeriodId === loadedPeriodId ? records : [];
 
+  const [sortState, setSortState] = useState<{ col: string; dir: "asc" | "desc" } | null>(null);
+  const [filters, setFilters] = useState<Record<string, string>>({});
+
+  function toggleSort(col: string) {
+    setSortState((prev) =>
+      prev?.col !== col ? { col, dir: "asc" }
+      : prev.dir === "asc" ? { col, dir: "desc" }
+      : null
+    );
+  }
+
+  const handleFilter = useCallback((col: string, val: string) => {
+    setFilters((f) => ({ ...f, [col]: val }));
+  }, []);
+
+  const displayed = useMemo(() => {
+    let result = [...displayRecords];
+    for (const [col, text] of Object.entries(filters)) {
+      if (!text) continue;
+      const lower = text.toLowerCase();
+      result = result.filter((r) => String((r as Record<string, unknown>)[col] ?? "").toLowerCase().includes(lower));
+    }
+    if (sortState) {
+      result.sort((a, b) => {
+        const av = (a as Record<string, unknown>)[sortState.col] ?? "";
+        const bv = (b as Record<string, unknown>)[sortState.col] ?? "";
+        if (typeof av === "number" && typeof bv === "number") return sortState.dir === "asc" ? av - bv : bv - av;
+        return sortState.dir === "asc" ? String(av).localeCompare(String(bv), "ja") : String(bv).localeCompare(String(av), "ja");
+      });
+    }
+    return result;
+  }, [displayRecords, filters, sortState]);
+
   return (
     <div>
       {/* タブ行 */}
       <div className="flex items-center gap-2 border-b border-gray-200 mb-6 flex-wrap">
-        {periods.map((p) => (
+        {[...periods].sort((a, b) => a.name.localeCompare(b.name, "ja")).map((p) => (
           <button key={p.id} onClick={() => selectTab(p.id)}
             className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
               activePeriodId === p.id ? "border-blue-600 text-blue-600" : "border-transparent text-gray-600 hover:text-gray-900"
@@ -464,18 +577,26 @@ export default function AttendanceMain({ initialPeriods }: Props) {
               <table className="min-w-max w-full text-sm">
                 <thead className="bg-gray-50 sticky top-0">
                   <tr>
-                    <th className="px-3 py-2 text-left font-medium text-gray-700 whitespace-nowrap border-r border-gray-200">社員番号</th>
-                    <th className="px-3 py-2 text-left font-medium text-gray-700 whitespace-nowrap border-r border-gray-200">氏名</th>
-                    <th className="px-3 py-2 text-right font-medium text-gray-700 whitespace-nowrap border-r border-gray-200">出勤日数</th>
-                    <th className="px-3 py-2 text-right font-medium text-gray-700 whitespace-nowrap border-r border-gray-200">有休日数</th>
-                    <th className="px-3 py-2 text-right font-medium text-gray-700 whitespace-nowrap border-r border-gray-200">欠勤日数</th>
-                    <th className="px-3 py-2 text-right font-medium text-gray-700 whitespace-nowrap border-r border-gray-200">遅早時間</th>
-                    <th className="px-3 py-2 text-right font-medium text-gray-700 whitespace-nowrap border-r border-gray-200">普通残業時間</th>
-                    <th className="px-3 py-2 text-right font-medium text-gray-700 whitespace-nowrap border-r border-gray-200">深夜残業時間</th>
-                    <th className="px-3 py-2 text-right font-medium text-gray-700 whitespace-nowrap border-r border-gray-200">休日出勤時間</th>
-                    <th className="px-3 py-2 text-right font-medium text-gray-700 whitespace-nowrap border-r border-gray-200">法定休出時間</th>
-                    <th className="px-3 py-2 text-left font-medium text-gray-700 whitespace-nowrap border-r border-gray-200">備考</th>
-                    <th className="px-3 py-2 text-right font-medium text-blue-700 whitespace-nowrap border-r border-gray-200 bg-slate-100">精勤手当</th>
+                    {([
+                      { key: "employee_number", label: "社員番号", align: "left" },
+                      { key: "name",            label: "氏名",     align: "left" },
+                      { key: "work_days",           label: "出勤日数",     align: "right" },
+                      { key: "paid_leave_days",     label: "有休日数",     align: "right" },
+                      { key: "absent_days",         label: "欠勤日数",     align: "right" },
+                      { key: "late_early_hours",    label: "遅早時間",     align: "right" },
+                      { key: "overtime_hours",      label: "普通残業時間", align: "right" },
+                      { key: "night_overtime_hours",label: "深夜残業時間", align: "right" },
+                      { key: "holiday_hours",       label: "休日出勤時間", align: "right" },
+                      { key: "legal_holiday_hours", label: "法定休出時間", align: "right" },
+                      { key: "notes",               label: "備考",         align: "left" },
+                    ] as { key: string; label: string; align: "left" | "right" }[]).map(({ key, label, align }) => (
+                      <th key={key} className="px-3 py-2 font-medium text-gray-700 whitespace-nowrap border-r border-gray-200">
+                        <ColFilter label={label} colKey={key} sortState={sortState} filters={filters} onToggleSort={toggleSort} onFilter={handleFilter} align={align} />
+                      </th>
+                    ))}
+                    <th className="px-3 py-2 text-right font-medium text-blue-700 whitespace-nowrap border-r border-gray-200 bg-slate-100">
+                      <ColFilter label="精勤手当" colKey="_liveBonus" sortState={sortState} filters={filters} onToggleSort={toggleSort} onFilter={handleFilter} align="right" />
+                    </th>
                     <th className="px-3 py-2 text-right font-medium text-gray-700 whitespace-nowrap border-r border-gray-200 bg-slate-100">基本額</th>
                     <th className="px-3 py-2 text-right font-medium text-gray-700 whitespace-nowrap border-r border-gray-200 bg-slate-100">役職手当</th>
                     <th className="px-3 py-2 text-right font-medium text-green-700 whitespace-nowrap border-r border-gray-200 bg-slate-100">支給額</th>
@@ -483,7 +604,7 @@ export default function AttendanceMain({ initialPeriods }: Props) {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {displayRecords.map((r) => {
+                  {displayed.map((r) => {
                     const liveBonus = calcBonus(r.bonus_eligible, r.paid_leave_days, r.absent_days, r.late_early_hours);
                     const liveBase  = (r.employee_bonus ?? 0) + liveBonus;
                     const livePayment = calcPayment(r.bonus_eligible, liveBase || null, r.employee_position_allowance, r.absent_days, r.late_early_hours) ?? 0;

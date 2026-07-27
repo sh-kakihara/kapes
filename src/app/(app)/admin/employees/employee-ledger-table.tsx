@@ -60,6 +60,9 @@ type Row = { user: User; record: EmpRecord | null };
 function fmt(n: number | null | undefined) {
   return n == null ? "" : n.toLocaleString();
 }
+function fmtNum(n: number | null | undefined) {
+  return n == null ? "" : String(n);
+}
 function fmtDate(d: Date | string | null | undefined) {
   if (!d) return "";
   const dt = typeof d === "string" ? new Date(d) : d;
@@ -506,6 +509,13 @@ const COL_WIDTH: Record<string, string> = {
   curr_notes: "w-36",
 };
 
+const TOTAL_COL_KEYS = new Set([
+  "prev_annual_income",
+  "curr_base_salary", "curr_position_allowance", "curr_salary_increase",
+  "curr_summer_bonus", "curr_summer_bonus_add", "curr_summer_payment",
+  "curr_winter_bonus", "curr_winter_bonus_add", "curr_winter_payment",
+]);
+
 const LS_REF_DATE_KEY = "ledger_ref_date";
 
 function todayStr() {
@@ -632,6 +642,18 @@ export default function EmployeeLedgerTable({
   const internColSet = new Set(INTERN_COL_KEYS);
   const colGroupSpans = makeColGroupSpans(fiscalYear, showInternCols);
 
+  // 集計（表示中の行のみ）
+  const totals = useMemo(() => {
+    const result: Record<string, number> = {};
+    for (const key of TOTAL_COL_KEYS) {
+      result[key] = visibleRows.reduce((sum, r) => {
+        const v = (r.original.record as Record<string, unknown> | null)?.[key];
+        return sum + (v != null ? Number(v) : 0);
+      }, 0);
+    }
+    return result;
+  }, [visibleRows]);
+
   async function handleSaved() {
     setEditRow(null);
     router.refresh();
@@ -688,14 +710,14 @@ export default function EmployeeLedgerTable({
         fmtDate(rec(r, "specified_skilled_date") as string | null),
         calcYears(rec(r, "specified_skilled_date") as string | null, refDate),
         String(fiscalYear),
-        fmt(rec(r, "prev_annual_income") as number),
-        fmt(rec(r, "curr_base_salary") as number),
-        fmt(rec(r, "curr_position_allowance") as number),
-        fmt(rec(r, "curr_salary_increase") as number),
-        fmt(rec(r, "curr_summer_bonus") as number),
+        fmtNum(rec(r, "prev_annual_income") as number),
+        fmtNum(rec(r, "curr_base_salary") as number),
+        fmtNum(rec(r, "curr_position_allowance") as number),
+        fmtNum(rec(r, "curr_salary_increase") as number),
+        fmtNum(rec(r, "curr_summer_bonus") as number),
         (rec(r, "curr_summer_director_eval") as string) ?? "",
         (rec(r, "curr_summer_president_eval") as string) ?? "",
-        fmt(rec(r, "curr_winter_bonus") as number),
+        fmtNum(rec(r, "curr_winter_bonus") as number),
         (rec(r, "curr_winter_director_eval") as string) ?? "",
         (rec(r, "curr_winter_president_eval") as string) ?? "",
         (rec(r, "curr_notes") as string) ?? "",
@@ -895,6 +917,33 @@ export default function EmployeeLedgerTable({
               </tr>
             )}
           </tbody>
+          <tfoot className="bg-gray-50 border-t-2 border-gray-300">
+            <tr>
+              {table.getFlatHeaders().filter((h) => showInternCols || !internColSet.has(h.column.id)).map((header) => {
+                const meta = header.column.columnDef.meta;
+                const isSticky = meta?.stickyLeft !== undefined;
+                const id = header.column.id;
+                const isGroupLast = GROUP_LAST_KEYS.has(id);
+                const total = TOTAL_COL_KEYS.has(id) ? totals[id] : null;
+                return (
+                  <td
+                    key={header.id}
+                    className={`px-2 py-1.5 whitespace-nowrap text-right font-bold text-gray-800
+                      ${isGroupLast ? "border-r-2 border-r-gray-300" : "border-r border-gray-200"}
+                      ${isSticky ? "sticky z-10 bg-gray-50 shadow-[1px_0_0_#e5e7eb]" : ""}`}
+                    style={isSticky ? { left: meta!.stickyLeft } : undefined}
+                  >
+                    {id === "employee_number" ? (
+                      <span className="text-xs text-gray-500 font-medium">合計</span>
+                    ) : total != null ? (
+                      <span>¥{total.toLocaleString("ja-JP")}</span>
+                    ) : null}
+                  </td>
+                );
+              })}
+              <td className="border-r border-gray-200" />
+            </tr>
+          </tfoot>
         </table>
       </div>
 

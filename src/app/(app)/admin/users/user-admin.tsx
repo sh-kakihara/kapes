@@ -5,13 +5,13 @@ import {
   useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel,
   getFacetedRowModel, getFacetedUniqueValues,
   flexRender, type ColumnDef, type SortingState, type ColumnFiltersState,
-  type FilterFn, type Column,
+  type Column, type FilterFn,
 } from "@tanstack/react-table";
 import { createUser, updateUser, deleteUser, importUsersFromCsv, bulkSetCanViewNotices } from "@/server/admin";
 import { ROLE_LABELS } from "@/lib/constants";
+import { downloadCsv } from "@/lib/csv-utils";
 
 const NONE_SELECTED = "__none__";
-
 const multiSelectFilter: FilterFn<User> = (row, columnId, filterValue: string[]) => {
   if (!filterValue || filterValue.length === 0) return true;
   if (filterValue[0] === NONE_SELECTED) return false;
@@ -26,17 +26,26 @@ function FacetedFilter({ column, title }: { column: Column<User, unknown>; title
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node)) { setOpen(false); setSearch(""); }
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
   const uniqueValues = useMemo(
-    () => Array.from(column.getFacetedUniqueValues().keys()).filter((v) => v !== "").sort(),
+    () => column.getCanFilter() ? Array.from(column.getFacetedUniqueValues().keys()).filter((v) => v !== "").sort() : [],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [column.getFacetedUniqueValues()]
   );
+
+  useEffect(() => {
+    if (search === "") { column.setFilterValue([]); return; }
+    const lower = search.toLowerCase();
+    const matches = uniqueValues.filter((v) => String(v).toLowerCase().includes(lower)).map(String);
+    column.setFilterValue(matches.length > 0 ? matches : [NONE_SELECTED]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
+
   const filtered = useMemo(
     () => uniqueValues.filter((v) => String(v).toLowerCase().includes(search.toLowerCase())),
     [uniqueValues, search]
@@ -45,74 +54,49 @@ function FacetedFilter({ column, title }: { column: Column<User, unknown>; title
   const isAllSelected = filterValue.length === 0;
   const isNoneSelected = filterValue.length === 1 && filterValue[0] === NONE_SELECTED;
   const isFiltered = !isAllSelected;
+  const sortDir = column.getIsSorted();
 
   function isChecked(val: string) {
-    if (isAllSelected) return true;
-    if (isNoneSelected) return false;
+    if (isAllSelected) return true; if (isNoneSelected) return false;
     return filterValue.includes(val);
   }
-  function toggleAll() {
-    column.setFilterValue(isAllSelected ? [NONE_SELECTED] : []);
-    setSearch("");
-  }
+  function toggleAll() { column.setFilterValue(isAllSelected ? [NONE_SELECTED] : []); setSearch(""); }
   function toggleValue(val: string) {
     const current = isAllSelected ? uniqueValues.map(String) : isNoneSelected ? [] : filterValue;
     const next = current.includes(val) ? current.filter((v) => v !== val) : [...current, val];
     if (next.length === 0) column.setFilterValue([NONE_SELECTED]);
     else if (next.length === uniqueValues.length) column.setFilterValue([]);
     else column.setFilterValue(next);
+    setSearch("");
   }
 
-  const sortDir = column.getIsSorted();
-
   return (
-    <div ref={ref} className="relative inline-block">
-      <div className={`flex items-center gap-0.5 text-xs font-medium px-1.5 py-1 rounded w-full
-        ${isFiltered ? "text-blue-700 bg-blue-50" : "text-gray-600"}`}>
-        <button
-          onClick={() => column.toggleSorting(sortDir === "asc")}
-          className="flex items-center gap-1 hover:text-blue-700 flex-1 min-w-0"
-        >
+    <div ref={ref} className="relative inline-block w-full">
+      <div className={`flex items-center gap-0.5 text-xs font-medium px-1 py-0.5 rounded w-full ${isFiltered ? "text-blue-700 bg-blue-50" : "text-gray-600"}`}>
+        <button onClick={() => column.toggleSorting(sortDir === "asc")} className="flex items-center gap-1 hover:text-blue-700 flex-1 min-w-0">
           <span className="truncate">{title}</span>
-          <span className="text-gray-400 shrink-0">
-            {sortDir === "asc" ? "▲" : sortDir === "desc" ? "▼" : "⇅"}
-          </span>
+          <span className="text-gray-400 shrink-0">{sortDir === "asc" ? "▲" : sortDir === "desc" ? "▼" : "⇅"}</span>
         </button>
-        <button
-          onClick={() => setOpen((v) => !v)}
-          className={`shrink-0 px-0.5 hover:text-blue-600 ${isFiltered ? "text-blue-600" : "text-gray-400"}`}
-          title="絞り込み"
-        >
-          ☰
+        <button onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }} className={`shrink-0 hover:text-blue-700 ${isFiltered ? "text-blue-600" : "text-gray-400"}`} title="フィルター">
+          {isFiltered ? "▼" : "▽"}
         </button>
       </div>
       {open && (
-        <div className="absolute left-0 top-full mt-1 z-50 bg-white border border-gray-200 rounded-lg shadow-xl min-w-44 max-w-56 p-2">
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="検索..."
-            className="w-full border border-gray-200 rounded px-2 py-1 text-xs mb-2 focus:outline-none focus:border-blue-400"
-            autoFocus
-          />
+        <div className="absolute left-0 top-full mt-1 z-50 bg-white border border-gray-200 rounded-lg shadow-lg w-44 p-2">
+          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="検索..." className="w-full border border-gray-200 rounded px-2 py-1 text-xs mb-2 focus:outline-none focus:ring-1 focus:ring-blue-400" autoFocus />
           <div className="max-h-48 overflow-y-auto space-y-0.5">
-            <label className="flex items-center gap-2 px-1.5 py-1 rounded hover:bg-gray-50 cursor-pointer text-xs border-b border-gray-100 mb-1 pb-2">
+            <label className="flex items-center gap-2 px-1.5 py-1 rounded hover:bg-gray-50 cursor-pointer text-xs">
               <input type="checkbox" checked={isAllSelected} onChange={toggleAll} className="w-3.5 h-3.5 accent-blue-600" />
-              <span className="font-medium text-gray-700">（すべて選択）</span>
+              <span className="text-gray-700 font-medium">（すべて選択）</span>
             </label>
-            {filtered.length === 0 && <p className="text-xs text-gray-400 px-1.5 py-1">該当なし</p>}
             {filtered.map((val) => (
               <label key={String(val)} className="flex items-center gap-2 px-1.5 py-1 rounded hover:bg-gray-50 cursor-pointer text-xs">
                 <input type="checkbox" checked={isChecked(String(val))} onChange={() => toggleValue(String(val))} className="w-3.5 h-3.5 accent-blue-600" />
-                <span className="text-gray-700 truncate">{String(val) || "（空白）"}</span>
+                <span className="text-gray-700 truncate">{val || "（空白）"}</span>
               </label>
             ))}
           </div>
-          {isFiltered && (
-            <button onClick={toggleAll} className="mt-2 w-full text-xs text-blue-600 hover:underline text-left px-1.5">
-              フィルターをクリア
-            </button>
-          )}
+          {isFiltered && <button onClick={toggleAll} className="mt-2 w-full text-xs text-blue-600 hover:underline text-left px-1.5">フィルターをクリア</button>}
         </div>
       )}
     </div>
@@ -128,6 +112,7 @@ type User = {
   hire_date: Date | null; resign_date: Date | null;
   department: Department | null;
   section: Section | null;
+  section2: Section | null;
   group: Group | null;
   [key: string]: unknown;
 };
@@ -155,13 +140,13 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
   const [message, setMessage] = useState("");
   const [formError, setFormError] = useState("");
   const [sorting, setSorting] = useState<SortingState>([{ id: "employee_number", desc: false }]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([{ id: "retired", value: ["在籍"] }]);
   const [importResult, setImportResult] = useState<{ row: number; login_id: string; status: string; error?: string }[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState({
     employee_number: "", login_id: "", name: "", password: "", role: "STAFF",
-    department_id: "", section_id: "", group_id: "", is_active: true, employee_type: "",
+    department_id: "", section_id: "", section2_id: "", group_id: "", is_active: true, employee_type: "",
     can_view_evaluations: false, can_view_notices: false, hire_date: "", resign_date: "",
   });
 
@@ -175,7 +160,7 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
   const groups = (!isManagerOrAbove && sectionHasLeader) ? (selectedSection?.groups ?? []) : [];
 
   function openNew() {
-    setForm({ employee_number: "", login_id: "", name: "", password: "", role: "STAFF", department_id: "", section_id: "", group_id: "", is_active: true, employee_type: "", can_view_evaluations: false, can_view_notices: false, hire_date: "", resign_date: "" });
+    setForm({ employee_number: "", login_id: "", name: "", password: "", role: "STAFF", department_id: "", section_id: "", section2_id: "", group_id: "", is_active: true, employee_type: "", can_view_evaluations: false, can_view_notices: false, hire_date: "", resign_date: "" });
     setFormError("");
     setEditUser(null);
     setShowForm(true);
@@ -188,6 +173,7 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
       login_id: u.login_id, name: u.name, password: "", role: u.role,
       department_id: u.department?.id ?? "",
       section_id: u.section?.id ?? "",
+      section2_id: u.section2?.id ?? "",
       group_id: u.group?.id ?? "",
       is_active: u.is_active,
       employee_type: u.employee_type ?? "",
@@ -211,6 +197,7 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
           name: form.name, role: form.role as "STAFF",
           department_id: form.department_id || undefined,
           section_id: form.section_id || undefined,
+          section2_id: form.section2_id || undefined,
           group_id: form.group_id || undefined,
           is_active: form.is_active,
           password: form.password || undefined,
@@ -229,6 +216,7 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
           role: form.role as "STAFF",
           department_id: form.department_id || undefined,
           section_id: form.section_id || undefined,
+          section2_id: form.section2_id || undefined,
           group_id: form.group_id || undefined,
           employee_type: form.employee_type || undefined,
           hire_date: form.hire_date || undefined,
@@ -286,8 +274,6 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
     if (fileRef.current) fileRef.current.value = "";
   }
 
-  const filterableCols = ["employee_number", "name", "login_id", "role", "department", "section", "group", "employee_type", "is_active"];
-
   const columns = useMemo<ColumnDef<User>[]>(() => [
     {
       accessorKey: "employee_number",
@@ -333,6 +319,12 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
       id: "employee_type",
       accessorFn: (row) => row.employee_type ?? "",
       header: "社員種別",
+      filterFn: multiSelectFilter,
+    },
+    {
+      id: "retired",
+      accessorFn: (row) => row.resign_date ? "退職済み" : "在籍",
+      header: "在籍",
       filterFn: multiSelectFilter,
     },
     {
@@ -384,6 +376,33 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
           CSVインポート
           <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleCsvImport} />
         </label>
+        <button
+          onClick={() => {
+            const headers = ["社員番号", "ログインID", "氏名", "ロール", "部署", "課", "課２", "グループ", "社員種別", "在籍", "状態", "入社年月日", "退職年月日"];
+            const dataRows = table.getFilteredRowModel().rows.map((r) => {
+              const u = r.original;
+              return [
+                u.employee_number ?? "",
+                u.login_id,
+                u.name,
+                ROLE_LABELS[u.role] ?? u.role,
+                u.department?.name ?? "",
+                u.section?.name ?? "",
+                (u as unknown as { section2_name?: string }).section2_name ?? u.section2?.name ?? "",
+                u.group?.name ?? "",
+                u.employee_type ?? "",
+                u.resign_date ? "退職済み" : "在籍",
+                u.is_active ? "有効" : "無効",
+                u.hire_date ? new Date(u.hire_date).toLocaleDateString("ja-JP") : "",
+                u.resign_date ? new Date(u.resign_date).toLocaleDateString("ja-JP") : "",
+              ];
+            });
+            downloadCsv("ユーザー一覧.csv", [headers, ...dataRows]);
+          }}
+          className="px-4 py-2 border border-gray-400 text-gray-600 rounded text-sm hover:bg-gray-50"
+        >
+          CSVエクスポート
+        </button>
       </div>
 
       {/* 通知書一括設定 */}
@@ -429,25 +448,16 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
             {table.getHeaderGroups().map((hg) => (
               <tr key={hg.id}>
                 {hg.headers.map((header) => {
-                  const canFilter = filterableCols.includes(header.id);
-                  const canSort = header.column.getCanSort();
                   return (
                     <th key={header.id}
                       className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">
-                      {canFilter ? (
+                      {header.column.getCanFilter() || header.column.getCanSort() ? (
                         <FacetedFilter
                           column={header.column}
                           title={header.column.columnDef.header as string}
                         />
                       ) : (
-                        <div
-                          className={`flex items-center gap-1 px-1 ${canSort ? "cursor-pointer select-none hover:text-blue-700" : ""}`}
-                          onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
-                        >
-                          {flexRender(header.column.columnDef.header, header.getContext())}
-                          {header.column.getIsSorted() === "asc" && " ▲"}
-                          {header.column.getIsSorted() === "desc" && " ▼"}
-                        </div>
+                        flexRender(header.column.columnDef.header, header.getContext())
                       )}
                     </th>
                   );
@@ -557,6 +567,14 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
                   </select>
                 </div>
               )}
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">課２（兼務等）</label>
+                <select value={form.section2_id} onChange={(e) => setForm({ ...form, section2_id: e.target.value })}
+                  className="w-full border rounded px-3 py-2 text-sm">
+                  <option value="">（なし）</option>
+                  {departments.flatMap((d) => d.sections).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </select>
+              </div>
               {!isDirector && sectionHasLeader && groups.length > 0 && (
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">グループ</label>

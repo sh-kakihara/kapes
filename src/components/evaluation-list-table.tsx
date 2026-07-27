@@ -17,15 +17,6 @@ import {
 } from "@tanstack/react-table";
 import { EVALUATION_ITEMS, STATUS_LABELS, STATUS_COLORS } from "@/lib/constants";
 
-const NONE_SELECTED = "__none__";
-
-const multiSelectFilter: FilterFn<RowData> = (row, columnId, filterValue: string[]) => {
-  if (!filterValue || filterValue.length === 0) return true;
-  if (filterValue[0] === NONE_SELECTED) return false;
-  return filterValue.includes(String(row.getValue(columnId)));
-};
-multiSelectFilter.autoRemove = (val: string[]) => !val || val.length === 0;
-
 type Employee = {
   id: string;
   employee_number: string | null;
@@ -63,17 +54,14 @@ type RowData = {
 
 const columnHelper = createColumnHelper<RowData>();
 
-const EVALUATOR_LABELS: Record<string, string> = {
-  self: "自己評価",
-  leader: "リーダー評価",
-  manager: "課長評価",
-  director: "部長評価",
-};
+const NONE_SELECTED = "__none__";
 
-function SortIcon({ sorted }: { sorted: false | "asc" | "desc" }) {
-  if (!sorted) return <span className="text-gray-300 ml-1 text-xs">↕</span>;
-  return <span className="text-blue-600 ml-1 text-xs">{sorted === "asc" ? "↑" : "↓"}</span>;
-}
+const multiSelectFilter: FilterFn<RowData> = (row, columnId, filterValue: string[]) => {
+  if (!filterValue || filterValue.length === 0) return true;
+  if (filterValue[0] === NONE_SELECTED) return false;
+  return filterValue.includes(String(row.getValue(columnId)));
+};
+multiSelectFilter.autoRemove = (val: string[]) => !val || val.length === 0;
 
 function FacetedFilter({
   column,
@@ -88,109 +76,112 @@ function FacetedFilter({
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+        setSearch("");
+      }
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
   const uniqueValues = useMemo(
-    () => Array.from(column.getFacetedUniqueValues().keys()).filter((v) => v !== "").sort(),
+    () => column.getCanFilter() ? Array.from(column.getFacetedUniqueValues().keys()).filter((v) => v !== "").sort() : [],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [column.getFacetedUniqueValues()]
   );
+
+  // テキスト入力でテーブル行をリアルタイムフィルター
+  useEffect(() => {
+    if (search === "") {
+      column.setFilterValue([]);
+      return;
+    }
+    const lower = search.toLowerCase();
+    const matches = uniqueValues.filter((v) => String(v).toLowerCase().includes(lower)).map(String);
+    column.setFilterValue(matches.length > 0 ? matches : [NONE_SELECTED]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
+
   const filtered = useMemo(
     () => uniqueValues.filter((v) => String(v).toLowerCase().includes(search.toLowerCase())),
     [uniqueValues, search]
   );
+
   const filterValue = (column.getFilterValue() as string[]) ?? [];
   const isAllSelected = filterValue.length === 0;
   const isNoneSelected = filterValue.length === 1 && filterValue[0] === NONE_SELECTED;
   const isFiltered = !isAllSelected;
+  const sortDir = column.getIsSorted();
 
   function isChecked(val: string) {
     if (isAllSelected) return true;
     if (isNoneSelected) return false;
     return filterValue.includes(val);
   }
-  function toggleAll() {
-    if (isAllSelected) {
-      column.setFilterValue([NONE_SELECTED]); // 全解除
-    } else {
-      column.setFilterValue([]); // 全選択
-    }
-    setSearch("");
-  }
+  function toggleAll() { column.setFilterValue(isAllSelected ? [NONE_SELECTED] : []); setSearch(""); }
   function toggleValue(val: string) {
     const current = isAllSelected ? uniqueValues.map(String) : isNoneSelected ? [] : filterValue;
     const next = current.includes(val) ? current.filter((v) => v !== val) : [...current, val];
-    if (next.length === 0) {
-      column.setFilterValue([NONE_SELECTED]);
-    } else if (next.length === uniqueValues.length) {
-      column.setFilterValue([]);
-    } else {
-      column.setFilterValue(next);
-    }
+    if (next.length === 0) column.setFilterValue([NONE_SELECTED]);
+    else if (next.length === uniqueValues.length) column.setFilterValue([]);
+    else column.setFilterValue(next);
+    setSearch("");
   }
 
   return (
-    <div ref={ref} className="relative inline-block">
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className={`flex items-center gap-1 text-left text-xs font-medium px-1.5 py-1 rounded hover:bg-gray-100 transition-colors w-full
-          ${isFiltered ? "text-blue-700 bg-blue-50" : "text-gray-600"}`}
-      >
-        <span className="truncate">{title}</span>
-        <span className={`ml-auto text-xs ${isFiltered ? "text-blue-600" : "text-gray-400"}`}>▼</span>
-      </button>
+    <div ref={ref} className="relative inline-block w-full">
+      <div className={`flex items-center gap-0.5 text-xs font-medium px-1 py-0.5 rounded w-full ${isFiltered ? "text-blue-700 bg-blue-50" : "text-gray-600"}`}>
+        <button onClick={() => column.toggleSorting(sortDir === "asc")} className="flex items-center gap-1 hover:text-blue-700 flex-1 min-w-0">
+          <span className="truncate">{title}</span>
+          <span className="text-gray-400 shrink-0">{sortDir === "asc" ? "▲" : sortDir === "desc" ? "▼" : "⇅"}</span>
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
+          className={`shrink-0 hover:text-blue-700 ${isFiltered ? "text-blue-600" : "text-gray-400"}`}
+          title="フィルター"
+        >
+          {isFiltered ? "▼" : "▽"}
+        </button>
+      </div>
       {open && (
-        <div className="absolute left-0 top-full mt-1 z-50 bg-white border border-gray-200 rounded-lg shadow-xl min-w-44 max-w-56 p-2">
+        <div className="absolute left-0 top-full mt-1 z-50 bg-white border border-gray-200 rounded-lg shadow-lg w-44 p-2">
           <input
+            type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="検索..."
-            className="w-full border border-gray-200 rounded px-2 py-1 text-xs mb-2 focus:outline-none focus:border-blue-400"
+            className="w-full border border-gray-200 rounded px-2 py-1 text-xs mb-2 focus:outline-none focus:ring-1 focus:ring-blue-400"
             autoFocus
           />
           <div className="max-h-48 overflow-y-auto space-y-0.5">
-            <label className="flex items-center gap-2 px-1.5 py-1 rounded hover:bg-gray-50 cursor-pointer text-xs border-b border-gray-100 mb-1 pb-2">
-              <input
-                type="checkbox"
-                checked={isAllSelected}
-                onChange={toggleAll}
-                className="w-3.5 h-3.5 accent-blue-600"
-              />
-              <span className="font-medium text-gray-700">（すべて選択）</span>
+            <label className="flex items-center gap-2 px-1.5 py-1 rounded hover:bg-gray-50 cursor-pointer text-xs">
+              <input type="checkbox" checked={isAllSelected} onChange={toggleAll} className="w-3.5 h-3.5 accent-blue-600" />
+              <span className="text-gray-700 font-medium">（すべて選択）</span>
             </label>
-            {filtered.length === 0 && <p className="text-xs text-gray-400 px-1.5 py-1">該当なし</p>}
             {filtered.map((val) => (
-              <label
-                key={String(val)}
-                className="flex items-center gap-2 px-1.5 py-1 rounded hover:bg-gray-50 cursor-pointer text-xs"
-              >
-                <input
-                  type="checkbox"
-                  checked={isChecked(String(val))}
-                  onChange={() => toggleValue(String(val))}
-                  className="w-3.5 h-3.5 accent-blue-600"
-                />
+              <label key={String(val)} className="flex items-center gap-2 px-1.5 py-1 rounded hover:bg-gray-50 cursor-pointer text-xs">
+                <input type="checkbox" checked={isChecked(String(val))} onChange={() => toggleValue(String(val))} className="w-3.5 h-3.5 accent-blue-600" />
                 <span className="text-gray-700 truncate">{val || "（空白）"}</span>
               </label>
             ))}
           </div>
           {isFiltered && (
-            <button
-              onClick={toggleAll}
-              className="mt-2 w-full text-xs text-blue-600 hover:underline text-left px-1.5"
-            >
-              フィルターをクリア
-            </button>
+            <button onClick={toggleAll} className="mt-2 w-full text-xs text-blue-600 hover:underline text-left px-1.5">フィルターをクリア</button>
           )}
         </div>
       )}
     </div>
   );
 }
+
+const EVALUATOR_LABELS: Record<string, string> = {
+  self: "自己評価",
+  leader: "リーダー評価",
+  manager: "課長評価",
+  director: "部長評価",
+};
+
 
 export default function EvaluationListTable({
   items,
@@ -205,8 +196,10 @@ export default function EvaluationListTable({
   hideWithoutGroupForEvaluator,
   diffColumn,
   detailButtonLabel = "評価入力へ",
+  noManagerFallbackToSelf = false,
   onSkipEvaluation,
   onUndoSkipEvaluation,
+  extraActions,
 }: {
   items: EvalListItem[];
   detailBasePath: string;
@@ -233,6 +226,8 @@ export default function EvaluationListTable({
     hideIfHasGroup?: boolean;
     /** true のとき、リーダー評価のない課の社員行ではこの列を非表示 */
     hideIfSectionNoLeader?: boolean;
+    /** true のとき、該当 evaluator のスコアが1件もない場合はこの列を非表示 */
+    hideIfNoScore?: boolean;
   }[];
   /** この evaluator 選択中はグループ未所属の社員行を一覧から非表示 */
   hideWithoutGroupForEvaluator?: string;
@@ -240,10 +235,14 @@ export default function EvaluationListTable({
   diffColumn?: { evaluatorA: string; evaluatorB: string; label: string; showForEvaluator: string };
   /** ポップアップのボタンラベル（デフォルト: "評価入力へ"） */
   detailButtonLabel?: string;
+  /** true のとき、課長不在の社員行は課長評価選択時に自己評価を代替表示（課長画面専用） */
+  noManagerFallbackToSelf?: boolean;
   /** 評価スキップコールバック（課長権限のみ渡す） */
   onSkipEvaluation?: (item: EvalListItem, reason: string) => Promise<void>;
   /** スキップ解除コールバック（課長権限のみ渡す） */
   onUndoSkipEvaluation?: (item: EvalListItem) => Promise<void>;
+  /** CSVエクスポートボタンの左に追加するアクション要素 */
+  extraActions?: React.ReactNode;
 }) {
   const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -298,8 +297,8 @@ export default function EvaluationListTable({
       if (ev === "director" && skipDirector && !item.scores.some((s) => s.evaluator === "director" && s.score !== null)) {
         effectiveEv = "manager";
       }
-      // 課長不在で課長評価選択時は自己評価を代替表示
-      if (effectiveEv === "manager" && noManager && !item.scores.some((s) => s.evaluator === "manager" && s.score !== null)) {
+      // 課長不在で課長評価選択時は自己評価を代替表示（課長画面のみ）
+      if (noManagerFallbackToSelf && effectiveEv === "manager" && noManager && !item.scores.some((s) => s.evaluator === "manager" && s.score !== null)) {
         effectiveEv = "self";
       }
 
@@ -326,8 +325,12 @@ export default function EvaluationListTable({
     [items, selectedEvaluator, selfUserId, hideForEvaluator, selfHidesForEvaluator, showSelfForRoles, hideWithoutGroupForEvaluator, diffColumn]
   );
 
+  const hasGroup = useMemo(() => items.some((i) => i.employee.group !== null), [items]);
+
   const filterableCols = [
-    "employee_number", "name", "department", "section", "group", "status",
+    "employee_number", "name", "department", "section",
+    ...(hasGroup ? ["group"] : []),
+    "status",
     ...EVALUATION_ITEMS.map((i) => i.code),
     "total", "diff",
   ];
@@ -349,7 +352,7 @@ export default function EvaluationListTable({
     }),
     columnHelper.accessor("department", { header: "部", filterFn: multiSelectFilter }),
     columnHelper.accessor("section", { header: "課", filterFn: multiSelectFilter }),
-    columnHelper.accessor("group", { header: "グループ", filterFn: multiSelectFilter }),
+    ...(hasGroup ? [columnHelper.accessor("group", { header: "グループ", filterFn: multiSelectFilter })] : []),
     ...EVALUATION_ITEMS.map((item, idx) =>
       columnHelper.accessor(item.code as keyof RowData, {
         id: item.code,
@@ -510,13 +513,16 @@ export default function EvaluationListTable({
               </select>
             </>
           )}
-          <button
-            type="button"
-            onClick={handleExport}
-            className="ml-auto px-4 py-1.5 text-sm border border-green-600 text-green-700 rounded hover:bg-green-50 font-medium"
-          >
-            CSVエクスポート
-          </button>
+          <div className="ml-auto flex items-center gap-2">
+            {extraActions}
+            <button
+              type="button"
+              onClick={handleExport}
+              className="px-4 py-1.5 text-sm border border-green-600 text-green-700 rounded hover:bg-green-50 font-medium"
+            >
+              CSVエクスポート
+            </button>
+          </div>
         </div>
       ) : null}
       <div className="rounded-lg border bg-white min-h-64">
@@ -561,7 +567,7 @@ export default function EvaluationListTable({
                         onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
                       >
                         {flexRender(header.column.columnDef.header, header.getContext())}
-                        {canSort && <SortIcon sorted={header.column.getIsSorted()} />}
+                        {canSort && <span className="text-gray-400 ml-1 text-xs">{header.column.getIsSorted() === "asc" ? "▲" : header.column.getIsSorted() === "desc" ? "▼" : "⇅"}</span>}
                       </div>
                     )}
                   </th>
@@ -716,14 +722,15 @@ export default function EvaluationListTable({
                       .filter((c) => !c.showForRoles || c.showForRoles.includes(selectedItem.employee.role))
                       .filter((c) => !(c.hideIfHasGroup && selectedItem.employee.group !== null))
                       .filter((c) => !(c.hideIfSectionNoLeader && !selectedItem.employee.section?.has_leader))
+                      .filter((c) => !(c.hideIfNoScore && !selectedItem.scores.some((s) => s.evaluator === c.key && s.score !== null)))
                       .map((c) => {
                         let effectiveKey = (c.roleOverride && selectedItem.employee.role === c.roleOverride) ? "self" : c.key;
                         // skip_director 部署で部長評価なし → 課長評価を代替
                         if (effectiveKey === "director" && itemSkipDirector && !itemHasDirector) {
                           effectiveKey = "manager";
                         }
-                        // 課長不在で課長評価なし → 自己評価を代替
-                        if (effectiveKey === "manager" && itemNoManager && !itemHasManager) {
+                        // 課長不在で課長評価なし → 自己評価を代替（課長画面のみ）
+                        if (noManagerFallbackToSelf && effectiveKey === "manager" && itemNoManager && !itemHasManager) {
                           effectiveKey = "self";
                         }
                         return { key: c.key, label: c.label, color: c.color, effectiveKey };

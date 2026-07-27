@@ -20,10 +20,11 @@ export default async function RootPage() {
       can_view_notices: true,
       section_id: true,
       department_id: true,
-      department: { select: { skip_evaluation: true } },
+      department: { select: { name: true, skip_evaluation: true } },
       section: { select: { has_leader: true } },
     },
   });
+  const isSkc = dbUser?.department?.name === "SKC";
   const isTrainee = dbUser?.employee_type === "実習生";
   const skipEvaluation = dbUser?.department?.skip_evaluation ?? false;
   const sectionHasLeader = dbUser?.section?.has_leader ?? false;
@@ -58,39 +59,44 @@ export default async function RootPage() {
 
   const menus: { href: string; label: string; description: string; color: string }[] = [];
 
-  if (role === "PRESIDENT") {
+  if (isSkc) {
+    // SKC社員はメニューなし（社長が直接評価するため）
+  } else if (role === "PRESIDENT") {
     menus.push({ href: "/president", label: "評価閲覧", description: "全社員の評価を閲覧する", color: "bg-indigo-600 hover:bg-indigo-700" });
     menus.push({ href: "/admin/employees", label: "社員台帳", description: "社員の給与・賞与・評価情報を管理する", color: "bg-teal-600 hover:bg-teal-700" });
+    menus.push({ href: "/admin/notices", label: "昇給・賞与通知書", description: "昇給・賞与通知書の設定と印刷", color: "bg-amber-600 hover:bg-amber-700" });
   } else if (!isTrainee && !skipEvaluation) {
     menus.push({ href: "/evaluation", label: "自己評価", description: "自分の評価を入力・提出する", color: "bg-blue-600 hover:bg-blue-700" });
   }
-  if (role === "LEADER") {
-    menus.push({ href: "/leader", label: "リーダー評価", description: "担当メンバーのリーダー評価を行う", color: "bg-orange-500 hover:bg-orange-600" });
-  }
-  if (role === "MANAGER") {
-    menus.push({ href: "/manager", label: "課長評価", description: "担当課員の課長評価を行う", color: "bg-green-600 hover:bg-green-700" });
-    if (sectionHasLeader) {
-      menus.push({ href: "/manager/groups", label: "グループ・リーダー管理", description: "グループのメンバーとリーダーを設定する", color: "bg-green-700 hover:bg-green-800" });
+  if (!isSkc) {
+    if (role === "LEADER") {
+      menus.push({ href: "/leader", label: "リーダー評価", description: "担当メンバーのリーダー評価を行う", color: "bg-orange-500 hover:bg-orange-600" });
     }
-  }
-  if (role === "DIRECTOR") {
-    menus.push({ href: "/director", label: "部長評価", description: "部署全体の部長評価を行う", color: "bg-purple-600 hover:bg-purple-700" });
-  }
-  if (role === "EXECUTIVE") {
-    menus.push({ href: "/director", label: "部長評価閲覧", description: "担当部署の部長評価を閲覧する", color: "bg-indigo-600 hover:bg-indigo-700" });
-  }
-  // 課なし・部長でも顧問でも課長でもない部署所属者 → 課長評価閲覧
-  const isDeptViewer = !["DIRECTOR", "EXECUTIVE", "COUNSELOR", "MANAGER", "PRESIDENT", "ADMIN", "LEADER"].includes(role)
-    && !dbUser?.section_id
-    && !!dbUser?.department_id;
-  if (isDeptViewer) {
-    menus.push({ href: "/manager", label: "課長評価", description: "自部署の課長評価を入力する", color: "bg-green-600 hover:bg-green-700" });
-  }
-  if (!isTrainee && !skipEvaluation && role !== "PRESIDENT") {
-    menus.push({ href: "/history", label: "自己評価履歴", description: "過去の自己評価を期間ごとに閲覧する", color: "bg-slate-500 hover:bg-slate-600" });
-  }
-  if (canViewNotices) {
-    menus.push({ href: "/my-notices", label: "通知書", description: "昇給・賞与通知書を閲覧・印刷する", color: "bg-amber-600 hover:bg-amber-700" });
+    if (role === "MANAGER") {
+      menus.push({ href: "/manager", label: "課長評価", description: "担当課員の課長評価を行う", color: "bg-green-600 hover:bg-green-700" });
+      if (sectionHasLeader) {
+        menus.push({ href: "/manager/groups", label: "グループ・リーダー管理", description: "グループのメンバーとリーダーを設定する", color: "bg-green-700 hover:bg-green-800" });
+      }
+    }
+    if (role === "DIRECTOR") {
+      menus.push({ href: "/director", label: "部長評価", description: "部署全体の部長評価を行う", color: "bg-purple-600 hover:bg-purple-700" });
+    }
+    if (role === "EXECUTIVE") {
+      menus.push({ href: "/director", label: "部長評価閲覧", description: "担当部署の部長評価を閲覧する", color: "bg-indigo-600 hover:bg-indigo-700" });
+    }
+    // 課なし・部長でも顧問でも課長でもない部署所属者 → 課長評価
+    const isDeptViewer = !["DIRECTOR", "EXECUTIVE", "COUNSELOR", "MANAGER", "PRESIDENT", "ADMIN", "LEADER"].includes(role)
+      && !dbUser?.section_id
+      && !!dbUser?.department_id;
+    if (isDeptViewer) {
+      menus.push({ href: "/manager", label: "課長評価", description: "自部署の課長評価を入力する", color: "bg-green-600 hover:bg-green-700" });
+    }
+    if (!isTrainee && !skipEvaluation && role !== "PRESIDENT") {
+      menus.push({ href: "/history", label: "自己評価履歴", description: "過去の自己評価を期間ごとに閲覧する", color: "bg-slate-500 hover:bg-slate-600" });
+    }
+    if (canViewNotices) {
+      menus.push({ href: "/my-notices", label: "通知書", description: "昇給・賞与通知書を閲覧・印刷する", color: "bg-amber-600 hover:bg-amber-700" });
+    }
   }
 
   return (

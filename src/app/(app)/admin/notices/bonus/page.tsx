@@ -37,6 +37,7 @@ export default async function BonusNoticePage({
       </div>
       <h2 className="text-xl font-bold mb-6 text-gray-800">賞与通知</h2>
       <BonusMain
+        key={year}
         years={YEARS}
         activeYear={year}
         bonusSummerDate={summerDoc?.notice_date ?? ""}

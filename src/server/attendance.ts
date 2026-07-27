@@ -167,6 +167,26 @@ export async function getAttendanceRecords(periodId: string): Promise<Attendance
   if (parsed) {
     const empNos = rows.map((r) => r.employee_number);
     empInfoMap = await buildEmpInfoMap(empNos, parsed.fy, parsed.isSummer);
+
+    // 基準日（夏期: 8/26、冬期: 11/26）に在籍していた社員のみ表示
+    const refDate = parsed.isSummer
+      ? new Date(parsed.fy, 7, 26)  // 8月26日
+      : new Date(parsed.fy, 10, 26); // 11月26日
+    const activeEmpNos = await prisma.user.findMany({
+      where: {
+        deleted_at: null,
+        employee_number: { in: empNos },
+        AND: [
+          { OR: [{ hire_date: null }, { hire_date: { lte: refDate } }] },
+          { OR: [{ resign_date: null }, { resign_date: { gte: refDate } }] },
+        ],
+      },
+      select: { employee_number: true },
+    });
+    const activeSet = new Set(activeEmpNos.map((u) => u.employee_number).filter(Boolean) as string[]);
+    return rows
+      .filter((r) => activeSet.has(r.employee_number))
+      .map((r) => mapRow(r, empInfoMap.get(r.employee_number)));
   }
   return rows.map((r) => mapRow(r, empInfoMap.get(r.employee_number)));
 }

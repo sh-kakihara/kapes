@@ -46,15 +46,11 @@ export default async function DirectorPage() {
         selfUserId={session.user.id}
         hideForEvaluator={["leader", "manager"]}
         selfHidesForEvaluator="director"
-        showSelfForRoles={[
-          { evaluator: "leader", role: "LEADER" },
-          { evaluator: "manager", role: "MANAGER" },
-        ]}
         hideWithoutGroupForEvaluator="leader"
         popupColumns={[
           { key: "self",    label: "自己評価",     color: "text-blue-600" },
-          { key: "leader",  label: "リーダー評価", color: "text-orange-500", roleOverride: "LEADER", showForRoles: ["STAFF", "LEADER"], hideIfSectionNoLeader: true },
-          { key: "manager", label: "課長評価",     color: "text-green-700", roleOverride: "MANAGER" },
+          { key: "leader",  label: "リーダー評価", color: "text-orange-500", showForRoles: ["STAFF"], hideIfSectionNoLeader: true, hideIfNoScore: true },
+          { key: "manager", label: "課長評価",     color: "text-green-700", roleOverride: "MANAGER", showForRoles: ["STAFF", "LEADER", "MANAGER", "COUNSELOR"], hideIfNoScore: true },
         ]}
       />
     </div>

@@ -2,8 +2,6 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { EVALUATION_ITEMS, STATUS_LABELS } from "@/lib/constants";
-import GradeEditPanel from "./grade-edit-panel";
-
 export default async function PresidentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user) redirect("/login");
@@ -20,11 +18,6 @@ export default async function PresidentDetailPage({ params }: { params: Promise<
   });
 
   if (!evaluation) redirect("/president");
-
-  const empRecord = await prisma.employeeRecord.findFirst({
-    where: { user_id: evaluation.employee_id },
-    orderBy: { fiscal_year: "desc" },
-  });
 
   const employeeRole = evaluation.employee.role;
 
@@ -91,17 +84,6 @@ export default async function PresidentDetailPage({ params }: { params: Promise<
         {[evaluation.employee.department?.name, evaluation.employee.section?.name, evaluation.employee.group?.name]
           .filter(Boolean).join(" › ")}
       </p>
-
-      <div className="mb-4">
-        <GradeEditPanel
-          userId={evaluation.employee_id}
-          fiscalYear={empRecord?.fiscal_year ?? new Date().getFullYear()}
-          initialGrades={{
-            curr_summer_president_eval: empRecord?.curr_summer_president_eval ?? null,
-            curr_winter_president_eval: empRecord?.curr_winter_president_eval ?? null,
-          }}
-        />
-      </div>
 
       <div className="mb-6 flex items-center gap-3 flex-wrap">
         <span className="inline-block bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full font-medium">

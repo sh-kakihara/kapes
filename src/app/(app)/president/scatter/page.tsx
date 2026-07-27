@@ -57,10 +57,13 @@ export default async function ScatterPage({
     const directorCount = ev.scores.filter((s) => s.evaluator === directorKey && s.score !== null).length;
     if (selfCount === 0 || directorCount === 0) continue;
 
+    const deptName = ev.employee.department?.name ?? "";
+    const sectionName = ev.employee.section?.name ?? null;
     points.push({
       name: ev.employee.name,
       employeeNumber: ev.employee.employee_number ?? null,
-      department: ev.employee.department?.name ?? "",
+      department: deptName,
+      section: deptName === "新プロセス開発室" ? null : sectionName,
       selfTotal,
       directorTotal,
     });

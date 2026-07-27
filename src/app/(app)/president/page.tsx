@@ -83,12 +83,6 @@ export default async function PresidentPage({
       <div className="flex items-center justify-between mb-1 flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <h2 className="text-xl font-bold text-gray-800">評価閲覧画面</h2>
-          <Link
-            href={`/president/scatter${selectedPeriod.id !== periods[0]?.id ? `?period=${selectedPeriod.id}` : ""}`}
-            className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 font-medium"
-          >
-            散布図
-          </Link>
         </div>
         <PeriodSelector
           periods={periods.map((p) => ({ id: p.id, name: p.name, is_active: p.is_active }))}
@@ -108,6 +102,14 @@ export default async function PresidentPage({
           detailButtonLabel="詳細を見る"
           scoreEvaluator="director"
           scoreOptions={scoreOptions}
+          extraActions={
+            <Link
+              href={`/president/scatter${selectedPeriod.id !== periods[0]?.id ? `?period=${selectedPeriod.id}` : ""}`}
+              className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 font-medium"
+            >
+              散布図
+            </Link>
+          }
 hideWithoutGroupForEvaluator="leader"
           popupColumns={[
             { key: "self",      label: "自己評価",     color: "text-blue-600" },

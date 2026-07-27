@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   upsertInflationSetting,
@@ -135,6 +135,39 @@ export default function InflationMain({
   const [rows, setRows] = useState<InflationEmployeeRow[]>(initialRows);
   const [editRow, setEditRow] = useState<InflationEmployeeRow | null>(null);
 
+  const [sortState, setSortState] = useState<{ col: string; dir: "asc" | "desc" } | null>(null);
+  const [filters, setFilters] = useState<Record<string, string>>({});
+
+  function toggleSort(col: string) {
+    setSortState((prev) =>
+      prev?.col !== col ? { col, dir: "asc" }
+      : prev.dir === "asc" ? { col, dir: "desc" }
+      : null
+    );
+  }
+  function sortIcon(col: string) {
+    if (sortState?.col !== col) return "⇅";
+    return sortState.dir === "asc" ? "▲" : "▼";
+  }
+
+  const displayed = useMemo(() => {
+    let result = [...rows];
+    for (const [col, text] of Object.entries(filters)) {
+      if (!text) continue;
+      const lower = text.toLowerCase();
+      result = result.filter((r) => String((r as Record<string, unknown>)[col] ?? "").toLowerCase().includes(lower));
+    }
+    if (sortState) {
+      result.sort((a, b) => {
+        const av = (a as Record<string, unknown>)[sortState.col] ?? "";
+        const bv = (b as Record<string, unknown>)[sortState.col] ?? "";
+        if (typeof av === "number" && typeof bv === "number") return sortState.dir === "asc" ? av - bv : bv - av;
+        return sortState.dir === "asc" ? String(av).localeCompare(String(bv), "ja") : String(bv).localeCompare(String(av), "ja");
+      });
+    }
+    return result;
+  }, [rows, filters, sortState]);
+
   function handleSeasonChange(season: "夏期" | "冬期") {
     router.push(`/admin/inflation?year=${activeYear}&season=${season}`);
   }
@@ -215,13 +248,43 @@ export default function InflationMain({
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="bg-gray-50 text-xs text-gray-500">
-                <th className="px-3 py-2 text-left font-medium border-b w-20">社員番号</th>
-                <th className="px-3 py-2 text-left font-medium border-b w-28">氏名</th>
-                <th className="px-3 py-2 text-left font-medium border-b w-24">部</th>
-                <th className="px-3 py-2 text-left font-medium border-b w-24">課</th>
-                <th className="px-3 py-2 text-center font-medium border-b w-16">勤務年数</th>
-                <th className="px-3 py-2 text-center font-medium border-b w-14">年齢</th>
-                <th className="px-3 py-2 text-right font-medium border-b w-28">インフレ手当額</th>
+                <th className="px-3 py-2 text-left font-medium border-b w-20">
+                  <div className="flex items-center gap-1">
+                    <span>社員番号</span>
+                    <button onClick={() => toggleSort("employee_number")} className="text-xs text-gray-400 hover:text-blue-600 shrink-0">{sortIcon("employee_number")}</button>
+                    <input type="text" value={filters["employee_number"] ?? ""} onChange={(e) => setFilters(f => ({...f, employee_number: e.target.value}))} placeholder="絞込" className="w-12 border border-gray-200 rounded px-1 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-400" />
+                  </div>
+                </th>
+                <th className="px-3 py-2 text-left font-medium border-b w-28">
+                  <div className="flex items-center gap-1">
+                    <span>氏名</span>
+                    <button onClick={() => toggleSort("name")} className="text-xs text-gray-400 hover:text-blue-600 shrink-0">{sortIcon("name")}</button>
+                    <input type="text" value={filters["name"] ?? ""} onChange={(e) => setFilters(f => ({...f, name: e.target.value}))} placeholder="絞込" className="w-12 border border-gray-200 rounded px-1 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-400" />
+                  </div>
+                </th>
+                <th className="px-3 py-2 text-left font-medium border-b w-24">
+                  <div className="flex items-center gap-1">
+                    <span>部</span>
+                    <button onClick={() => toggleSort("department")} className="text-xs text-gray-400 hover:text-blue-600 shrink-0">{sortIcon("department")}</button>
+                    <input type="text" value={filters["department"] ?? ""} onChange={(e) => setFilters(f => ({...f, department: e.target.value}))} placeholder="絞込" className="w-12 border border-gray-200 rounded px-1 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-400" />
+                  </div>
+                </th>
+                <th className="px-3 py-2 text-left font-medium border-b w-24">
+                  <div className="flex items-center gap-1">
+                    <span>課</span>
+                    <button onClick={() => toggleSort("section")} className="text-xs text-gray-400 hover:text-blue-600 shrink-0">{sortIcon("section")}</button>
+                    <input type="text" value={filters["section"] ?? ""} onChange={(e) => setFilters(f => ({...f, section: e.target.value}))} placeholder="絞込" className="w-12 border border-gray-200 rounded px-1 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-400" />
+                  </div>
+                </th>
+                <th className="px-3 py-2 text-center font-medium border-b w-16">
+                  <div className="flex items-center justify-center gap-1"><span>勤務年数</span><button onClick={() => toggleSort("years_employed")} className="text-xs text-gray-400 hover:text-blue-600 shrink-0">{sortIcon("years_employed")}</button></div>
+                </th>
+                <th className="px-3 py-2 text-center font-medium border-b w-14">
+                  <div className="flex items-center justify-center gap-1"><span>年齢</span><button onClick={() => toggleSort("age")} className="text-xs text-gray-400 hover:text-blue-600 shrink-0">{sortIcon("age")}</button></div>
+                </th>
+                <th className="px-3 py-2 text-right font-medium border-b w-28">
+                  <div className="flex items-center justify-end gap-1"><span>インフレ手当額</span><button onClick={() => toggleSort("final_amount")} className="text-xs text-gray-400 hover:text-blue-600 shrink-0">{sortIcon("final_amount")}</button></div>
+                </th>
                 <th className="px-3 py-2 text-center font-medium border-b w-16"></th>
               </tr>
             </thead>
@@ -232,7 +295,7 @@ export default function InflationMain({
                     社員データがありません
                   </td>
                 </tr>
-              ) : rows.map((row) => (
+              ) : displayed.map((row) => (
                 <tr
                   key={row.user_id}
                   className={`border-b last:border-b-0 hover:bg-gray-50 ${!enabled ? "opacity-40" : ""}`}
@@ -281,7 +344,7 @@ export default function InflationMain({
             </tbody>
           </table>
           <div className="px-3 py-2 border-t flex items-center justify-between text-xs text-gray-500">
-            <span>{rows.length}名</span>
+            <span>{displayed.length}名</span>
             {enabled && (
               <span className="font-medium text-gray-700">
                 合計: {totalAmount.toLocaleString("ja-JP")}円

@@ -124,12 +124,9 @@ export default function DirectorEvalForm({
                 </div>
               </div>
 
-              {(employeeRole === "LEADER" || (ldr && (ldr.score !== null || ldr.comment))) && (
+              {employeeRole !== "LEADER" && ldr && (ldr.score !== null || ldr.comment) && (
                 <div className="bg-gray-50 rounded p-3 mb-2">
-                  <p className="text-xs font-medium text-gray-500 mb-1">
-                    【リーダー評価】
-                    {employeeRole === "LEADER" && <span className="ml-1 text-gray-400 font-normal">（自己評価と同じ点数）</span>}
-                  </p>
+                  <p className="text-xs font-medium text-gray-500 mb-1">【リーダー評価】</p>
                   <div className="flex items-center gap-3">
                     <span className="text-orange-600 font-bold">{ldr?.score ?? "未入力"}</span>
                     {ldr?.comment && <span className="text-sm text-gray-600">「{ldr.comment}」</span>}
@@ -137,23 +134,19 @@ export default function DirectorEvalForm({
                 </div>
               )}
 
-              <div className="bg-gray-50 rounded p-3 mb-3">
-                <p className="text-xs font-medium text-gray-500 mb-1">
-                  【課長評価】
-                  {employeeRole === "MANAGER" && <span className="ml-1 text-gray-400 font-normal">（自己評価と同じ点数）</span>}
-                </p>
-                <div className="flex items-center gap-3">
-                  <span className="text-green-700 font-bold">{mgr?.score ?? "未入力"}</span>
-                  {mgr?.comment && <span className="text-sm text-gray-600">「{mgr.comment}」</span>}
+              {employeeRole !== "MANAGER" && (
+                <div className="bg-gray-50 rounded p-3 mb-3">
+                  <p className="text-xs font-medium text-gray-500 mb-1">【課長評価】</p>
+                  <div className="flex items-center gap-3">
+                    <span className="text-green-700 font-bold">{mgr?.score ?? "未入力"}</span>
+                    {mgr?.comment && <span className="text-sm text-gray-600">「{mgr.comment}」</span>}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div>
                 <p className="text-xs font-medium text-gray-500 mb-2">
                   【部長評価】
-                  {canEdit && canSubmit && dir.score === managerScores.find((m) => m.item_code === item.code)?.score && dir.score !== null && (
-                    <span className="ml-2 text-xs text-gray-400">（課長評価から自動入力）</span>
-                  )}
                 </p>
                 {canEdit && !readOnly ? (
                   <>

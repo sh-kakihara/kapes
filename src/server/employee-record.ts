@@ -316,7 +316,12 @@ function describeZodIssue(
 
 const evalSchema = z.string().regex(/^(A\+|A|B\+|B|C)$/).nullable();
 const numSchema = z.preprocess(
-  (v) => (v === "" || v == null ? null : Number(v)),
+  (v) => {
+    if (v === "" || v == null) return null;
+    // カンマ区切り（例: "1,234,567"）を除去してからパース
+    const n = Number(String(v).replace(/,/g, ""));
+    return isNaN(n) ? null : n;
+  },
   z.number().nullable(),
 );
 const dateSchema = z.preprocess(

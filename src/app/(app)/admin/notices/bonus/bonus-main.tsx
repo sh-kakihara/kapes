@@ -12,8 +12,8 @@ import {
   type ColumnDef,
   type SortingState,
   type ColumnFiltersState,
-  type FilterFn,
   type Column,
+  type FilterFn,
 } from "@tanstack/react-table";
 import { upsertBonusNoticeDocument } from "@/server/notice";
 import { toWareki, calcAgeAt, fmtAmount } from "@/lib/wareki";
@@ -22,9 +22,7 @@ import type { BonusNoticeEmployee } from "@/server/notice";
 // ---------- 型 ----------
 type EmpRow = BonusNoticeEmployee & { _age: number | null };
 
-// ---------- フィルター ----------
 const NONE_SELECTED = "__none__";
-
 const multiSelectFilter: FilterFn<EmpRow> = (row, columnId, filterValue: string[]) => {
   if (!filterValue || filterValue.length === 0) return true;
   if (filterValue[0] === NONE_SELECTED) return false;
@@ -39,22 +37,30 @@ function FacetedFilter({ column, title }: { column: Column<EmpRow, unknown>; tit
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node)) { setOpen(false); setSearch(""); }
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
   const uniqueValues = useMemo(
-    () => Array.from(column.getFacetedUniqueValues().keys()).filter((v) => v !== "").sort(),
+    () => column.getCanFilter() ? Array.from(column.getFacetedUniqueValues().keys()).filter((v) => v !== "").sort() : [],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [column.getFacetedUniqueValues()]
   );
+
+  useEffect(() => {
+    if (search === "") { column.setFilterValue([]); return; }
+    const lower = search.toLowerCase();
+    const matches = uniqueValues.filter((v) => String(v).toLowerCase().includes(lower)).map(String);
+    column.setFilterValue(matches.length > 0 ? matches : [NONE_SELECTED]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
+
   const filtered = useMemo(
     () => uniqueValues.filter((v) => String(v).toLowerCase().includes(search.toLowerCase())),
     [uniqueValues, search]
   );
-
   const filterValue = (column.getFilterValue() as string[]) ?? [];
   const isAllSelected = filterValue.length === 0;
   const isNoneSelected = filterValue.length === 1 && filterValue[0] === NONE_SELECTED;
@@ -62,8 +68,7 @@ function FacetedFilter({ column, title }: { column: Column<EmpRow, unknown>; tit
   const sortDir = column.getIsSorted();
 
   function isChecked(val: string) {
-    if (isAllSelected) return true;
-    if (isNoneSelected) return false;
+    if (isAllSelected) return true; if (isNoneSelected) return false;
     return filterValue.includes(val);
   }
   function toggleAll() { column.setFilterValue(isAllSelected ? [NONE_SELECTED] : []); setSearch(""); }
@@ -73,81 +78,43 @@ function FacetedFilter({ column, title }: { column: Column<EmpRow, unknown>; tit
     if (next.length === 0) column.setFilterValue([NONE_SELECTED]);
     else if (next.length === uniqueValues.length) column.setFilterValue([]);
     else column.setFilterValue(next);
+    setSearch("");
   }
 
   return (
     <div ref={ref} className="relative inline-block w-full">
       <div className={`flex items-center gap-0.5 text-xs font-medium px-1 py-0.5 rounded w-full ${isFiltered ? "text-blue-700 bg-blue-50" : "text-gray-600"}`}>
-        <button
-          onClick={() => column.toggleSorting(sortDir === "asc")}
-          className="flex items-center gap-1 hover:text-blue-700 flex-1 min-w-0"
-        >
+        <button onClick={() => column.toggleSorting(sortDir === "asc")} className="flex items-center gap-1 hover:text-blue-700 flex-1 min-w-0">
           <span className="truncate">{title}</span>
           <span className="text-gray-400 shrink-0">{sortDir === "asc" ? "▲" : sortDir === "desc" ? "▼" : "⇅"}</span>
         </button>
-        <button
-          onClick={() => setOpen((v) => !v)}
-          className={`shrink-0 px-0.5 hover:text-blue-600 ${isFiltered ? "text-blue-600" : "text-gray-400"}`}
-          title="絞り込み"
-        >
-          ☰
+        <button onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }} className={`shrink-0 hover:text-blue-700 ${isFiltered ? "text-blue-600" : "text-gray-400"}`} title="フィルター">
+          {isFiltered ? "▼" : "▽"}
         </button>
       </div>
       {open && (
-        <div className="absolute left-0 top-full mt-1 z-50 bg-white border border-gray-200 rounded-lg shadow-xl min-w-44 max-w-56 p-2">
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="検索..."
-            className="w-full border border-gray-200 rounded px-2 py-1 text-xs mb-2 focus:outline-none focus:border-blue-400"
-            autoFocus
-          />
+        <div className="absolute left-0 top-full mt-1 z-50 bg-white border border-gray-200 rounded-lg shadow-lg w-44 p-2">
+          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="検索..." className="w-full border border-gray-200 rounded px-2 py-1 text-xs mb-2 focus:outline-none focus:ring-1 focus:ring-blue-400" autoFocus />
           <div className="max-h-48 overflow-y-auto space-y-0.5">
-            <label className="flex items-center gap-2 px-1.5 py-1 rounded hover:bg-gray-50 cursor-pointer text-xs border-b border-gray-100 mb-1 pb-2">
+            <label className="flex items-center gap-2 px-1.5 py-1 rounded hover:bg-gray-50 cursor-pointer text-xs">
               <input type="checkbox" checked={isAllSelected} onChange={toggleAll} className="w-3.5 h-3.5 accent-blue-600" />
-              <span className="font-medium text-gray-700">（すべて選択）</span>
+              <span className="text-gray-700 font-medium">（すべて選択）</span>
             </label>
-            {filtered.length === 0 && <p className="text-xs text-gray-400 px-1.5 py-1">該当なし</p>}
             {filtered.map((val) => (
               <label key={String(val)} className="flex items-center gap-2 px-1.5 py-1 rounded hover:bg-gray-50 cursor-pointer text-xs">
-                <input
-                  type="checkbox"
-                  checked={isChecked(String(val))}
-                  onChange={() => toggleValue(String(val))}
-                  className="w-3.5 h-3.5 accent-blue-600"
-                />
-                <span className="text-gray-700 truncate">{String(val) || "（空白）"}</span>
+                <input type="checkbox" checked={isChecked(String(val))} onChange={() => toggleValue(String(val))} className="w-3.5 h-3.5 accent-blue-600" />
+                <span className="text-gray-700 truncate">{val || "（空白）"}</span>
               </label>
             ))}
           </div>
-          {isFiltered && (
-            <button onClick={toggleAll} className="mt-2 w-full text-xs text-blue-600 hover:underline text-left px-1.5">
-              フィルターをクリア
-            </button>
-          )}
+          {isFiltered && <button onClick={toggleAll} className="mt-2 w-full text-xs text-blue-600 hover:underline text-left px-1.5">フィルターをクリア</button>}
         </div>
       )}
     </div>
   );
 }
 
-// ---------- ソートのみヘッダー ----------
-function SortOnlyHeader({ column, title }: { column: Column<EmpRow, unknown>; title: string }) {
-  const sortDir = column.getIsSorted();
-  return (
-    <button
-      onClick={() => column.toggleSorting(sortDir === "asc")}
-      className="flex items-center gap-1 hover:text-blue-700 text-xs font-medium text-gray-600 w-full px-1 py-0.5"
-    >
-      <span className="truncate">{title}</span>
-      <span className="text-gray-400 shrink-0">{sortDir === "asc" ? "▲" : sortDir === "desc" ? "▼" : "⇅"}</span>
-    </button>
-  );
-}
-
 // ---------- 列定義 ----------
-const FILTER_COLS = new Set(["employee_number", "name"]);
-
 function makeColumns(): ColumnDef<EmpRow>[] {
   function f(id: string, label: string, accessorFn: (r: EmpRow) => string): ColumnDef<EmpRow> {
     return { id, accessorFn, header: label, filterFn: multiSelectFilter };
@@ -198,6 +165,7 @@ export default function BonusMain({
 }: Props) {
   const router = useRouter();
 
+  const [yearList, setYearList] = useState(years);
   const [bonusSeason, setBonusSeason] = useState<"夏期" | "冬期">("夏期");
   const [summerDate, setSummerDate] = useState(bonusSummerDate);
   const [summerRep, setSummerRep] = useState(bonusSummerRep);
@@ -236,6 +204,7 @@ export default function BonusMain({
   const table = useReactTable({
     data: employees,
     columns: COLUMNS,
+    filterFns: { multiSelectFilter },
     state: { sorting, columnFilters },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -276,8 +245,8 @@ export default function BonusMain({
   return (
     <div>
       {/* 年タブ */}
-      <div className="flex border-b mb-5">
-        {years.map((y) => (
+      <div className="flex border-b mb-5 items-end">
+        {yearList.map((y) => (
           <button
             key={y}
             onClick={() => { router.push(`/admin/notices/bonus?year=${y}`); setSaveMsg(""); resetAll(); }}
@@ -290,6 +259,17 @@ export default function BonusMain({
             {y}年度
           </button>
         ))}
+        <button
+          onClick={() => {
+            const next = Math.max(...yearList) + 1;
+            setYearList((prev) => [...prev, next]);
+            router.push(`/admin/notices/bonus?year=${next}`);
+          }}
+          className="px-3 py-2 text-sm text-blue-600 hover:text-blue-800 border border-blue-300 rounded ml-2 mb-0.5"
+          title="年度を追加"
+        >
+          ＋
+        </button>
       </div>
 
       {/* 夏期/冬期 切替 */}
@@ -329,17 +309,12 @@ export default function BonusMain({
               <tr className="bg-gray-50 text-xs">
                 {table.getHeaderGroups()[0].headers.map((header) => {
                   const col = header.column;
-                  const isFilter = FILTER_COLS.has(col.id);
                   return (
                     <th
                       key={header.id}
                       className="px-2 py-1.5 border-b text-left font-medium whitespace-nowrap"
                     >
-                      {isFilter ? (
-                        <FacetedFilter column={col} title={col.columnDef.header as string} />
-                      ) : (
-                        <SortOnlyHeader column={col} title={col.columnDef.header as string} />
-                      )}
+                      <FacetedFilter column={col} title={col.columnDef.header as string} />
                     </th>
                   );
                 })}
