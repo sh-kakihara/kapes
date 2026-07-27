@@ -46,7 +46,7 @@ jobs:
       - name: Download task definition
         run: |
           aws ecs describe-task-definition --task-definition $ECS_TASK_DEFINITION \
-            --query taskDefinition > task-definition.json
+            --query 'taskDefinition | {family: family, containerDefinitions: containerDefinitions, volumes: volumes, placementConstraints: placementConstraints, requiresCompatibilities: requiresCompatibilities, cpu: cpu, memory: memory, networkMode: networkMode, taskRoleArn: taskRoleArn, executionRoleArn: executionRoleArn}' > task-definition.json
 
       - name: Update ECS task definition with new image
         id: task-def
