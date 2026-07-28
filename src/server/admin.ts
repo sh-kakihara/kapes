@@ -228,7 +228,10 @@ export async function importUsersFromCsv(rows: {
         ...(employeeType !== undefined ? { employee_type: employeeType } : {}),
         ...(isActive !== undefined ? { is_active: isActive } : {}),
       };
-      if (row.password) updateData.password_hash = await bcrypt.hash(row.password, 10);
+      if (row.password) {
+        updateData.password_hash = await bcrypt.hash(row.password, 10);
+        updateData.is_first_login = true;
+      }
 
       if (existing) {
         await prisma.user.update({ where: { id: existing.id }, data: updateData });
