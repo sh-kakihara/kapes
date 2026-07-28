@@ -330,7 +330,7 @@ function EditModal({ row, fiscalYear, onClose, onSaved }: { row: Row; fiscalYear
     const value = (form as Record<string, unknown>)[key];
     if (DIRECTOR_EVAL_KEYS.has(key)) {
       return (
-        <input type="number" min={0} value={value == null ? "" : String(value)}
+        <input type="text" inputMode="numeric" value={value == null ? "" : String(value)}
           onChange={(e) => setField(key, e.target.value === "" ? null : e.target.value)}
           className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
       );
