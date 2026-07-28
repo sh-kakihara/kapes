@@ -428,7 +428,7 @@ export default function AttendanceMain({ initialPeriods }: Props) {
     const rows: string[][] = [
       [...CSV_HEADERS, "精勤手当", "基本額", "役職手当", "支給額", "備考"],
       ...records.map((r) => {
-        const liveBonus = calcBonus(r.bonus_eligible, r.paid_leave_days, r.absent_days, r.late_early_hours);
+        const liveBonus = r.bonus_override != null ? r.bonus_override : calcBonus(r.bonus_eligible, r.paid_leave_days, r.absent_days, r.late_early_hours);
         const liveBase = (r.employee_bonus ?? 0) + liveBonus;
         const p = calcPayment(r.bonus_eligible, liveBase || null, r.employee_position_allowance, r.absent_days, r.late_early_hours) ?? 0;
         return [
@@ -629,7 +629,7 @@ export default function AttendanceMain({ initialPeriods }: Props) {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {displayed.map((r) => {
-                    const liveBonus = calcBonus(r.bonus_eligible, r.paid_leave_days, r.absent_days, r.late_early_hours);
+                    const liveBonus = r.bonus_override != null ? r.bonus_override : calcBonus(r.bonus_eligible, r.paid_leave_days, r.absent_days, r.late_early_hours);
                     const liveBase  = (r.employee_bonus ?? 0) + liveBonus;
                     const livePayment = calcPayment(r.bonus_eligible, liveBase || null, r.employee_position_allowance, r.absent_days, r.late_early_hours) ?? 0;
 
