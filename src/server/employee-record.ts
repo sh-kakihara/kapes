@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { forbidden } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 async function requirePresidentOrAdmin() {
@@ -260,6 +261,7 @@ export async function upsertEmployeeRecord(
     });
   }
 
+  revalidatePath("/admin/employees");
   return { ok: true };
 }
 
