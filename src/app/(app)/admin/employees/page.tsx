@@ -170,8 +170,8 @@ export default async function EmployeeLedgerPage({
     if (s || w) {
       row.record = {
         ...(row.record ?? {}),
-        ...(s ? { curr_summer_bonus_add: s.bonus_add, curr_summer_payment: s.payment } : {}),
-        ...(w ? { curr_winter_bonus_add: w.bonus_add, curr_winter_payment: w.payment } : {}),
+        ...(s ? { curr_summer_bonus_add: s.bonus_add, curr_summer_payment: s.payment ?? 0 } : {}),
+        ...(w ? { curr_winter_bonus_add: w.bonus_add, curr_winter_payment: w.payment ?? 0 } : {}),
       } as typeof row.record;
     }
   }
