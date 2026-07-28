@@ -656,7 +656,7 @@ export default function EmployeeLedgerTable({
 
   async function handleSaved() {
     setEditRow(null);
-    router.refresh();
+    window.location.reload();
   }
 
   function handleDownloadTemplate() {
