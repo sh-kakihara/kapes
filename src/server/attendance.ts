@@ -36,6 +36,7 @@ export type AttendanceRecordRow = {
   legal_holiday_hours: number | null;
   bonus_eligible: boolean;
   bonus_amount: number | null;
+  bonus_override: number | null;
   /** 夏/冬期賞与額（EmployeeRecordから） */
   employee_bonus: number | null;
   /** 役職手当（EmployeeRecordから） */
@@ -53,10 +54,11 @@ function mapRow(r: {
   absent_days: Prisma.Decimal | null; late_early_hours: Prisma.Decimal | null;
   overtime_hours: Prisma.Decimal | null; night_overtime_hours: Prisma.Decimal | null;
   holiday_hours: Prisma.Decimal | null; legal_holiday_hours: Prisma.Decimal | null;
-  bonus_eligible: boolean; bonus_amount: Prisma.Decimal | null;
+  bonus_eligible: boolean; bonus_amount: Prisma.Decimal | null; bonus_override: Prisma.Decimal | null;
   payment_amount: Prisma.Decimal | null; notes: string | null;
 }, empInfo?: { employee_bonus: number | null; employee_position_allowance: number | null; department?: string | null; section?: string | null }): AttendanceRecordRow {
   const bonusAmt = r.bonus_amount != null ? Number(r.bonus_amount) : null;
+  const bonusOverride = r.bonus_override != null ? Number(r.bonus_override) : null;
   const empBonus = empInfo?.employee_bonus ?? null;
   const empPos = empInfo?.employee_position_allowance ?? null;
   // 基本額 = 賞与額 + 精勤手当（役職手当は別列）
@@ -79,6 +81,7 @@ function mapRow(r: {
     legal_holiday_hours: r.legal_holiday_hours != null ? Number(r.legal_holiday_hours) : null,
     bonus_eligible: r.bonus_eligible,
     bonus_amount: bonusAmt,
+    bonus_override: bonusOverride,
     employee_bonus: empBonus,
     employee_position_allowance: empPos,
     base_amount: baseAmount,
@@ -217,6 +220,7 @@ export async function updateAttendanceRecord(
     holiday_hours?: string;
     legal_holiday_hours?: string;
     bonus_eligible?: boolean;
+    bonus_override?: string;
     notes?: string;
   }
 ): Promise<{ ok: boolean }> {
@@ -238,12 +242,14 @@ export async function updateAttendanceRecord(
   }
 
   const eligible = data.bonus_eligible ?? true;
-  const bonus = calcBonus(
+  const overrideVal = data.bonus_override !== undefined ? num(data.bonus_override) : undefined;
+  const autoBonus = calcBonus(
     eligible,
     num(data.paid_leave_days),
     num(data.absent_days),
     num(data.late_early_hours)
   );
+  const bonus = overrideVal !== undefined && overrideVal !== null ? overrideVal : autoBonus;
 
   // 基本額・役職手当を EmployeeRecord から取得
   const existing = await prisma.attendanceRecord.findUnique({
@@ -279,6 +285,7 @@ export async function updateAttendanceRecord(
       legal_holiday_hours: dec(data.legal_holiday_hours),
       bonus_eligible: eligible,
       bonus_amount: new Prisma.Decimal(bonus),
+      bonus_override: overrideVal !== undefined ? (overrideVal !== null ? new Prisma.Decimal(overrideVal) : null) : undefined,
       payment_amount: payment != null ? new Prisma.Decimal(payment) : null,
       notes: data.notes !== undefined ? (data.notes.trim() || null) : undefined,
       updated_by: me.id,

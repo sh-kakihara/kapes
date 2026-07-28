@@ -280,6 +280,7 @@ model AttendanceRecord {
   base_salary          Decimal? @db.Decimal(10, 2) /// 基本給
   position_allowance   Decimal? @db.Decimal(10, 2) /// 役職手当
   payment_amount       Decimal? @db.Decimal(10, 2) /// 支給額
+  bonus_override       Decimal? @db.Decimal(10, 2) /// 精勤手当手動上書き（設定時は自動計算を無視）
   notes                String?  @db.Text            /// 備考
   created_at           DateTime @default(now())
   updated_at           DateTime @updatedAt

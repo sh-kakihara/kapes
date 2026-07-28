@@ -110,6 +110,7 @@ type EditState = {
   holiday_hours: string;
   legal_holiday_hours: string;
   bonus_eligible: boolean;
+  bonus_override: string;
   notes: string;
   _employee_bonus: number | null;
   _employee_position_allowance: number | null;
@@ -130,6 +131,8 @@ function parseNum(v: string): number | null {
 }
 
 function previewBonus(edit: EditState): number {
+  const override = parseNum(edit.bonus_override);
+  if (override !== null) return override;
   return calcBonus(
     edit.bonus_eligible,
     parseNum(edit.paid_leave_days),
@@ -226,6 +229,25 @@ function EditModal({
               )}
             </div>
           ))}
+        </div>
+
+        {/* 精勤手当手動上書き */}
+        <div className="px-6 pb-2">
+          <label className="block text-xs font-medium text-gray-600 mb-1">
+            精勤手当（手動上書き）
+            <span className="ml-2 text-gray-400 font-normal">空欄で自動計算に戻る</span>
+          </label>
+          <div className="flex items-center gap-1">
+            <input
+              type="text"
+              inputMode="numeric"
+              value={editState.bonus_override}
+              onChange={(e) => onChange("bonus_override", e.target.value)}
+              placeholder={`自動: ${calcBonus(editState.bonus_eligible, parseNum(editState.paid_leave_days), parseNum(editState.absent_days), parseNum(editState.late_early_hours)).toLocaleString()}`}
+              className="w-full border border-blue-300 rounded px-2 py-1.5 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            <span className="text-xs text-gray-500 whitespace-nowrap">円</span>
+          </div>
         </div>
 
         {/* 計算結果プレビュー */}
@@ -326,6 +348,7 @@ export default function AttendanceMain({ initialPeriods }: Props) {
       holiday_hours:        fmt(row.holiday_hours),
       legal_holiday_hours:  fmt(row.legal_holiday_hours),
       bonus_eligible:       row.bonus_eligible,
+      bonus_override:       row.bonus_override != null ? String(row.bonus_override) : "",
       notes:                row.notes ?? "",
       _employee_bonus:             row.employee_bonus,
       _employee_position_allowance: row.employee_position_allowance,
@@ -380,6 +403,7 @@ export default function AttendanceMain({ initialPeriods }: Props) {
         holiday_hours:        editState.holiday_hours,
         legal_holiday_hours:  editState.legal_holiday_hours,
         bonus_eligible:       editState.bonus_eligible,
+        bonus_override:       editState.bonus_override,
         notes:                editState.notes,
       });
       if (activePeriodId) {

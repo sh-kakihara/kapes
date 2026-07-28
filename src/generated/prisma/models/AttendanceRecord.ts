@@ -39,6 +39,7 @@ export type AttendanceRecordAvgAggregateOutputType = {
   base_salary: runtime.Decimal | null
   position_allowance: runtime.Decimal | null
   payment_amount: runtime.Decimal | null
+  bonus_override: runtime.Decimal | null
 }
 
 export type AttendanceRecordSumAggregateOutputType = {
@@ -54,6 +55,7 @@ export type AttendanceRecordSumAggregateOutputType = {
   base_salary: runtime.Decimal | null
   position_allowance: runtime.Decimal | null
   payment_amount: runtime.Decimal | null
+  bonus_override: runtime.Decimal | null
 }
 
 export type AttendanceRecordMinAggregateOutputType = {
@@ -74,6 +76,7 @@ export type AttendanceRecordMinAggregateOutputType = {
   base_salary: runtime.Decimal | null
   position_allowance: runtime.Decimal | null
   payment_amount: runtime.Decimal | null
+  bonus_override: runtime.Decimal | null
   notes: string | null
   created_at: Date | null
   updated_at: Date | null
@@ -99,6 +102,7 @@ export type AttendanceRecordMaxAggregateOutputType = {
   base_salary: runtime.Decimal | null
   position_allowance: runtime.Decimal | null
   payment_amount: runtime.Decimal | null
+  bonus_override: runtime.Decimal | null
   notes: string | null
   created_at: Date | null
   updated_at: Date | null
@@ -124,6 +128,7 @@ export type AttendanceRecordCountAggregateOutputType = {
   base_salary: number
   position_allowance: number
   payment_amount: number
+  bonus_override: number
   notes: number
   created_at: number
   updated_at: number
@@ -146,6 +151,7 @@ export type AttendanceRecordAvgAggregateInputType = {
   base_salary?: true
   position_allowance?: true
   payment_amount?: true
+  bonus_override?: true
 }
 
 export type AttendanceRecordSumAggregateInputType = {
@@ -161,6 +167,7 @@ export type AttendanceRecordSumAggregateInputType = {
   base_salary?: true
   position_allowance?: true
   payment_amount?: true
+  bonus_override?: true
 }
 
 export type AttendanceRecordMinAggregateInputType = {
@@ -181,6 +188,7 @@ export type AttendanceRecordMinAggregateInputType = {
   base_salary?: true
   position_allowance?: true
   payment_amount?: true
+  bonus_override?: true
   notes?: true
   created_at?: true
   updated_at?: true
@@ -206,6 +214,7 @@ export type AttendanceRecordMaxAggregateInputType = {
   base_salary?: true
   position_allowance?: true
   payment_amount?: true
+  bonus_override?: true
   notes?: true
   created_at?: true
   updated_at?: true
@@ -231,6 +240,7 @@ export type AttendanceRecordCountAggregateInputType = {
   base_salary?: true
   position_allowance?: true
   payment_amount?: true
+  bonus_override?: true
   notes?: true
   created_at?: true
   updated_at?: true
@@ -343,6 +353,7 @@ export type AttendanceRecordGroupByOutputType = {
   base_salary: runtime.Decimal | null
   position_allowance: runtime.Decimal | null
   payment_amount: runtime.Decimal | null
+  bonus_override: runtime.Decimal | null
   notes: string | null
   created_at: Date
   updated_at: Date
@@ -391,6 +402,7 @@ export type AttendanceRecordWhereInput = {
   base_salary?: Prisma.DecimalNullableFilter<"AttendanceRecord"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   position_allowance?: Prisma.DecimalNullableFilter<"AttendanceRecord"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   payment_amount?: Prisma.DecimalNullableFilter<"AttendanceRecord"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  bonus_override?: Prisma.DecimalNullableFilter<"AttendanceRecord"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   notes?: Prisma.StringNullableFilter<"AttendanceRecord"> | string | null
   created_at?: Prisma.DateTimeFilter<"AttendanceRecord"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"AttendanceRecord"> | Date | string
@@ -417,6 +429,7 @@ export type AttendanceRecordOrderByWithRelationInput = {
   base_salary?: Prisma.SortOrderInput | Prisma.SortOrder
   position_allowance?: Prisma.SortOrderInput | Prisma.SortOrder
   payment_amount?: Prisma.SortOrderInput | Prisma.SortOrder
+  bonus_override?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -447,6 +460,7 @@ export type AttendanceRecordWhereUniqueInput = Prisma.AtLeast<{
   base_salary?: Prisma.DecimalNullableFilter<"AttendanceRecord"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   position_allowance?: Prisma.DecimalNullableFilter<"AttendanceRecord"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   payment_amount?: Prisma.DecimalNullableFilter<"AttendanceRecord"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  bonus_override?: Prisma.DecimalNullableFilter<"AttendanceRecord"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   notes?: Prisma.StringNullableFilter<"AttendanceRecord"> | string | null
   created_at?: Prisma.DateTimeFilter<"AttendanceRecord"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"AttendanceRecord"> | Date | string
@@ -473,6 +487,7 @@ export type AttendanceRecordOrderByWithAggregationInput = {
   base_salary?: Prisma.SortOrderInput | Prisma.SortOrder
   position_allowance?: Prisma.SortOrderInput | Prisma.SortOrder
   payment_amount?: Prisma.SortOrderInput | Prisma.SortOrder
+  bonus_override?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -506,6 +521,7 @@ export type AttendanceRecordScalarWhereWithAggregatesInput = {
   base_salary?: Prisma.DecimalNullableWithAggregatesFilter<"AttendanceRecord"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   position_allowance?: Prisma.DecimalNullableWithAggregatesFilter<"AttendanceRecord"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   payment_amount?: Prisma.DecimalNullableWithAggregatesFilter<"AttendanceRecord"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  bonus_override?: Prisma.DecimalNullableWithAggregatesFilter<"AttendanceRecord"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"AttendanceRecord"> | string | null
   created_at?: Prisma.DateTimeWithAggregatesFilter<"AttendanceRecord"> | Date | string
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"AttendanceRecord"> | Date | string
@@ -530,6 +546,7 @@ export type AttendanceRecordCreateInput = {
   base_salary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   position_allowance?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   payment_amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  bonus_override?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   notes?: string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -556,6 +573,7 @@ export type AttendanceRecordUncheckedCreateInput = {
   base_salary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   position_allowance?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   payment_amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  bonus_override?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   notes?: string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -580,6 +598,7 @@ export type AttendanceRecordUpdateInput = {
   base_salary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   position_allowance?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   payment_amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  bonus_override?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -606,6 +625,7 @@ export type AttendanceRecordUncheckedUpdateInput = {
   base_salary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   position_allowance?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   payment_amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  bonus_override?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -631,6 +651,7 @@ export type AttendanceRecordCreateManyInput = {
   base_salary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   position_allowance?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   payment_amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  bonus_override?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   notes?: string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -655,6 +676,7 @@ export type AttendanceRecordUpdateManyMutationInput = {
   base_salary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   position_allowance?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   payment_amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  bonus_override?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -680,6 +702,7 @@ export type AttendanceRecordUncheckedUpdateManyInput = {
   base_salary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   position_allowance?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   payment_amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  bonus_override?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -720,6 +743,7 @@ export type AttendanceRecordCountOrderByAggregateInput = {
   base_salary?: Prisma.SortOrder
   position_allowance?: Prisma.SortOrder
   payment_amount?: Prisma.SortOrder
+  bonus_override?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -740,6 +764,7 @@ export type AttendanceRecordAvgOrderByAggregateInput = {
   base_salary?: Prisma.SortOrder
   position_allowance?: Prisma.SortOrder
   payment_amount?: Prisma.SortOrder
+  bonus_override?: Prisma.SortOrder
 }
 
 export type AttendanceRecordMaxOrderByAggregateInput = {
@@ -760,6 +785,7 @@ export type AttendanceRecordMaxOrderByAggregateInput = {
   base_salary?: Prisma.SortOrder
   position_allowance?: Prisma.SortOrder
   payment_amount?: Prisma.SortOrder
+  bonus_override?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -785,6 +811,7 @@ export type AttendanceRecordMinOrderByAggregateInput = {
   base_salary?: Prisma.SortOrder
   position_allowance?: Prisma.SortOrder
   payment_amount?: Prisma.SortOrder
+  bonus_override?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -805,6 +832,7 @@ export type AttendanceRecordSumOrderByAggregateInput = {
   base_salary?: Prisma.SortOrder
   position_allowance?: Prisma.SortOrder
   payment_amount?: Prisma.SortOrder
+  bonus_override?: Prisma.SortOrder
 }
 
 export type AttendanceRecordCreateNestedManyWithoutPeriodInput = {
@@ -874,6 +902,7 @@ export type AttendanceRecordCreateWithoutPeriodInput = {
   base_salary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   position_allowance?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   payment_amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  bonus_override?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   notes?: string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -898,6 +927,7 @@ export type AttendanceRecordUncheckedCreateWithoutPeriodInput = {
   base_salary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   position_allowance?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   payment_amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  bonus_override?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   notes?: string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -952,6 +982,7 @@ export type AttendanceRecordScalarWhereInput = {
   base_salary?: Prisma.DecimalNullableFilter<"AttendanceRecord"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   position_allowance?: Prisma.DecimalNullableFilter<"AttendanceRecord"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   payment_amount?: Prisma.DecimalNullableFilter<"AttendanceRecord"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  bonus_override?: Prisma.DecimalNullableFilter<"AttendanceRecord"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   notes?: Prisma.StringNullableFilter<"AttendanceRecord"> | string | null
   created_at?: Prisma.DateTimeFilter<"AttendanceRecord"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"AttendanceRecord"> | Date | string
@@ -976,6 +1007,7 @@ export type AttendanceRecordCreateManyPeriodInput = {
   base_salary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   position_allowance?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   payment_amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  bonus_override?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   notes?: string | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -1000,6 +1032,7 @@ export type AttendanceRecordUpdateWithoutPeriodInput = {
   base_salary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   position_allowance?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   payment_amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  bonus_override?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1024,6 +1057,7 @@ export type AttendanceRecordUncheckedUpdateWithoutPeriodInput = {
   base_salary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   position_allowance?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   payment_amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  bonus_override?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1048,6 +1082,7 @@ export type AttendanceRecordUncheckedUpdateManyWithoutPeriodInput = {
   base_salary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   position_allowance?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   payment_amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  bonus_override?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1075,6 +1110,7 @@ export type AttendanceRecordSelect<ExtArgs extends runtime.Types.Extensions.Inte
   base_salary?: boolean
   position_allowance?: boolean
   payment_amount?: boolean
+  bonus_override?: boolean
   notes?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -1101,6 +1137,7 @@ export type AttendanceRecordSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   base_salary?: boolean
   position_allowance?: boolean
   payment_amount?: boolean
+  bonus_override?: boolean
   notes?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -1127,6 +1164,7 @@ export type AttendanceRecordSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   base_salary?: boolean
   position_allowance?: boolean
   payment_amount?: boolean
+  bonus_override?: boolean
   notes?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -1153,6 +1191,7 @@ export type AttendanceRecordSelectScalar = {
   base_salary?: boolean
   position_allowance?: boolean
   payment_amount?: boolean
+  bonus_override?: boolean
   notes?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -1160,7 +1199,7 @@ export type AttendanceRecordSelectScalar = {
   updated_by?: boolean
 }
 
-export type AttendanceRecordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "period_id" | "employee_number" | "name" | "work_days" | "paid_leave_days" | "absent_days" | "late_early_hours" | "overtime_hours" | "night_overtime_hours" | "holiday_hours" | "legal_holiday_hours" | "bonus_eligible" | "bonus_amount" | "base_salary" | "position_allowance" | "payment_amount" | "notes" | "created_at" | "updated_at" | "created_by" | "updated_by", ExtArgs["result"]["attendanceRecord"]>
+export type AttendanceRecordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "period_id" | "employee_number" | "name" | "work_days" | "paid_leave_days" | "absent_days" | "late_early_hours" | "overtime_hours" | "night_overtime_hours" | "holiday_hours" | "legal_holiday_hours" | "bonus_eligible" | "bonus_amount" | "base_salary" | "position_allowance" | "payment_amount" | "bonus_override" | "notes" | "created_at" | "updated_at" | "created_by" | "updated_by", ExtArgs["result"]["attendanceRecord"]>
 export type AttendanceRecordInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   period?: boolean | Prisma.AttendancePeriodDefaultArgs<ExtArgs>
 }
@@ -1239,6 +1278,10 @@ export type $AttendanceRecordPayload<ExtArgs extends runtime.Types.Extensions.In
      * 支給額
      */
     payment_amount: runtime.Decimal | null
+    /**
+     * 精勤手当手動上書き（設定時は自動計算を無視）
+     */
+    bonus_override: runtime.Decimal | null
     /**
      * 備考
      */
@@ -1688,6 +1731,7 @@ export interface AttendanceRecordFieldRefs {
   readonly base_salary: Prisma.FieldRef<"AttendanceRecord", 'Decimal'>
   readonly position_allowance: Prisma.FieldRef<"AttendanceRecord", 'Decimal'>
   readonly payment_amount: Prisma.FieldRef<"AttendanceRecord", 'Decimal'>
+  readonly bonus_override: Prisma.FieldRef<"AttendanceRecord", 'Decimal'>
   readonly notes: Prisma.FieldRef<"AttendanceRecord", 'String'>
   readonly created_at: Prisma.FieldRef<"AttendanceRecord", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"AttendanceRecord", 'DateTime'>

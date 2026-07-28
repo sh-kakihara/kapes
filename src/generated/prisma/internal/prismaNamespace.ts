@@ -1690,6 +1690,7 @@ export const AttendanceRecordScalarFieldEnum = {
   base_salary: 'base_salary',
   position_allowance: 'position_allowance',
   payment_amount: 'payment_amount',
+  bonus_override: 'bonus_override',
   notes: 'notes',
   created_at: 'created_at',
   updated_at: 'updated_at',
