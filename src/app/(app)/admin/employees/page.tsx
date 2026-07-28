@@ -155,8 +155,18 @@ export default async function EmployeeLedgerPage({
   for (const row of rows) {
     const empNo = row.user.employee_number;
     if (!empNo) continue;
-    const s = summerMap.get(empNo) ?? (summerPeriod ? { bonus_add: 0, payment: null } : undefined);
-    const w = winterMap.get(empNo) ?? (winterPeriod ? { bonus_add: 0, payment: null } : undefined);
+    const er = empRecordMap.get(empNo);
+    const empSummerBonus = er?.curr_summer_bonus != null ? Number(er.curr_summer_bonus) : 0;
+    const empWinterBonus = er?.curr_winter_bonus != null ? Number(er.curr_winter_bonus) : 0;
+    const empPos = er?.curr_position_allowance != null ? Number(er.curr_position_allowance) : null;
+    const s = summerMap.get(empNo) ?? (summerPeriod ? {
+      bonus_add: 0,
+      payment: calcPayment(true, empSummerBonus > 0 ? empSummerBonus : null, empPos, 0, 0),
+    } : undefined);
+    const w = winterMap.get(empNo) ?? (winterPeriod ? {
+      bonus_add: 0,
+      payment: calcPayment(true, empWinterBonus > 0 ? empWinterBonus : null, empPos, 0, 0),
+    } : undefined);
     if (s || w) {
       row.record = {
         ...(row.record ?? {}),
