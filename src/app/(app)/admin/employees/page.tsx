@@ -127,7 +127,7 @@ export default async function EmployeeLedgerPage({
     const paid   = r.paid_leave_days  != null ? Number(r.paid_leave_days)  : null;
     const absent = r.absent_days      != null ? Number(r.absent_days)      : null;
     const late   = r.late_early_hours != null ? Number(r.late_early_hours) : null;
-    const bonusAdd = calcBonus(r.bonus_eligible, paid, absent, late);
+    const bonusAdd = r.bonus_override != null ? Number(r.bonus_override) : calcBonus(r.bonus_eligible, paid, absent, late);
     const er = empRecordMap.get(r.employee_number);
     const empBonus = er?.curr_summer_bonus != null ? Number(er.curr_summer_bonus) : 0;
     const empPos   = er?.curr_position_allowance != null ? Number(er.curr_position_allowance) : null;
@@ -141,7 +141,7 @@ export default async function EmployeeLedgerPage({
     const paid   = r.paid_leave_days  != null ? Number(r.paid_leave_days)  : null;
     const absent = r.absent_days      != null ? Number(r.absent_days)      : null;
     const late   = r.late_early_hours != null ? Number(r.late_early_hours) : null;
-    const bonusAdd = calcBonus(r.bonus_eligible, paid, absent, late);
+    const bonusAdd = r.bonus_override != null ? Number(r.bonus_override) : calcBonus(r.bonus_eligible, paid, absent, late);
     const er = empRecordMap.get(r.employee_number);
     const empBonus = er?.curr_winter_bonus != null ? Number(er.curr_winter_bonus) : 0;
     const empPos   = er?.curr_position_allowance != null ? Number(er.curr_position_allowance) : null;
