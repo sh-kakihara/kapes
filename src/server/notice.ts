@@ -209,7 +209,9 @@ export async function getBonusNoticeEmployees(
     const absent = r.absent_days != null ? Number(r.absent_days) : null;
     const late = r.late_early_hours != null ? Number(r.late_early_hours) : null;
 
-    const bonusAdd = calcBonus(r.bonus_eligible, paid, absent, late);
+    const bonusAdd = r.bonus_override != null
+      ? Number(r.bonus_override)
+      : calcBonus(r.bonus_eligible, paid, absent, late);
     const rawBonusAmt = isSummer ? er?.curr_summer_bonus : er?.curr_winter_bonus;
     const bonusAmount = rawBonusAmt != null ? Number(rawBonusAmt) : null;
     const positionAllowance = er?.curr_position_allowance != null ? Number(er.curr_position_allowance) : null;
