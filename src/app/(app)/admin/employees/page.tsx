@@ -155,8 +155,8 @@ export default async function EmployeeLedgerPage({
   for (const row of rows) {
     const empNo = row.user.employee_number;
     if (!empNo) continue;
-    const s = summerMap.get(empNo);
-    const w = winterMap.get(empNo);
+    const s = summerMap.get(empNo) ?? (summerPeriod ? { bonus_add: 0, payment: null } : undefined);
+    const w = winterMap.get(empNo) ?? (winterPeriod ? { bonus_add: 0, payment: null } : undefined);
     if (s || w) {
       row.record = {
         ...(row.record ?? {}),
