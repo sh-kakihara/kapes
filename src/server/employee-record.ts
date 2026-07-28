@@ -261,6 +261,7 @@ export async function upsertEmployeeRecord(
     });
   }
 
+  revalidatePath("/admin/employees");
   return { ok: true };
 }
 
