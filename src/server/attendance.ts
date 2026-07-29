@@ -108,29 +108,14 @@ async function buildEmpInfoMap(
   fy: number,
   isSummer: boolean
 ): Promise<Map<string, { employee_bonus: number | null; employee_position_allowance: number | null; department: string | null; section: string | null; employment_type: string | null; hire_date: Date | null }>> {
-  // 賞与額・役職手当はその年度のレコードから取得
-  const fyRecords = await prisma.employeeRecord.findMany({
-    where: { fiscal_year: fy, user: { employee_number: { in: employeeNumbers } } },
-    select: {
-      curr_summer_bonus: true,
-      curr_winter_bonus: true,
-      curr_position_allowance: true,
-      user: {
-        select: {
-          employee_number: true,
-          hire_date: true,
-          department: { select: { name: true } },
-          section: { select: { name: true } },
-        },
-      },
-    },
-  });
-
-  // 雇用形態は最新年度のレコードから取得（社員台帳で変更した値を即時反映するため）
+  // ユーザー情報（部・課・入社日・最新雇用形態）を全員分取得
   const users = await prisma.user.findMany({
     where: { employee_number: { in: employeeNumbers }, deleted_at: null },
     select: {
       employee_number: true,
+      hire_date: true,
+      department: { select: { name: true } },
+      section: { select: { name: true } },
       employee_records: {
         orderBy: { fiscal_year: "desc" },
         take: 1,
@@ -138,23 +123,35 @@ async function buildEmpInfoMap(
       },
     },
   });
-  const employmentTypeMap = new Map(
-    users
-      .filter((u) => u.employee_number)
-      .map((u) => [u.employee_number!, u.employee_records[0]?.employment_type ?? null])
+
+  // 賞与額・役職手当はその年度のレコードから取得
+  const fyRecords = await prisma.employeeRecord.findMany({
+    where: { fiscal_year: fy, user: { employee_number: { in: employeeNumbers } } },
+    select: {
+      curr_summer_bonus: true,
+      curr_winter_bonus: true,
+      curr_position_allowance: true,
+      user: { select: { employee_number: true } },
+    },
+  });
+  const fyMap = new Map(
+    fyRecords
+      .filter((er) => er.user.employee_number)
+      .map((er) => [er.user.employee_number!, er])
   );
 
   const map = new Map<string, { employee_bonus: number | null; employee_position_allowance: number | null; department: string | null; section: string | null; employment_type: string | null; hire_date: Date | null }>();
-  for (const er of fyRecords) {
-    if (!er.user.employee_number) continue;
-    const empBonus = isSummer ? er.curr_summer_bonus : er.curr_winter_bonus;
-    map.set(er.user.employee_number, {
+  for (const u of users) {
+    if (!u.employee_number) continue;
+    const fy_er = fyMap.get(u.employee_number);
+    const empBonus = fy_er ? (isSummer ? fy_er.curr_summer_bonus : fy_er.curr_winter_bonus) : null;
+    map.set(u.employee_number, {
       employee_bonus: empBonus != null ? Number(empBonus) : null,
-      employee_position_allowance: er.curr_position_allowance != null ? Number(er.curr_position_allowance) : null,
-      department: er.user.department?.name ?? null,
-      section: er.user.section?.name ?? null,
-      employment_type: employmentTypeMap.get(er.user.employee_number) ?? null,
-      hire_date: er.user.hire_date ?? null,
+      employee_position_allowance: fy_er?.curr_position_allowance != null ? Number(fy_er.curr_position_allowance) : null,
+      department: u.department?.name ?? null,
+      section: u.section?.name ?? null,
+      employment_type: u.employee_records[0]?.employment_type ?? null,
+      hire_date: u.hire_date ?? null,
     });
   }
   return map;
