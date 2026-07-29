@@ -363,7 +363,7 @@ function EditModal({ row, fiscalYear, onClose, onSaved }: { row: Row; fiscalYear
         <select value={(value as string) ?? ""} onChange={(e) => setField(key, e.target.value || null)}
           className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
           <option value="">—</option>
-          {["日給月給", "月給", "月給/賞与支給なし", "日給", "時給"].map((o) => <option key={o} value={o}>{o}</option>)}
+          {["日給月給", "月給", "月給/賞与支給なし", "日給", "時給", "実習生"].map((o) => <option key={o} value={o}>{o}</option>)}
         </select>
       );
     }
