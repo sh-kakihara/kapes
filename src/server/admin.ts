@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { forbidden } from "next/navigation";
 import type { Role } from "@/generated/prisma/enums";
+import { Prisma } from "@/generated/prisma/client";
 
 async function requireAdmin() {
   const session = await auth();
@@ -34,22 +35,29 @@ export async function createUser(data: {
 }) {
   await requireAdmin();
   const password_hash = await bcrypt.hash(data.password, 10);
-  await prisma.user.create({
-    data: {
-      employee_number: data.employee_number || null,
-      login_id: data.login_id,
-      name: data.name,
-      password_hash,
-      role: data.role,
-      department_id: data.department_id || null,
-      section_id: data.section_id || null,
-      section2_id: data.section2_id || null,
-      group_id: data.group_id || null,
-      employee_type: data.employee_type || null,
-      hire_date: data.hire_date ? new Date(data.hire_date) : null,
-      resign_date: data.resign_date ? new Date(data.resign_date) : null,
-    },
-  });
+  try {
+    await prisma.user.create({
+      data: {
+        employee_number: data.employee_number || null,
+        login_id: data.login_id,
+        name: data.name,
+        password_hash,
+        role: data.role,
+        department_id: data.department_id || null,
+        section_id: data.section_id || null,
+        section2_id: data.section2_id || null,
+        group_id: data.group_id || null,
+        employee_type: data.employee_type || null,
+        hire_date: data.hire_date ? new Date(data.hire_date) : null,
+        resign_date: data.resign_date ? new Date(data.resign_date) : null,
+      },
+    });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+      throw new Error("このログインIDまたは社員番号はすでに使用されています");
+    }
+    throw e;
+  }
   revalidatePath("/admin/users");
   revalidatePath("/admin/employees");
 }
