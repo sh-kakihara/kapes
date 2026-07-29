@@ -108,7 +108,7 @@ async function buildEmpInfoMap(
   fy: number,
   isSummer: boolean
 ): Promise<Map<string, { employee_bonus: number | null; employee_position_allowance: number | null; department: string | null; section: string | null; employment_type: string | null; hire_date: Date | null }>> {
-  // ユーザー情報（部・課・入社日・最新雇用形態）を全員分取得
+  // ユーザー情報（部・課・入社日）を全員分取得
   const users = await prisma.user.findMany({
     where: { employee_number: { in: employeeNumbers }, deleted_at: null },
     select: {
@@ -116,11 +116,6 @@ async function buildEmpInfoMap(
       hire_date: true,
       department: { select: { name: true } },
       section: { select: { name: true } },
-      employee_records: {
-        orderBy: { fiscal_year: "desc" },
-        take: 1,
-        select: { employment_type: true },
-      },
     },
   });
 
@@ -140,18 +135,39 @@ async function buildEmpInfoMap(
       .map((er) => [er.user.employee_number!, er])
   );
 
+  // 雇用形態は全年度のEmployeeRecordを取得してコードで最新を選ぶ（take:1 は Prisma 7 でネスト非対応のため）
+  const allEmpRecords = await prisma.employeeRecord.findMany({
+    where: { user: { employee_number: { in: employeeNumbers }, deleted_at: null } },
+    select: {
+      fiscal_year: true,
+      employment_type: true,
+      user: { select: { employee_number: true } },
+    },
+    orderBy: { fiscal_year: "desc" },
+  });
+  const employmentTypeMap = new Map<string, string | null>();
+  for (const rec of allEmpRecords) {
+    const empNo = rec.user.employee_number;
+    if (empNo && !employmentTypeMap.has(empNo)) {
+      employmentTypeMap.set(empNo, rec.employment_type ?? null);
+    }
+  }
+
+  const userMap = new Map(users.filter((u) => u.employee_number).map((u) => [u.employee_number!, u]));
+
   const map = new Map<string, { employee_bonus: number | null; employee_position_allowance: number | null; department: string | null; section: string | null; employment_type: string | null; hire_date: Date | null }>();
-  for (const u of users) {
-    if (!u.employee_number) continue;
-    const fy_er = fyMap.get(u.employee_number);
+  // AttendanceRecord に対応する全社員をマップに登録
+  for (const empNo of employeeNumbers) {
+    const u = userMap.get(empNo);
+    const fy_er = fyMap.get(empNo);
     const empBonus = fy_er ? (isSummer ? fy_er.curr_summer_bonus : fy_er.curr_winter_bonus) : null;
-    map.set(u.employee_number, {
+    map.set(empNo, {
       employee_bonus: empBonus != null ? Number(empBonus) : null,
       employee_position_allowance: fy_er?.curr_position_allowance != null ? Number(fy_er.curr_position_allowance) : null,
-      department: u.department?.name ?? null,
-      section: u.section?.name ?? null,
-      employment_type: u.employee_records[0]?.employment_type ?? null,
-      hire_date: u.hire_date ?? null,
+      department: u?.department?.name ?? null,
+      section: u?.section?.name ?? null,
+      employment_type: employmentTypeMap.get(empNo) ?? null,
+      hire_date: u?.hire_date ?? null,
     });
   }
   return map;
