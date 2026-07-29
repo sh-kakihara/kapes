@@ -32,7 +32,7 @@ export async function createUser(data: {
   employee_number?: string; login_id: string; name: string; password: string;
   role: Role; department_id?: string; section_id?: string; section2_id?: string; group_id?: string;
   employee_type?: string; hire_date?: string; resign_date?: string;
-}) {
+}): Promise<{ error?: string }> {
   await requireAdmin();
   const password_hash = await bcrypt.hash(data.password, 10);
   try {
@@ -54,12 +54,13 @@ export async function createUser(data: {
     });
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
-      throw new Error("このログインIDまたは社員番号はすでに使用されています");
+      return { error: "このログインIDまたは社員番号はすでに使用されています" };
     }
-    throw e;
+    return { error: "登録に失敗しました" };
   }
   revalidatePath("/admin/users");
   revalidatePath("/admin/employees");
+  return {};
 }
 
 export async function updateUser(id: string, data: {

@@ -210,7 +210,7 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
         setMessage("更新しました");
       } else {
         if (!form.password) { setMessage("新規登録時はパスワードが必須です"); return; }
-        await createUser({
+        const result = await createUser({
           employee_number: form.employee_number || undefined,
           login_id: form.login_id, name: form.name, password: form.password,
           role: form.role as "STAFF",
@@ -222,6 +222,7 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
           hire_date: form.hire_date || undefined,
           resign_date: form.resign_date || undefined,
         });
+        if (result.error) { setMessage(result.error); setFormError(result.error); return; }
         setMessage("登録しました");
       }
       setShowForm(false);
