@@ -674,7 +674,7 @@ export default function AttendanceMain({ initialPeriods }: Props) {
           {displayRecords.length === 0 ? (
             <p className="text-sm text-gray-500">データがありません。CSVで取り込んでください。</p>
           ) : (
-            <div className="overflow-x-auto rounded border border-gray-200">
+            <div className="overflow-x-auto rounded border border-gray-200 min-h-[260px]">
               <table className="min-w-max w-full text-sm border-collapse">
                 <thead className="bg-gray-50 sticky top-0 z-20">
                   <tr>
