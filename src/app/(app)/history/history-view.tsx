@@ -41,66 +41,58 @@ export default function HistoryView({ evaluations }: { evaluations: Evaluation[]
       </div>
 
       <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="text-left px-4 py-2 font-medium text-gray-600">評価項目</th>
-                {presentEvaluators.map((e) => (
-                  <th key={e.key} className={`text-right px-3 py-2 font-medium w-20 whitespace-nowrap ${e.color}`}>
-                    {e.label}
-                  </th>
-                ))}
-                {presentEvaluators.length === 0 && (
-                  <th className="text-center px-4 py-2 text-gray-400 font-normal">未入力</th>
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {EVALUATION_ITEMS.map((item, idx) => (
-                <tr key={item.code} className="border-t">
-                  <td className="px-4 py-2 text-xs text-gray-700 w-full">
-                    <span className="flex items-center gap-2 flex-wrap">
-                      <span>{idx + 1}. {item.label}</span>
-                      {presentEvaluators.map((e) => {
-                        const s = ev.scores.find((x) => x.item_code === item.code && x.evaluator === e.key);
-                        return (
-                          <span key={e.key} className={`font-bold text-sm ${e.color}`}>
-                            {s?.score ?? "—"}
-                          </span>
-                        );
-                      })}
-                    </span>
-                    {presentEvaluators.map((e) => {
-                      const s = ev.scores.find((x) => x.item_code === item.code && x.evaluator === e.key);
-                      return s?.comment ? (
-                        <p key={e.key} className="text-xs text-gray-500 mt-0.5 ml-4">{s.comment}</p>
-                      ) : null;
-                    })}
-                  </td>
-                </tr>
+        <table className="w-full text-sm table-fixed">
+          <thead className="bg-gray-50 border-b">
+            <tr>
+              <th className="text-left px-4 py-2 font-medium text-gray-600">評価項目</th>
+              {presentEvaluators.map((e) => (
+                <th key={e.key} className={`text-right px-3 py-2 font-medium w-16 whitespace-nowrap ${e.color}`}>
+                  点数
+                </th>
               ))}
-              <tr className="border-t bg-gray-50 font-bold">
-                <td className="px-4 py-2 text-gray-700">
-                  <span className="flex items-center gap-2">
-                    <span>合計</span>
-                    {presentEvaluators.map((e) => {
-                      const total = ev.scores
-                        .filter((s) => s.evaluator === e.key && s.score !== null)
-                        .reduce((sum, s) => sum + (s.score ?? 0), 0);
-                      const hasScore = ev.scores.some((s) => s.evaluator === e.key && s.score !== null);
-                      return (
-                        <span key={e.key} className={`text-sm ${e.color}`}>
-                          {hasScore ? total : "—"}
-                        </span>
-                      );
-                    })}
-                  </span>
+              {presentEvaluators.length === 0 && (
+                <th className="text-center px-4 py-2 text-gray-400 font-normal w-16">未入力</th>
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {EVALUATION_ITEMS.map((item, idx) => (
+              <tr key={item.code} className="border-t">
+                <td className="px-4 py-2 text-xs text-gray-700">
+                  {idx + 1}. {item.label}
+                  {presentEvaluators.map((e) => {
+                    const s = ev.scores.find((x) => x.item_code === item.code && x.evaluator === e.key);
+                    return s?.comment ? (
+                      <p key={e.key} className="text-xs text-gray-500 mt-0.5 ml-2">{s.comment}</p>
+                    ) : null;
+                  })}
                 </td>
+                {presentEvaluators.map((e) => {
+                  const s = ev.scores.find((x) => x.item_code === item.code && x.evaluator === e.key);
+                  return (
+                    <td key={e.key} className={`px-3 py-2 text-right font-bold whitespace-nowrap ${e.color}`}>
+                      {s?.score ?? "—"}
+                    </td>
+                  );
+                })}
               </tr>
-            </tbody>
-          </table>
-        </div>
+            ))}
+            <tr className="border-t bg-gray-50 font-bold">
+              <td className="px-4 py-2 text-gray-700">合計得点</td>
+              {presentEvaluators.map((e) => {
+                const total = ev.scores
+                  .filter((s) => s.evaluator === e.key && s.score !== null)
+                  .reduce((sum, s) => sum + (s.score ?? 0), 0);
+                const hasScore = ev.scores.some((s) => s.evaluator === e.key && s.score !== null);
+                return (
+                  <td key={e.key} className={`px-3 py-2 text-right whitespace-nowrap ${e.color}`}>
+                    {hasScore ? total : "—"}
+                  </td>
+                );
+              })}
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   );
