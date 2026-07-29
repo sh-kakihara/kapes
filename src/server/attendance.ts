@@ -45,6 +45,7 @@ export type AttendanceRecordRow = {
   base_amount: number | null;
   payment_amount: number | null;
   notes: string | null;
+  employment_type: string | null;
 };
 
 
@@ -56,11 +57,14 @@ function mapRow(r: {
   holiday_hours: Prisma.Decimal | null; legal_holiday_hours: Prisma.Decimal | null;
   bonus_eligible: boolean; bonus_amount: Prisma.Decimal | null; bonus_override: Prisma.Decimal | null;
   payment_amount: Prisma.Decimal | null; notes: string | null;
-}, empInfo?: { employee_bonus: number | null; employee_position_allowance: number | null; department?: string | null; section?: string | null }): AttendanceRecordRow {
+}, empInfo?: { employee_bonus: number | null; employee_position_allowance: number | null; department?: string | null; section?: string | null; employment_type?: string | null; hire_date?: Date | null }): AttendanceRecordRow {
   const bonusAmt = r.bonus_amount != null ? Number(r.bonus_amount) : null;
   const bonusOverride = r.bonus_override != null ? Number(r.bonus_override) : null;
   const empBonus = empInfo?.employee_bonus ?? null;
   const empPos = empInfo?.employee_position_allowance ?? null;
+  const employmentType = empInfo?.employment_type ?? null;
+  // 時給または入社1年以内は精勤手当対象外
+  const bonusEligible = (employmentType === "時給" || employmentType === "月給/賞与支給なし" || isWithinFirstYear(empInfo?.hire_date ?? null)) ? false : r.bonus_eligible;
   // 基本額 = 賞与額 + 精勤手当（役職手当は別列）
   const baseRaw = (empBonus ?? 0) + (bonusAmt ?? 0);
   const baseAmount = baseRaw > 0 ? baseRaw : null;
@@ -79,7 +83,7 @@ function mapRow(r: {
     night_overtime_hours: r.night_overtime_hours != null ? Number(r.night_overtime_hours) : null,
     holiday_hours: r.holiday_hours != null ? Number(r.holiday_hours) : null,
     legal_holiday_hours: r.legal_holiday_hours != null ? Number(r.legal_holiday_hours) : null,
-    bonus_eligible: r.bonus_eligible,
+    bonus_eligible: bonusEligible,
     bonus_amount: bonusAmt,
     bonus_override: bonusOverride,
     employee_bonus: empBonus,
@@ -87,6 +91,7 @@ function mapRow(r: {
     base_amount: baseAmount,
     payment_amount: r.payment_amount != null ? Number(r.payment_amount) : null,
     notes: r.notes ?? null,
+    employment_type: employmentType,
   };
 }
 
@@ -97,28 +102,30 @@ function parsePeriodName(name: string): { fy: number; isSummer: boolean } | null
   return { fy: parseInt(m[1]), isSummer: m[2] === "夏期" };
 }
 
-/** EmployeeRecord から 賞与額・役職手当・部・課 を取得するマップを構築 */
+/** EmployeeRecord から 賞与額・役職手当・部・課・雇用形態 を取得するマップを構築 */
 async function buildEmpInfoMap(
   employeeNumbers: string[],
   fy: number,
   isSummer: boolean
-): Promise<Map<string, { employee_bonus: number | null; employee_position_allowance: number | null; department: string | null; section: string | null }>> {
+): Promise<Map<string, { employee_bonus: number | null; employee_position_allowance: number | null; department: string | null; section: string | null; employment_type: string | null; hire_date: Date | null }>> {
   const empRecords = await prisma.employeeRecord.findMany({
     where: { fiscal_year: fy, user: { employee_number: { in: employeeNumbers } } },
     select: {
       curr_summer_bonus: true,
       curr_winter_bonus: true,
       curr_position_allowance: true,
+      employment_type: true,
       user: {
         select: {
           employee_number: true,
+          hire_date: true,
           department: { select: { name: true } },
           section: { select: { name: true } },
         },
       },
     },
   });
-  const map = new Map<string, { employee_bonus: number | null; employee_position_allowance: number | null; department: string | null; section: string | null }>();
+  const map = new Map<string, { employee_bonus: number | null; employee_position_allowance: number | null; department: string | null; section: string | null; employment_type: string | null; hire_date: Date | null }>();
   for (const er of empRecords) {
     if (!er.user.employee_number) continue;
     const empBonus = isSummer ? er.curr_summer_bonus : er.curr_winter_bonus;
@@ -127,6 +134,8 @@ async function buildEmpInfoMap(
       employee_position_allowance: er.curr_position_allowance != null ? Number(er.curr_position_allowance) : null,
       department: er.user.department?.name ?? null,
       section: er.user.section?.name ?? null,
+      employment_type: er.employment_type ?? null,
+      hire_date: er.user.hire_date ?? null,
     });
   }
   return map;
@@ -241,7 +250,16 @@ export async function updateAttendanceRecord(
     return isNaN(n) ? null : n;
   }
 
-  const eligible = data.bonus_eligible ?? true;
+  // 基本額・役職手当を EmployeeRecord から取得
+  const existing = await prisma.attendanceRecord.findUnique({
+    where: { id },
+    select: { period_id: true, employee_number: true },
+  });
+
+  // 時給の場合は精勤手当対象外（bonus_eligible の UI 値を上書き）
+  const resolvedEligible = existing ? await resolveEligible(existing.employee_number) : true;
+  const eligible = resolvedEligible ? (data.bonus_eligible ?? true) : false;
+
   const overrideVal = data.bonus_override !== undefined ? num(data.bonus_override) : undefined;
   const autoBonus = calcBonus(
     eligible,
@@ -251,11 +269,6 @@ export async function updateAttendanceRecord(
   );
   const bonus = overrideVal !== undefined && overrideVal !== null ? overrideVal : autoBonus;
 
-  // 基本額・役職手当を EmployeeRecord から取得
-  const existing = await prisma.attendanceRecord.findUnique({
-    where: { id },
-    select: { period_id: true, employee_number: true },
-  });
   let baseAmount: number | null = null;
   let empPositionAllowance: number | null = null;
   if (existing) {
@@ -320,11 +333,12 @@ function toNum(v: string): number | null {
   return d != null ? Number(d) : null;
 }
 
-/** 社員番号から雇用形態を取得（最新年度のEmployeeRecord） */
-async function getEmploymentType(employeeNumber: string): Promise<string | null> {
+/** 社員番号から雇用形態・入社日を取得（最新年度のEmployeeRecord + User） */
+async function getEmpMeta(employeeNumber: string): Promise<{ employment_type: string | null; hire_date: Date | null }> {
   const user = await prisma.user.findFirst({
     where: { employee_number: employeeNumber, deleted_at: null },
     select: {
+      hire_date: true,
       employee_records: {
         orderBy: { fiscal_year: "desc" },
         take: 1,
@@ -332,13 +346,26 @@ async function getEmploymentType(employeeNumber: string): Promise<string | null>
       },
     },
   });
-  return user?.employee_records[0]?.employment_type ?? null;
+  return {
+    employment_type: user?.employee_records[0]?.employment_type ?? null,
+    hire_date: user?.hire_date ?? null,
+  };
 }
 
-/** 時給は精勤手当対象外 */
+/** 入社1年以内か */
+function isWithinFirstYear(hireDate: Date | null): boolean {
+  if (!hireDate) return false;
+  const oneYearAgo = new Date();
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+  return hireDate > oneYearAgo;
+}
+
+/** 時給または入社1年以内は精勤手当対象外 */
 async function resolveEligible(employeeNumber: string): Promise<boolean> {
-  const type = await getEmploymentType(employeeNumber);
-  return type !== "時給";
+  const meta = await getEmpMeta(employeeNumber);
+  if (meta.employment_type === "時給" || meta.employment_type === "月給/賞与支給なし") return false;
+  if (isWithinFirstYear(meta.hire_date)) return false;
+  return true;
 }
 
 export async function importAttendanceRecords(
