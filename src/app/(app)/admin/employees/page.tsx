@@ -119,6 +119,21 @@ export default async function EmployeeLedgerPage({
     }
   }
 
+  // 精勤手当対象外の雇用形態
+  const INELIGIBLE_EMPLOYMENT_TYPES = new Set(["時給", "月給/賞与支給なし"]);
+  const oneYearAgo = new Date();
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+  /** 時給・月給賞与なし・入社1年以内は精勤手当対象外 */
+  function isBonusIneligible(employeeNumber: string): boolean {
+    const er = empRecordMap.get(employeeNumber);
+    if (!er) return false;
+    if (INELIGIBLE_EMPLOYMENT_TYPES.has(er.employment_type as string)) return true;
+    const hireDate = er.hire_date ? new Date(er.hire_date as string) : null;
+    if (hireDate && hireDate > oneYearAgo) return true;
+    return false;
+  }
+
   type AttendanceInfo = { bonus_add: number; payment: number | null };
   const summerMap = new Map<string, AttendanceInfo>();
   const winterMap = new Map<string, AttendanceInfo>();
@@ -127,28 +142,30 @@ export default async function EmployeeLedgerPage({
     const paid   = r.paid_leave_days  != null ? Number(r.paid_leave_days)  : null;
     const absent = r.absent_days      != null ? Number(r.absent_days)      : null;
     const late   = r.late_early_hours != null ? Number(r.late_early_hours) : null;
-    const bonusAdd = r.bonus_override != null ? Number(r.bonus_override) : calcBonus(r.bonus_eligible, paid, absent, late);
+    const eligible = r.bonus_eligible && !isBonusIneligible(r.employee_number);
+    const bonusAdd = r.bonus_override != null ? Number(r.bonus_override) : calcBonus(eligible, paid, absent, late);
     const er = empRecordMap.get(r.employee_number);
     const empBonus = er?.curr_summer_bonus != null ? Number(er.curr_summer_bonus) : 0;
     const empPos   = er?.curr_position_allowance != null ? Number(er.curr_position_allowance) : null;
     const baseAmt  = empBonus + bonusAdd;
     summerMap.set(r.employee_number, {
       bonus_add: bonusAdd,
-      payment:   calcPayment(r.bonus_eligible, baseAmt > 0 ? baseAmt : null, empPos, absent, late),
+      payment:   calcPayment(eligible, baseAmt > 0 ? baseAmt : null, empPos, absent, late),
     });
   }
   for (const r of winterPeriod?.records ?? []) {
     const paid   = r.paid_leave_days  != null ? Number(r.paid_leave_days)  : null;
     const absent = r.absent_days      != null ? Number(r.absent_days)      : null;
     const late   = r.late_early_hours != null ? Number(r.late_early_hours) : null;
-    const bonusAdd = r.bonus_override != null ? Number(r.bonus_override) : calcBonus(r.bonus_eligible, paid, absent, late);
+    const eligible = r.bonus_eligible && !isBonusIneligible(r.employee_number);
+    const bonusAdd = r.bonus_override != null ? Number(r.bonus_override) : calcBonus(eligible, paid, absent, late);
     const er = empRecordMap.get(r.employee_number);
     const empBonus = er?.curr_winter_bonus != null ? Number(er.curr_winter_bonus) : 0;
     const empPos   = er?.curr_position_allowance != null ? Number(er.curr_position_allowance) : null;
     const baseAmt  = empBonus + bonusAdd;
     winterMap.set(r.employee_number, {
       bonus_add: bonusAdd,
-      payment:   calcPayment(r.bonus_eligible, baseAmt > 0 ? baseAmt : null, empPos, absent, late),
+      payment:   calcPayment(eligible, baseAmt > 0 ? baseAmt : null, empPos, absent, late),
     });
   }
 
@@ -159,13 +176,14 @@ export default async function EmployeeLedgerPage({
     const empSummerBonus = er?.curr_summer_bonus != null ? Number(er.curr_summer_bonus) : 0;
     const empWinterBonus = er?.curr_winter_bonus != null ? Number(er.curr_winter_bonus) : 0;
     const empPos = er?.curr_position_allowance != null ? Number(er.curr_position_allowance) : null;
+    const fallbackEligible = !isBonusIneligible(empNo);
     const s = summerMap.get(empNo) ?? (summerPeriod ? {
       bonus_add: 0,
-      payment: calcPayment(true, empSummerBonus > 0 ? empSummerBonus : null, empPos, 0, 0),
+      payment: calcPayment(fallbackEligible, empSummerBonus > 0 ? empSummerBonus : null, empPos, 0, 0),
     } : undefined);
     const w = winterMap.get(empNo) ?? (winterPeriod ? {
       bonus_add: 0,
-      payment: calcPayment(true, empWinterBonus > 0 ? empWinterBonus : null, empPos, 0, 0),
+      payment: calcPayment(fallbackEligible, empWinterBonus > 0 ? empWinterBonus : null, empPos, 0, 0),
     } : undefined);
     if (s || w) {
       row.record = {
