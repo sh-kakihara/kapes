@@ -3,21 +3,32 @@
 import { useState, useRef, useTransition, useEffect, useMemo, useCallback } from "react";
 
 // ---------- ColFilter ----------
+type NumericMode = "gte" | "lte" | "eq";
+type FilterEntry = { value: string; mode: NumericMode };
+
+const NUMERIC_MODE_LABELS: Record<NumericMode, string> = { gte: "以上", lte: "以下", eq: "と同じ" };
+
 function ColFilter({
   label,
   colKey,
   sortState,
   filters,
+  filterModes,
+  isNumeric = false,
   onToggleSort,
   onFilter,
+  onFilterMode,
   align = "left",
 }: {
   label: string;
   colKey: string;
   sortState: { col: string; dir: "asc" | "desc" } | null;
   filters: Record<string, string>;
+  filterModes: Record<string, NumericMode>;
+  isNumeric?: boolean;
   onToggleSort: (col: string) => void;
   onFilter: (col: string, val: string) => void;
+  onFilterMode: (col: string, mode: NumericMode) => void;
   align?: "left" | "right";
 }) {
   const [open, setOpen] = useState(false);
@@ -38,6 +49,7 @@ function ColFilter({
 
   const sortDir = sortState?.col === colKey ? sortState.dir : null;
   const isFiltered = !!filters[colKey];
+  const mode = filterModes[colKey] ?? "gte";
 
   return (
     <div className={`flex items-center gap-0.5 ${align === "right" ? "justify-end" : ""}`} ref={ref}>
@@ -58,15 +70,40 @@ function ColFilter({
           ▽
         </button>
         {open && (
-          <div className="absolute z-50 top-full mt-1 left-0 bg-white border border-gray-200 rounded shadow-lg p-2 min-w-[140px]">
-            <input
-              ref={inputRef}
-              type="text"
-              value={filters[colKey] ?? ""}
-              onChange={(e) => onFilter(colKey, e.target.value)}
-              placeholder="絞り込み..."
-              className="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-400"
-            />
+          <div className="absolute z-50 top-full mt-1 left-0 bg-white border border-gray-200 rounded shadow-lg p-2 min-w-[160px]">
+            {isNumeric ? (
+              <>
+                <div className="flex gap-1 mb-1.5">
+                  {(["gte", "lte", "eq"] as NumericMode[]).map((m) => (
+                    <button
+                      key={m}
+                      onClick={() => onFilterMode(colKey, m)}
+                      className={`flex-1 text-xs px-1 py-0.5 rounded border ${mode === m ? "bg-blue-600 text-white border-blue-600" : "border-gray-300 text-gray-600 hover:bg-gray-50"}`}
+                    >
+                      {NUMERIC_MODE_LABELS[m]}
+                    </button>
+                  ))}
+                </div>
+                <input
+                  ref={inputRef}
+                  type="text"
+                  inputMode="numeric"
+                  value={filters[colKey] ?? ""}
+                  onChange={(e) => onFilter(colKey, e.target.value)}
+                  placeholder="数値を入力..."
+                  className="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-400"
+                />
+              </>
+            ) : (
+              <input
+                ref={inputRef}
+                type="text"
+                value={filters[colKey] ?? ""}
+                onChange={(e) => onFilter(colKey, e.target.value)}
+                placeholder="絞り込み..."
+                className="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-400"
+              />
+            )}
             {isFiltered && (
               <button
                 onClick={() => { onFilter(colKey, ""); setOpen(false); }}
@@ -497,6 +534,10 @@ export default function AttendanceMain({ initialPeriods }: Props) {
 
   const [sortState, setSortState] = useState<{ col: string; dir: "asc" | "desc" } | null>(null);
   const [filters, setFilters] = useState<Record<string, string>>({});
+  const [filterModes, setFilterModes] = useState<Record<string, NumericMode>>({});
+
+  const NUMERIC_COLS = new Set(["work_days", "paid_leave_days", "absent_days", "late_early_hours",
+    "overtime_hours", "night_overtime_hours", "holiday_hours", "legal_holiday_hours", "_liveBonus"]);
 
   function toggleSort(col: string) {
     setSortState((prev) =>
@@ -510,12 +551,33 @@ export default function AttendanceMain({ initialPeriods }: Props) {
     setFilters((f) => ({ ...f, [col]: val }));
   }, []);
 
+  const handleFilterMode = useCallback((col: string, mode: NumericMode) => {
+    setFilterModes((m) => ({ ...m, [col]: mode }));
+  }, []);
+
   const displayed = useMemo(() => {
     let result = [...displayRecords];
     for (const [col, text] of Object.entries(filters)) {
       if (!text) continue;
-      const lower = text.toLowerCase();
-      result = result.filter((r) => String((r as Record<string, unknown>)[col] ?? "").toLowerCase().includes(lower));
+      if (NUMERIC_COLS.has(col)) {
+        const threshold = parseFloat(text);
+        if (isNaN(threshold)) continue;
+        const mode = filterModes[col] ?? "gte";
+        result = result.filter((r) => {
+          let val: number;
+          if (col === "_liveBonus") {
+            val = r.bonus_override != null ? Number(r.bonus_override) : calcBonus(r.bonus_eligible, r.paid_leave_days, r.absent_days, r.late_early_hours);
+          } else {
+            val = Number((r as Record<string, unknown>)[col] ?? 0);
+          }
+          if (mode === "gte") return val >= threshold;
+          if (mode === "lte") return val <= threshold;
+          return val === threshold;
+        });
+      } else {
+        const lower = text.toLowerCase();
+        result = result.filter((r) => String((r as Record<string, unknown>)[col] ?? "").toLowerCase().includes(lower));
+      }
     }
     if (sortState) {
       result.sort((a, b) => {
@@ -526,7 +588,8 @@ export default function AttendanceMain({ initialPeriods }: Props) {
       });
     }
     return result;
-  }, [displayRecords, filters, sortState]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [displayRecords, filters, filterModes, sortState]);
 
   return (
     <div>
@@ -598,33 +661,39 @@ export default function AttendanceMain({ initialPeriods }: Props) {
             <p className="text-sm text-gray-500">データがありません。CSVで取り込んでください。</p>
           ) : (
             <div className="overflow-x-auto rounded border border-gray-200">
-              <table className="min-w-max w-full text-sm">
-                <thead className="bg-gray-50 sticky top-0">
+              <table className="min-w-max w-full text-sm border-collapse">
+                <thead className="bg-gray-50 sticky top-0 z-20">
                   <tr>
+                    {/* 固定列: 社員番号 */}
+                    <th className="px-3 py-2 font-medium text-gray-700 whitespace-nowrap border-r border-gray-200 sticky left-0 z-20 bg-gray-50 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]">
+                      <ColFilter label="社員番号" colKey="employee_number" sortState={sortState} filters={filters} filterModes={filterModes} onToggleSort={toggleSort} onFilter={handleFilter} onFilterMode={handleFilterMode} align="left" />
+                    </th>
+                    {/* 固定列: 氏名 */}
+                    <th className="px-3 py-2 font-medium text-gray-700 whitespace-nowrap border-r border-gray-200 sticky left-[88px] z-20 bg-gray-50 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]">
+                      <ColFilter label="氏名" colKey="name" sortState={sortState} filters={filters} filterModes={filterModes} onToggleSort={toggleSort} onFilter={handleFilter} onFilterMode={handleFilterMode} align="left" />
+                    </th>
                     {([
-                      { key: "employee_number", label: "社員番号", align: "left" },
-                      { key: "name",            label: "氏名",     align: "left" },
-                      { key: "work_days",           label: "出勤日数",     align: "right" },
-                      { key: "paid_leave_days",     label: "有休日数",     align: "right" },
-                      { key: "absent_days",         label: "欠勤日数",     align: "right" },
-                      { key: "late_early_hours",    label: "遅早時間",     align: "right" },
-                      { key: "overtime_hours",      label: "普通残業時間", align: "right" },
-                      { key: "night_overtime_hours",label: "深夜残業時間", align: "right" },
-                      { key: "holiday_hours",       label: "休日出勤時間", align: "right" },
-                      { key: "legal_holiday_hours", label: "法定休出時間", align: "right" },
-                      { key: "notes",               label: "備考",         align: "left" },
-                    ] as { key: string; label: string; align: "left" | "right" }[]).map(({ key, label, align }) => (
-                      <th key={key} className="px-3 py-2 font-medium text-gray-700 whitespace-nowrap border-r border-gray-200">
-                        <ColFilter label={label} colKey={key} sortState={sortState} filters={filters} onToggleSort={toggleSort} onFilter={handleFilter} align={align} />
+                      { key: "work_days",            label: "出勤日数",     align: "right", numeric: true },
+                      { key: "paid_leave_days",      label: "有休日数",     align: "right", numeric: true },
+                      { key: "absent_days",          label: "欠勤日数",     align: "right", numeric: true },
+                      { key: "late_early_hours",     label: "遅早時間",     align: "right", numeric: true },
+                      { key: "overtime_hours",       label: "普通残業時間", align: "right", numeric: true },
+                      { key: "night_overtime_hours", label: "深夜残業時間", align: "right", numeric: true },
+                      { key: "holiday_hours",        label: "休日出勤時間", align: "right", numeric: true },
+                      { key: "legal_holiday_hours",  label: "法定休出時間", align: "right", numeric: true },
+                      { key: "notes",                label: "備考",         align: "left",  numeric: false },
+                    ] as { key: string; label: string; align: "left" | "right"; numeric: boolean }[]).map(({ key, label, align, numeric }) => (
+                      <th key={key} className="px-3 py-2 font-medium text-gray-700 whitespace-nowrap border-r border-gray-200 bg-gray-50">
+                        <ColFilter label={label} colKey={key} sortState={sortState} filters={filters} filterModes={filterModes} isNumeric={numeric} onToggleSort={toggleSort} onFilter={handleFilter} onFilterMode={handleFilterMode} align={align} />
                       </th>
                     ))}
                     <th className="px-3 py-2 text-right font-medium text-blue-700 whitespace-nowrap border-r border-gray-200 bg-slate-100">
-                      <ColFilter label="精勤手当" colKey="_liveBonus" sortState={sortState} filters={filters} onToggleSort={toggleSort} onFilter={handleFilter} align="right" />
+                      <ColFilter label="精勤手当" colKey="_liveBonus" sortState={sortState} filters={filters} filterModes={filterModes} isNumeric onToggleSort={toggleSort} onFilter={handleFilter} onFilterMode={handleFilterMode} align="right" />
                     </th>
                     <th className="px-3 py-2 text-right font-medium text-gray-700 whitespace-nowrap border-r border-gray-200 bg-slate-100">基本額</th>
                     <th className="px-3 py-2 text-right font-medium text-gray-700 whitespace-nowrap border-r border-gray-200 bg-slate-100">役職手当</th>
                     <th className="px-3 py-2 text-right font-medium text-green-700 whitespace-nowrap border-r border-gray-200 bg-slate-100">支給額</th>
-                    <th className="px-3 py-2 font-medium text-gray-700 whitespace-nowrap">操作</th>
+                    <th className="px-3 py-2 font-medium text-gray-700 whitespace-nowrap bg-gray-50">操作</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -634,9 +703,11 @@ export default function AttendanceMain({ initialPeriods }: Props) {
                     const livePayment = calcPayment(r.bonus_eligible, liveBase || null, r.employee_position_allowance, r.absent_days, r.late_early_hours) ?? 0;
 
                     return (
-                      <tr key={r.id} className="hover:bg-gray-50">
-                        <td className="px-3 py-1.5 border-r border-gray-100 whitespace-nowrap">{r.employee_number}</td>
-                        <td className="px-3 py-1.5 border-r border-gray-100 whitespace-nowrap">{r.name}</td>
+                      <tr key={r.id} className="hover:bg-blue-50 group">
+                        {/* 固定列: 社員番号 */}
+                        <td className="px-3 py-1.5 border-r border-gray-100 whitespace-nowrap sticky left-0 bg-white group-hover:bg-blue-50 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]">{r.employee_number}</td>
+                        {/* 固定列: 氏名 */}
+                        <td className="px-3 py-1.5 border-r border-gray-100 whitespace-nowrap sticky left-[88px] bg-white group-hover:bg-blue-50 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]">{r.name}</td>
                         <td className="px-3 py-1.5 border-r border-gray-100 text-right whitespace-nowrap">{fmt(r.work_days)}</td>
                         <td className="px-3 py-1.5 border-r border-gray-100 text-right whitespace-nowrap">{fmt(r.paid_leave_days)}</td>
                         <td className="px-3 py-1.5 border-r border-gray-100 text-right whitespace-nowrap">{fmt(r.absent_days)}</td>
