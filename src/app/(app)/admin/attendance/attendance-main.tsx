@@ -482,7 +482,7 @@ export default function AttendanceMain({ initialPeriods }: Props) {
       ...records.map((r) => {
         const liveBonus = r.bonus_override != null ? r.bonus_override : calcBonus(r.bonus_eligible, r.paid_leave_days, r.absent_days, r.late_early_hours);
         const liveBase = (r.employee_bonus ?? 0) + liveBonus;
-        const p = calcPayment(r.bonus_eligible, liveBase || null, r.employee_position_allowance, r.absent_days, r.late_early_hours) ?? 0;
+        const p = calcPayment(r.bonus_eligible && r.bonus_override == null, liveBase || null, r.employee_position_allowance, r.absent_days, r.late_early_hours) ?? 0;
         return [
           r.employee_number, r.name,
           fmt(r.work_days), fmt(r.paid_leave_days), fmt(r.absent_days),
