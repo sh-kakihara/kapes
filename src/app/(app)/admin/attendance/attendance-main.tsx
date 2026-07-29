@@ -489,7 +489,7 @@ export default function AttendanceMain({ initialPeriods }: Props) {
           fmt(r.late_early_hours), fmt(r.overtime_hours), fmt(r.night_overtime_hours),
           fmt(r.holiday_hours), fmt(r.legal_holiday_hours),
           String(liveBonus),
-          String(liveBase),
+          String(r.employee_bonus ?? 0),
           r.employee_position_allowance != null ? String(r.employee_position_allowance) : "",
           String(p),
           r.notes ?? "",
@@ -738,7 +738,7 @@ export default function AttendanceMain({ initialPeriods }: Props) {
                           {liveBonus.toLocaleString()}円
                         </td>
                         <td className="px-3 py-1.5 border-r border-gray-100 text-right whitespace-nowrap text-gray-700 bg-slate-50">
-                          {liveBase.toLocaleString()}円
+                          {(r.employee_bonus ?? 0).toLocaleString()}円
                         </td>
                         <td className="px-3 py-1.5 border-r border-gray-100 text-right whitespace-nowrap text-gray-700 bg-slate-50">
                           {(r.employee_position_allowance ?? 0).toLocaleString()}円
