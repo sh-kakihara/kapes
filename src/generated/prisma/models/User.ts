@@ -369,11 +369,11 @@ export type UserOrderByWithRelationInput = {
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  login_id?: string
   AND?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   employee_number?: Prisma.StringNullableFilter<"User"> | string | null
+  login_id?: Prisma.StringFilter<"User"> | string
   name?: Prisma.StringFilter<"User"> | string
   password_hash?: Prisma.StringFilter<"User"> | string
   role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
@@ -404,7 +404,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   executive_evaluations?: Prisma.EvaluationListRelationFilter
   employee_records?: Prisma.EmployeeRecordListRelationFilter
   inflation_overrides?: Prisma.InflationEmployeeListRelationFilter
-}, "id" | "login_id">
+}, "id">
 
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -3093,7 +3093,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      */
     employee_number: string | null
     /**
-     * ログインID
+     * ログインID（部分ユニーク: deleted_at IS NULL の行のみ、DBレベルで制約）
      */
     login_id: string
     /**

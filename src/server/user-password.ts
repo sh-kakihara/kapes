@@ -12,7 +12,7 @@ export async function setupFirstLogin(newLoginId: string, newPassword: string) {
   if (!newLoginId || newLoginId.length < 3) return { ok: false, error: "ログインIDは3文字以上で入力してください" };
   if (newPassword.length < 6) return { ok: false, error: "パスワードは6文字以上で入力してください" };
 
-  const existing = await prisma.user.findFirst({ where: { login_id: newLoginId, NOT: { id: session.user.id } } });
+  const existing = await prisma.user.findFirst({ where: { login_id: newLoginId, deleted_at: null, NOT: { id: session.user.id } } });
   if (existing) return { ok: false, error: "そのログインIDは既に使用されています" };
 
   const hash = await bcrypt.hash(newPassword, 10);

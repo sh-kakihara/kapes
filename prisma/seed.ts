@@ -33,50 +33,28 @@ async function main() {
 
   const hash = (pw: string) => bcrypt.hashSync(pw, 10);
 
+  async function upsertUser(login_id: string, data: Parameters<typeof prisma.user.create>[0]["data"]) {
+    const existing = await prisma.user.findFirst({ where: { login_id } });
+    if (!existing) await prisma.user.create({ data });
+    return (await prisma.user.findFirst({ where: { login_id } }))!;
+  }
+
   // 社長
-  await prisma.user.upsert({
-    where: { login_id: "president" },
-    update: {},
-    create: { login_id: "president", name: "社長 太郎", password_hash: hash("president123"), role: "PRESIDENT" },
-  });
+  await upsertUser("president", { login_id: "president", name: "社長 太郎", password_hash: hash("president123"), role: "PRESIDENT" });
 
   // 管理者
-  await prisma.user.upsert({
-    where: { login_id: "admin" },
-    update: {},
-    create: { login_id: "admin", name: "管理者", password_hash: hash("admin123"), role: "ADMIN" },
-  });
+  await upsertUser("admin", { login_id: "admin", name: "管理者", password_hash: hash("admin123"), role: "ADMIN" });
 
   // 部長
-  const director = await prisma.user.upsert({
-    where: { login_id: "director1" },
-    update: {},
-    create: { login_id: "director1", name: "部長 一郎", password_hash: hash("director123"), role: "DIRECTOR", department_id: dept1.id },
-  });
+  const director = await upsertUser("director1", { login_id: "director1", name: "部長 一郎", password_hash: hash("director123"), role: "DIRECTOR", department_id: dept1.id });
 
   // 課長
-  const manager = await prisma.user.upsert({
-    where: { login_id: "manager1" },
-    update: {},
-    create: { login_id: "manager1", name: "課長 二郎", password_hash: hash("manager123"), role: "MANAGER", department_id: dept1.id, section_id: sec1.id },
-  });
-  await prisma.user.upsert({
-    where: { login_id: "manager2" },
-    update: {},
-    create: { login_id: "manager2", name: "課長 五郎", password_hash: hash("manager123"), role: "MANAGER", department_id: dept2.id, section_id: sec2.id },
-  });
+  const manager = await upsertUser("manager1", { login_id: "manager1", name: "課長 二郎", password_hash: hash("manager123"), role: "MANAGER", department_id: dept1.id, section_id: sec1.id });
+  await upsertUser("manager2", { login_id: "manager2", name: "課長 五郎", password_hash: hash("manager123"), role: "MANAGER", department_id: dept2.id, section_id: sec2.id });
 
   // 社員
-  await prisma.user.upsert({
-    where: { login_id: "staff1" },
-    update: {},
-    create: { login_id: "staff1", name: "社員 三郎", password_hash: hash("staff123"), role: "STAFF", department_id: dept1.id, section_id: sec1.id },
-  });
-  await prisma.user.upsert({
-    where: { login_id: "staff2" },
-    update: {},
-    create: { login_id: "staff2", name: "社員 四郎", password_hash: hash("staff123"), role: "STAFF", department_id: dept1.id, section_id: sec1.id },
-  });
+  await upsertUser("staff1", { login_id: "staff1", name: "社員 三郎", password_hash: hash("staff123"), role: "STAFF", department_id: dept1.id, section_id: sec1.id });
+  await upsertUser("staff2", { login_id: "staff2", name: "社員 四郎", password_hash: hash("staff123"), role: "STAFF", department_id: dept1.id, section_id: sec1.id });
 
   // 評価期間
   await prisma.evaluationPeriod.upsert({
