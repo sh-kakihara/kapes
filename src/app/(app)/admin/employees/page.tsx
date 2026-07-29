@@ -150,7 +150,7 @@ export default async function EmployeeLedgerPage({
     const baseAmt  = empBonus + bonusAdd;
     summerMap.set(r.employee_number, {
       bonus_add: bonusAdd,
-      payment:   calcPayment(eligible, baseAmt > 0 ? baseAmt : null, empPos, absent, late),
+      payment:   calcPayment(eligible && r.bonus_override == null, baseAmt > 0 ? baseAmt : null, empPos, absent, late),
     });
   }
   for (const r of winterPeriod?.records ?? []) {
@@ -165,7 +165,7 @@ export default async function EmployeeLedgerPage({
     const baseAmt  = empBonus + bonusAdd;
     winterMap.set(r.employee_number, {
       bonus_add: bonusAdd,
-      payment:   calcPayment(eligible, baseAmt > 0 ? baseAmt : null, empPos, absent, late),
+      payment:   calcPayment(eligible && r.bonus_override == null, baseAmt > 0 ? baseAmt : null, empPos, absent, late),
     });
   }
 
