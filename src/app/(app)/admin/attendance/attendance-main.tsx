@@ -3,7 +3,7 @@
 import { useState, useRef, useTransition, useEffect, useMemo, useCallback } from "react";
 
 // ---------- ColFilter ----------
-type NumericFilter = { min: string; max: string; ne: string };
+type NumericFilter = { min: string; max: string; eq: string; ne: string };
 type TextFilter = string;
 type FilterValue = NumericFilter | TextFilter;
 
@@ -13,7 +13,7 @@ function isNumericFilter(v: FilterValue): v is NumericFilter {
 
 function isNumericFilterActive(v: FilterValue | undefined): boolean {
   if (!v || !isNumericFilter(v)) return false;
-  return v.min !== "" || v.max !== "" || v.ne !== "";
+  return v.min !== "" || v.max !== "" || v.eq !== "" || v.ne !== "";
 }
 
 function ColFilter({
@@ -56,12 +56,13 @@ function ColFilter({
   const sortDir = sortState?.col === colKey ? sortState.dir : null;
   const fv = filters[colKey];
   const isFiltered = isNumeric ? isNumericFilterActive(fv) : !!fv;
-  const nf: NumericFilter = (fv && isNumericFilter(fv)) ? fv : { min: "", max: "", ne: "" };
+  const nf: NumericFilter = (fv && isNumericFilter(fv)) ? fv : { min: "", max: "", eq: "", ne: "" };
 
   function clearFilter() {
     if (isNumeric) {
       onNumericFilter(colKey, "min", "");
       onNumericFilter(colKey, "max", "");
+      onNumericFilter(colKey, "eq", "");
       onNumericFilter(colKey, "ne", "");
     } else {
       onFilter(colKey, "");
@@ -91,7 +92,7 @@ function ColFilter({
           <div className="absolute z-50 top-full mt-1 left-0 bg-white border border-gray-200 rounded shadow-lg p-3 min-w-[180px]">
             {isNumeric ? (
               <div className="space-y-1.5">
-                {([ ["min", "以上"], ["max", "以下"], ["ne", "以外"] ] as [keyof NumericFilter, string][]).map(([field, label], i) => (
+                {([ ["min", "以上"], ["max", "以下"], ["eq", "と同じ"], ["ne", "以外"] ] as [keyof NumericFilter, string][]).map(([field, label], i) => (
                   <div key={field} className="flex items-center gap-1.5">
                     <input
                       ref={i === 0 ? inputRef : undefined}
@@ -565,7 +566,7 @@ export default function AttendanceMain({ initialPeriods }: Props) {
   const handleNumericFilter = useCallback((col: string, field: keyof NumericFilter, val: string) => {
     setFilters((f) => {
       const prev = f[col];
-      const base: NumericFilter = (prev && isNumericFilter(prev)) ? prev : { min: "", max: "", ne: "" };
+      const base: NumericFilter = (prev && isNumericFilter(prev)) ? prev : { min: "", max: "", eq: "", ne: "" };
       return { ...f, [col]: { ...base, [field]: val } };
     });
   }, []);
@@ -575,13 +576,14 @@ export default function AttendanceMain({ initialPeriods }: Props) {
     for (const [col, fv] of Object.entries(filters)) {
       if (NUMERIC_COLS.has(col)) {
         if (!isNumericFilterActive(fv)) continue;
-        const nf = isNumericFilter(fv) ? fv : { min: "", max: "", ne: "" };
+        const nf = isNumericFilter(fv) ? fv : { min: "", max: "", eq: "", ne: "" };
         result = result.filter((r) => {
           const val = col === "_liveBonus"
             ? (r.bonus_override != null ? Number(r.bonus_override) : calcBonus(r.bonus_eligible, r.paid_leave_days, r.absent_days, r.late_early_hours))
             : Number((r as Record<string, unknown>)[col] ?? 0);
           if (nf.min !== "" && !isNaN(parseFloat(nf.min)) && val < parseFloat(nf.min)) return false;
           if (nf.max !== "" && !isNaN(parseFloat(nf.max)) && val > parseFloat(nf.max)) return false;
+          if (nf.eq !== "" && !isNaN(parseFloat(nf.eq)) && val !== parseFloat(nf.eq)) return false;
           if (nf.ne !== "" && !isNaN(parseFloat(nf.ne)) && val === parseFloat(nf.ne)) return false;
           return true;
         });
