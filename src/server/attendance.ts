@@ -320,8 +320,8 @@ function toNum(v: string): number | null {
 
 /** 社員番号から雇用形態を取得（最新年度のEmployeeRecord） */
 async function getEmploymentType(employeeNumber: string): Promise<string | null> {
-  const user = await prisma.user.findUnique({
-    where: { employee_number: employeeNumber },
+  const user = await prisma.user.findFirst({
+    where: { employee_number: employeeNumber, deleted_at: null },
     select: {
       employee_records: {
         orderBy: { fiscal_year: "desc" },

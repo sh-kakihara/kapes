@@ -86,7 +86,7 @@ model Group {
 /// 社員
 model User {
   id              String    @id @default(cuid())
-  employee_number String?   @unique /// 社員番号
+  employee_number String?   /// 社員番号（部分ユニーク: deleted_at IS NULL の行のみ、DBレベルで制約）
   login_id        String    @unique /// ログインID
   name            String    /// 氏名
   password_hash   String
