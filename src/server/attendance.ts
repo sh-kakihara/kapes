@@ -145,11 +145,12 @@ async function buildEmpInfoMap(
     },
     orderBy: { fiscal_year: "desc" },
   });
+  // null をスキップし最新年度の非null値を採用（年度初期化でnullが混入する場合があるため）
   const employmentTypeMap = new Map<string, string | null>();
   for (const rec of allEmpRecords) {
     const empNo = rec.user.employee_number;
-    if (empNo && !employmentTypeMap.has(empNo)) {
-      employmentTypeMap.set(empNo, rec.employment_type ?? null);
+    if (empNo && !employmentTypeMap.has(empNo) && rec.employment_type != null) {
+      employmentTypeMap.set(empNo, rec.employment_type);
     }
   }
 

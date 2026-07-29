@@ -253,11 +253,15 @@ export async function upsertEmployeeRecord(
     update: parsed,
   });
 
-  // 次年度以降のレコードにも役職を反映（既存レコードのみ・上書き）
-  if (parsed.job_title !== undefined) {
+  // 次年度以降のレコードにも役職・雇用形態を反映（既存レコードのみ・上書き）
+  if (parsed.job_title !== undefined || parsed.employment_type !== undefined) {
     await prisma.employeeRecord.updateMany({
       where: { user_id: userId, fiscal_year: { gt: fiscalYear } },
-      data: { job_title: parsed.job_title, updated_by: me.id },
+      data: {
+        ...(parsed.job_title !== undefined ? { job_title: parsed.job_title } : {}),
+        ...(parsed.employment_type !== undefined ? { employment_type: parsed.employment_type } : {}),
+        updated_by: me.id,
+      },
     });
   }
 
