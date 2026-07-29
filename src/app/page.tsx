@@ -31,29 +31,41 @@ export default async function RootPage() {
   const canViewEvaluations = dbUser?.can_view_evaluations ?? false;
   const canViewNotices = dbUser?.can_view_notices ?? false;
 
-  // 1年以内に定年（60歳）となる社員（社長権限のみ）
-  let retiringEmployees: { id: string; name: string; employee_number: string | null; birth_date: Date }[] = [];
+  // 1年以内に定年（60歳）または65歳となる社員（社長権限のみ）
+  type AgeAlert = { id: string; name: string; employee_number: string | null; birth_date: Date };
+  let retiringEmployees: AgeAlert[] = [];
+  let age65Employees: AgeAlert[] = [];
   if (role === "PRESIDENT") {
     const today = new Date();
-    const sixtyYearsAgo = new Date(today.getFullYear() - 60, today.getMonth(), today.getDate());
+
+    const sixtyYearsAgo    = new Date(today.getFullYear() - 60, today.getMonth(), today.getDate());
     const fiftyNineYearsAgo = new Date(today.getFullYear() - 59, today.getMonth(), today.getDate());
-    const records = await prisma.employeeRecord.findMany({
+    const records60 = await prisma.employeeRecord.findMany({
       where: {
         birth_date: { gte: sixtyYearsAgo, lte: fiftyNineYearsAgo },
         user: { is_active: true, deleted_at: null, resign_date: null },
       },
-      select: {
-        birth_date: true,
-        user: { select: { id: true, name: true, employee_number: true } },
-      },
+      select: { birth_date: true, user: { select: { id: true, name: true, employee_number: true } } },
       distinct: ["user_id"],
       orderBy: { birth_date: "asc" },
     });
-    retiringEmployees = records.map((r) => ({
-      id: r.user.id,
-      name: r.user.name,
-      employee_number: r.user.employee_number,
-      birth_date: r.birth_date!,
+    retiringEmployees = records60.map((r) => ({
+      id: r.user.id, name: r.user.name, employee_number: r.user.employee_number, birth_date: r.birth_date!,
+    }));
+
+    const sixtyFiveYearsAgo  = new Date(today.getFullYear() - 65, today.getMonth(), today.getDate());
+    const sixtyFourYearsAgo  = new Date(today.getFullYear() - 64, today.getMonth(), today.getDate());
+    const records65 = await prisma.employeeRecord.findMany({
+      where: {
+        birth_date: { gte: sixtyFiveYearsAgo, lte: sixtyFourYearsAgo },
+        user: { is_active: true, deleted_at: null, resign_date: null },
+      },
+      select: { birth_date: true, user: { select: { id: true, name: true, employee_number: true } } },
+      distinct: ["user_id"],
+      orderBy: { birth_date: "asc" },
+    });
+    age65Employees = records65.map((r) => ({
+      id: r.user.id, name: r.user.name, employee_number: r.user.employee_number, birth_date: r.birth_date!,
     }));
   }
 
@@ -148,6 +160,38 @@ export default async function RootPage() {
                       <span className="text-gray-500 text-xs">
                         定年日: {retirementStr}
                         <span className={`ml-2 font-medium ${daysLeft <= 90 ? "text-red-600" : "text-amber-700"}`}>
+                          （あと約{months}ヶ月）
+                        </span>
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+          {age65Employees.length > 0 && (
+            <div className="mt-4 bg-blue-50 border border-blue-300 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-blue-600 text-lg">ℹ️</span>
+                <h3 className="font-bold text-blue-800 text-sm">
+                  1年以内に65歳となる社員 — {age65Employees.length}名
+                </h3>
+              </div>
+              <div className="space-y-1.5">
+                {age65Employees.map((emp) => {
+                  const today = new Date();
+                  const birth = new Date(emp.birth_date);
+                  const targetDate = new Date(birth.getFullYear() + 65, birth.getMonth(), birth.getDate());
+                  const daysLeft = Math.ceil((targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                  const months = Math.floor(daysLeft / 30);
+                  const targetStr = `${targetDate.getFullYear()}年${targetDate.getMonth() + 1}月${targetDate.getDate()}日`;
+                  return (
+                    <div key={emp.id} className="flex items-center gap-3 text-sm bg-white border border-blue-200 rounded px-3 py-2">
+                      <span className="text-gray-500 text-xs w-14 shrink-0">{emp.employee_number ?? "-"}</span>
+                      <span className="font-medium text-gray-800 w-24 shrink-0">{emp.name}</span>
+                      <span className="text-gray-500 text-xs">
+                        65歳到達日: {targetStr}
+                        <span className={`ml-2 font-medium ${daysLeft <= 90 ? "text-red-600" : "text-blue-700"}`}>
                           （あと約{months}ヶ月）
                         </span>
                       </span>
