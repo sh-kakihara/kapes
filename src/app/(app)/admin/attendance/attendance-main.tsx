@@ -3,32 +3,38 @@
 import { useState, useRef, useTransition, useEffect, useMemo, useCallback } from "react";
 
 // ---------- ColFilter ----------
-type NumericMode = "gte" | "lte" | "eq";
-type FilterEntry = { value: string; mode: NumericMode };
+type NumericFilter = { min: string; max: string; ne: string };
+type TextFilter = string;
+type FilterValue = NumericFilter | TextFilter;
 
-const NUMERIC_MODE_LABELS: Record<NumericMode, string> = { gte: "以上", lte: "以下", eq: "と同じ" };
+function isNumericFilter(v: FilterValue): v is NumericFilter {
+  return typeof v === "object";
+}
+
+function isNumericFilterActive(v: FilterValue | undefined): boolean {
+  if (!v || !isNumericFilter(v)) return false;
+  return v.min !== "" || v.max !== "" || v.ne !== "";
+}
 
 function ColFilter({
   label,
   colKey,
   sortState,
   filters,
-  filterModes,
   isNumeric = false,
   onToggleSort,
   onFilter,
-  onFilterMode,
+  onNumericFilter,
   align = "left",
 }: {
   label: string;
   colKey: string;
   sortState: { col: string; dir: "asc" | "desc" } | null;
-  filters: Record<string, string>;
-  filterModes: Record<string, NumericMode>;
+  filters: Record<string, FilterValue>;
   isNumeric?: boolean;
   onToggleSort: (col: string) => void;
   onFilter: (col: string, val: string) => void;
-  onFilterMode: (col: string, mode: NumericMode) => void;
+  onNumericFilter: (col: string, field: keyof NumericFilter, val: string) => void;
   align?: "left" | "right";
 }) {
   const [open, setOpen] = useState(false);
@@ -48,8 +54,20 @@ function ColFilter({
   }, [open]);
 
   const sortDir = sortState?.col === colKey ? sortState.dir : null;
-  const isFiltered = !!filters[colKey];
-  const mode = filterModes[colKey] ?? "gte";
+  const fv = filters[colKey];
+  const isFiltered = isNumeric ? isNumericFilterActive(fv) : !!fv;
+  const nf: NumericFilter = (fv && isNumericFilter(fv)) ? fv : { min: "", max: "", ne: "" };
+
+  function clearFilter() {
+    if (isNumeric) {
+      onNumericFilter(colKey, "min", "");
+      onNumericFilter(colKey, "max", "");
+      onNumericFilter(colKey, "ne", "");
+    } else {
+      onFilter(colKey, "");
+    }
+    setOpen(false);
+  }
 
   return (
     <div className={`flex items-center gap-0.5 ${align === "right" ? "justify-end" : ""}`} ref={ref}>
@@ -70,35 +88,29 @@ function ColFilter({
           ▽
         </button>
         {open && (
-          <div className="absolute z-50 top-full mt-1 left-0 bg-white border border-gray-200 rounded shadow-lg p-2 min-w-[160px]">
+          <div className="absolute z-50 top-full mt-1 left-0 bg-white border border-gray-200 rounded shadow-lg p-3 min-w-[180px]">
             {isNumeric ? (
-              <>
-                <div className="flex gap-1 mb-1.5">
-                  {(["gte", "lte", "eq"] as NumericMode[]).map((m) => (
-                    <button
-                      key={m}
-                      onClick={() => onFilterMode(colKey, m)}
-                      className={`flex-1 text-xs px-1 py-0.5 rounded border ${mode === m ? "bg-blue-600 text-white border-blue-600" : "border-gray-300 text-gray-600 hover:bg-gray-50"}`}
-                    >
-                      {NUMERIC_MODE_LABELS[m]}
-                    </button>
-                  ))}
-                </div>
-                <input
-                  ref={inputRef}
-                  type="text"
-                  inputMode="numeric"
-                  value={filters[colKey] ?? ""}
-                  onChange={(e) => onFilter(colKey, e.target.value)}
-                  placeholder="数値を入力..."
-                  className="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-400"
-                />
-              </>
+              <div className="space-y-1.5">
+                {([ ["min", "以上"], ["max", "以下"], ["ne", "以外"] ] as [keyof NumericFilter, string][]).map(([field, label], i) => (
+                  <div key={field} className="flex items-center gap-1.5">
+                    <input
+                      ref={i === 0 ? inputRef : undefined}
+                      type="text"
+                      inputMode="numeric"
+                      value={nf[field]}
+                      onChange={(e) => onNumericFilter(colKey, field, e.target.value)}
+                      placeholder="数値"
+                      className="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-400"
+                    />
+                    <span className="text-xs text-gray-600 whitespace-nowrap">{label}</span>
+                  </div>
+                ))}
+              </div>
             ) : (
               <input
                 ref={inputRef}
                 type="text"
-                value={filters[colKey] ?? ""}
+                value={(fv as string) ?? ""}
                 onChange={(e) => onFilter(colKey, e.target.value)}
                 placeholder="絞り込み..."
                 className="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-400"
@@ -106,8 +118,8 @@ function ColFilter({
             )}
             {isFiltered && (
               <button
-                onClick={() => { onFilter(colKey, ""); setOpen(false); }}
-                className="mt-1 text-xs text-gray-500 hover:text-red-500 w-full text-left"
+                onClick={clearFilter}
+                className="mt-2 text-xs text-gray-500 hover:text-red-500 w-full text-left"
               >
                 クリア
               </button>
@@ -533,8 +545,7 @@ export default function AttendanceMain({ initialPeriods }: Props) {
   const displayRecords = activePeriodId === loadedPeriodId ? records : [];
 
   const [sortState, setSortState] = useState<{ col: string; dir: "asc" | "desc" } | null>(null);
-  const [filters, setFilters] = useState<Record<string, string>>({});
-  const [filterModes, setFilterModes] = useState<Record<string, NumericMode>>({});
+  const [filters, setFilters] = useState<Record<string, FilterValue>>({});
 
   const NUMERIC_COLS = new Set(["work_days", "paid_leave_days", "absent_days", "late_early_hours",
     "overtime_hours", "night_overtime_hours", "holiday_hours", "legal_holiday_hours", "_liveBonus"]);
@@ -551,31 +562,32 @@ export default function AttendanceMain({ initialPeriods }: Props) {
     setFilters((f) => ({ ...f, [col]: val }));
   }, []);
 
-  const handleFilterMode = useCallback((col: string, mode: NumericMode) => {
-    setFilterModes((m) => ({ ...m, [col]: mode }));
+  const handleNumericFilter = useCallback((col: string, field: keyof NumericFilter, val: string) => {
+    setFilters((f) => {
+      const prev = f[col];
+      const base: NumericFilter = (prev && isNumericFilter(prev)) ? prev : { min: "", max: "", ne: "" };
+      return { ...f, [col]: { ...base, [field]: val } };
+    });
   }, []);
 
   const displayed = useMemo(() => {
     let result = [...displayRecords];
-    for (const [col, text] of Object.entries(filters)) {
-      if (!text) continue;
+    for (const [col, fv] of Object.entries(filters)) {
       if (NUMERIC_COLS.has(col)) {
-        const threshold = parseFloat(text);
-        if (isNaN(threshold)) continue;
-        const mode = filterModes[col] ?? "gte";
+        if (!isNumericFilterActive(fv)) continue;
+        const nf = isNumericFilter(fv) ? fv : { min: "", max: "", ne: "" };
         result = result.filter((r) => {
-          let val: number;
-          if (col === "_liveBonus") {
-            val = r.bonus_override != null ? Number(r.bonus_override) : calcBonus(r.bonus_eligible, r.paid_leave_days, r.absent_days, r.late_early_hours);
-          } else {
-            val = Number((r as Record<string, unknown>)[col] ?? 0);
-          }
-          if (mode === "gte") return val >= threshold;
-          if (mode === "lte") return val <= threshold;
-          return val === threshold;
+          const val = col === "_liveBonus"
+            ? (r.bonus_override != null ? Number(r.bonus_override) : calcBonus(r.bonus_eligible, r.paid_leave_days, r.absent_days, r.late_early_hours))
+            : Number((r as Record<string, unknown>)[col] ?? 0);
+          if (nf.min !== "" && !isNaN(parseFloat(nf.min)) && val < parseFloat(nf.min)) return false;
+          if (nf.max !== "" && !isNaN(parseFloat(nf.max)) && val > parseFloat(nf.max)) return false;
+          if (nf.ne !== "" && !isNaN(parseFloat(nf.ne)) && val === parseFloat(nf.ne)) return false;
+          return true;
         });
       } else {
-        const lower = text.toLowerCase();
+        if (!fv) continue;
+        const lower = String(fv).toLowerCase();
         result = result.filter((r) => String((r as Record<string, unknown>)[col] ?? "").toLowerCase().includes(lower));
       }
     }
@@ -589,7 +601,7 @@ export default function AttendanceMain({ initialPeriods }: Props) {
     }
     return result;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [displayRecords, filters, filterModes, sortState]);
+  }, [displayRecords, filters, sortState]);
 
   return (
     <div>
@@ -666,11 +678,11 @@ export default function AttendanceMain({ initialPeriods }: Props) {
                   <tr>
                     {/* 固定列: 社員番号 */}
                     <th className="px-3 py-2 font-medium text-gray-700 whitespace-nowrap border-r border-gray-200 sticky left-0 z-20 bg-gray-50 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]">
-                      <ColFilter label="社員番号" colKey="employee_number" sortState={sortState} filters={filters} filterModes={filterModes} onToggleSort={toggleSort} onFilter={handleFilter} onFilterMode={handleFilterMode} align="left" />
+                      <ColFilter label="社員番号" colKey="employee_number" sortState={sortState} filters={filters} onToggleSort={toggleSort} onFilter={handleFilter} onNumericFilter={handleNumericFilter} align="left" />
                     </th>
                     {/* 固定列: 氏名 */}
                     <th className="px-3 py-2 font-medium text-gray-700 whitespace-nowrap border-r border-gray-200 sticky left-[88px] z-20 bg-gray-50 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]">
-                      <ColFilter label="氏名" colKey="name" sortState={sortState} filters={filters} filterModes={filterModes} onToggleSort={toggleSort} onFilter={handleFilter} onFilterMode={handleFilterMode} align="left" />
+                      <ColFilter label="氏名" colKey="name" sortState={sortState} filters={filters} onToggleSort={toggleSort} onFilter={handleFilter} onNumericFilter={handleNumericFilter} align="left" />
                     </th>
                     {([
                       { key: "work_days",            label: "出勤日数",     align: "right", numeric: true },
@@ -684,11 +696,11 @@ export default function AttendanceMain({ initialPeriods }: Props) {
                       { key: "notes",                label: "備考",         align: "left",  numeric: false },
                     ] as { key: string; label: string; align: "left" | "right"; numeric: boolean }[]).map(({ key, label, align, numeric }) => (
                       <th key={key} className="px-3 py-2 font-medium text-gray-700 whitespace-nowrap border-r border-gray-200 bg-gray-50">
-                        <ColFilter label={label} colKey={key} sortState={sortState} filters={filters} filterModes={filterModes} isNumeric={numeric} onToggleSort={toggleSort} onFilter={handleFilter} onFilterMode={handleFilterMode} align={align} />
+                        <ColFilter label={label} colKey={key} sortState={sortState} filters={filters} isNumeric={numeric} onToggleSort={toggleSort} onFilter={handleFilter} onNumericFilter={handleNumericFilter} align={align} />
                       </th>
                     ))}
                     <th className="px-3 py-2 text-right font-medium text-blue-700 whitespace-nowrap border-r border-gray-200 bg-slate-100">
-                      <ColFilter label="精勤手当" colKey="_liveBonus" sortState={sortState} filters={filters} filterModes={filterModes} isNumeric onToggleSort={toggleSort} onFilter={handleFilter} onFilterMode={handleFilterMode} align="right" />
+                      <ColFilter label="精勤手当" colKey="_liveBonus" sortState={sortState} filters={filters} isNumeric onToggleSort={toggleSort} onFilter={handleFilter} onNumericFilter={handleNumericFilter} align="right" />
                     </th>
                     <th className="px-3 py-2 text-right font-medium text-gray-700 whitespace-nowrap border-r border-gray-200 bg-slate-100">基本額</th>
                     <th className="px-3 py-2 text-right font-medium text-gray-700 whitespace-nowrap border-r border-gray-200 bg-slate-100">役職手当</th>
