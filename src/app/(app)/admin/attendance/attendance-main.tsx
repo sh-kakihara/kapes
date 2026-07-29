@@ -198,8 +198,10 @@ function previewBaseAmount(edit: EditState): number {
 
 function previewPayment(edit: EditState): number {
   const base = previewBaseAmount(edit);
+  // 精勤手当を手動設定した場合は欠勤・遅早による減額をスキップ
+  const bonusOverrideSet = parseNum(edit.bonus_override) !== null;
   return calcPayment(
-    edit.bonus_eligible,
+    edit.bonus_eligible && !bonusOverrideSet,
     base || null,
     edit._employee_position_allowance,
     parseNum(edit.absent_days),
@@ -714,7 +716,8 @@ export default function AttendanceMain({ initialPeriods }: Props) {
                   {displayed.map((r) => {
                     const liveBonus = r.bonus_override != null ? r.bonus_override : calcBonus(r.bonus_eligible, r.paid_leave_days, r.absent_days, r.late_early_hours);
                     const liveBase  = (r.employee_bonus ?? 0) + liveBonus;
-                    const livePayment = calcPayment(r.bonus_eligible, liveBase || null, r.employee_position_allowance, r.absent_days, r.late_early_hours) ?? 0;
+                    // 精勤手当を手動設定した場合は欠勤・遅早による減額をスキップ
+                    const livePayment = calcPayment(r.bonus_eligible && r.bonus_override == null, liveBase || null, r.employee_position_allowance, r.absent_days, r.late_early_hours) ?? 0;
 
                     return (
                       <tr key={r.id} className="hover:bg-blue-50 group">

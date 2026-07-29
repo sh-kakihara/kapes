@@ -270,7 +270,9 @@ export async function updateAttendanceRecord(
     }
   }
 
-  const payment = calcPayment(eligible, baseAmount, empPositionAllowance, num(data.absent_days), num(data.late_early_hours));
+  // 精勤手当を手動設定した場合は欠勤・遅早による減額をスキップ
+  const paymentEligible = eligible && overrideVal === undefined;
+  const payment = calcPayment(paymentEligible, baseAmount, empPositionAllowance, num(data.absent_days), num(data.late_early_hours));
 
   await prisma.attendanceRecord.update({
     where: { id },
