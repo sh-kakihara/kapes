@@ -108,13 +108,13 @@ async function buildEmpInfoMap(
   fy: number,
   isSummer: boolean
 ): Promise<Map<string, { employee_bonus: number | null; employee_position_allowance: number | null; department: string | null; section: string | null; employment_type: string | null; hire_date: Date | null }>> {
-  const empRecords = await prisma.employeeRecord.findMany({
+  // 賞与額・役職手当はその年度のレコードから取得
+  const fyRecords = await prisma.employeeRecord.findMany({
     where: { fiscal_year: fy, user: { employee_number: { in: employeeNumbers } } },
     select: {
       curr_summer_bonus: true,
       curr_winter_bonus: true,
       curr_position_allowance: true,
-      employment_type: true,
       user: {
         select: {
           employee_number: true,
@@ -125,8 +125,27 @@ async function buildEmpInfoMap(
       },
     },
   });
+
+  // 雇用形態は最新年度のレコードから取得（社員台帳で変更した値を即時反映するため）
+  const users = await prisma.user.findMany({
+    where: { employee_number: { in: employeeNumbers }, deleted_at: null },
+    select: {
+      employee_number: true,
+      employee_records: {
+        orderBy: { fiscal_year: "desc" },
+        take: 1,
+        select: { employment_type: true },
+      },
+    },
+  });
+  const employmentTypeMap = new Map(
+    users
+      .filter((u) => u.employee_number)
+      .map((u) => [u.employee_number!, u.employee_records[0]?.employment_type ?? null])
+  );
+
   const map = new Map<string, { employee_bonus: number | null; employee_position_allowance: number | null; department: string | null; section: string | null; employment_type: string | null; hire_date: Date | null }>();
-  for (const er of empRecords) {
+  for (const er of fyRecords) {
     if (!er.user.employee_number) continue;
     const empBonus = isSummer ? er.curr_summer_bonus : er.curr_winter_bonus;
     map.set(er.user.employee_number, {
@@ -134,7 +153,7 @@ async function buildEmpInfoMap(
       employee_position_allowance: er.curr_position_allowance != null ? Number(er.curr_position_allowance) : null,
       department: er.user.department?.name ?? null,
       section: er.user.section?.name ?? null,
-      employment_type: er.employment_type ?? null,
+      employment_type: employmentTypeMap.get(er.user.employee_number) ?? null,
       hire_date: er.user.hire_date ?? null,
     });
   }
