@@ -231,7 +231,7 @@ export async function getBonusNoticeEmployees(
     const bonusAmount = rawBonusAmt != null ? Number(rawBonusAmt) : null;
     const positionAllowance = er?.curr_position_allowance != null ? Number(er.curr_position_allowance) : null;
 
-    const baseAmount = (bonusAmount ?? 0) + bonusAdd;
+    const baseAmount = bonusAmount ?? 0;
     const payment = calcPayment(
       eligible && r.bonus_override == null,
       baseAmount > 0 ? baseAmount : null,
