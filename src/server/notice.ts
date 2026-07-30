@@ -202,6 +202,14 @@ export async function getBonusNoticeEmployees(
     (inflationSetting?.overrides ?? []).map((o) => [o.user_id, o.amount])
   );
 
+  const INELIGIBLE_EMPLOYMENT_TYPES = new Set(["時給", "月給/賞与支給なし"]);
+  function isWithinFirstYear(hireDate: Date | null | undefined): boolean {
+    if (!hireDate) return false;
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+    return hireDate > oneYearAgo;
+  }
+
   const results: BonusNoticeEmployee[] = [];
   for (const r of period.records) {
     const er = erMap.get(r.employee_number);
@@ -209,16 +217,23 @@ export async function getBonusNoticeEmployees(
     const absent = r.absent_days != null ? Number(r.absent_days) : null;
     const late = r.late_early_hours != null ? Number(r.late_early_hours) : null;
 
+    const employmentType = er?.employment_type ?? null;
+    const hireDate = er?.user.hire_date ?? null;
+    const eligible = (
+      INELIGIBLE_EMPLOYMENT_TYPES.has(employmentType ?? "") ||
+      isWithinFirstYear(hireDate)
+    ) ? false : r.bonus_eligible;
+
     const bonusAdd = r.bonus_override != null
       ? Number(r.bonus_override)
-      : calcBonus(r.bonus_eligible, paid, absent, late);
+      : calcBonus(eligible, paid, absent, late);
     const rawBonusAmt = isSummer ? er?.curr_summer_bonus : er?.curr_winter_bonus;
     const bonusAmount = rawBonusAmt != null ? Number(rawBonusAmt) : null;
     const positionAllowance = er?.curr_position_allowance != null ? Number(er.curr_position_allowance) : null;
 
     const baseAmount = (bonusAmount ?? 0) + bonusAdd;
     const payment = calcPayment(
-      r.bonus_eligible,
+      eligible && r.bonus_override == null,
       baseAmount > 0 ? baseAmount : null,
       positionAllowance,
       absent,
