@@ -257,7 +257,7 @@ export async function getBonusNoticeEmployees(
     results.push({
       id: userId || r.employee_number,
       employee_number: r.employee_number,
-      name: r.name,
+      name: er?.user.name ?? r.name,
       employee_type: er?.user.employee_type ?? "",
       birth_date: er?.birth_date?.toISOString() ?? null,
       gender: er?.gender ?? null,
