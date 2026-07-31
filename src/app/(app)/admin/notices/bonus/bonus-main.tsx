@@ -473,12 +473,6 @@ export default function BonusMain({
             </button>
             <div className="flex gap-2">
               <button
-                onClick={() => setSelectedIds(new Set(employees.map((e) => e.id)))}
-                className="flex-1 py-2 border border-gray-300 text-gray-600 text-xs rounded hover:bg-gray-50"
-              >
-                全員選択
-              </button>
-              <button
                 onClick={() => setSelectedIds(new Set())}
                 className="flex-1 py-2 border border-gray-300 text-gray-600 text-xs rounded hover:bg-gray-50"
               >
