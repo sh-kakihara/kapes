@@ -178,13 +178,6 @@ export default function BonusMain({
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set(rawEmployees.map((e) => e.id)));
-
-  // シーズン・年度切替時に全員選択にリセット
-  useEffect(() => {
-    setSelectedIds(new Set(rawEmployees.map((e) => e.id)));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bonusSeason, activeYear]);
 
   const isSummer = bonusSeason === "夏期";
   const activeDate = isSummer ? summerDate : winterDate;
@@ -195,6 +188,13 @@ export default function BonusMain({
   const setActiveComment = isSummer ? setSummerComment : setWinterComment;
 
   const rawEmployees = isSummer ? summerEmployees : winterEmployees;
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set(rawEmployees.map((e) => e.id)));
+
+  // シーズン・年度切替時に全員選択にリセット
+  useEffect(() => {
+    setSelectedIds(new Set(rawEmployees.map((e) => e.id)));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bonusSeason, activeYear]);
 
   const employees: EmpRow[] = useMemo(
     () =>
