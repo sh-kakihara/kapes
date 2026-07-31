@@ -7,7 +7,7 @@ import BonusPrintView from "@/app/(app)/admin/notices/print/bonus-print-view";
 export default async function BonusNoticePrintPage({
   searchParams,
 }: {
-  searchParams: Promise<{ fiscal_year?: string; season?: string }>;
+  searchParams: Promise<{ fiscal_year?: string; season?: string; ids?: string }>;
 }) {
   const session = await auth();
   if (!session?.user) redirect("/login");
@@ -16,11 +16,15 @@ export default async function BonusNoticePrintPage({
   const sp = await searchParams;
   const fiscal_year = Number(sp.fiscal_year ?? new Date().getFullYear());
   const season = sp.season ?? "夏期";
+  const idsParam = sp.ids;
 
-  const [doc, items] = await Promise.all([
+  const [doc, allItems] = await Promise.all([
     getBonusNoticeDocument(fiscal_year, season),
     getBonusNoticeEmployees(fiscal_year, season),
   ]);
+
+  const selectedIds = idsParam ? new Set(idsParam.split(",")) : null;
+  const items = selectedIds ? allItems.filter((e) => selectedIds.has(e.id)) : allItems;
 
   return (
     <BonusPrintView

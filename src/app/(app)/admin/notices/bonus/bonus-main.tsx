@@ -178,6 +178,13 @@ export default function BonusMain({
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set(rawEmployees.map((e) => e.id)));
+
+  // シーズン・年度切替時に全員選択にリセット
+  useEffect(() => {
+    setSelectedIds(new Set(rawEmployees.map((e) => e.id)));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bonusSeason, activeYear]);
 
   const isSummer = bonusSeason === "夏期";
   const activeDate = isSummer ? summerDate : winterDate;
@@ -237,7 +244,31 @@ export default function BonusMain({
   }
 
   function handlePrint() {
-    router.push(`/notices/print-bonus?fiscal_year=${activeYear}&season=${encodeURIComponent(bonusSeason)}`);
+    const ids = [...selectedIds].join(",");
+    router.push(`/notices/print-bonus?fiscal_year=${activeYear}&season=${encodeURIComponent(bonusSeason)}&ids=${encodeURIComponent(ids)}`);
+  }
+
+  const allVisibleIds = table.getRowModel().rows.map((r) => r.original.id);
+  const allVisibleSelected = allVisibleIds.length > 0 && allVisibleIds.every((id) => selectedIds.has(id));
+
+  function toggleAll() {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (allVisibleSelected) {
+        allVisibleIds.forEach((id) => next.delete(id));
+      } else {
+        allVisibleIds.forEach((id) => next.add(id));
+      }
+      return next;
+    });
+  }
+
+  function toggleOne(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
   }
 
   const wareki = activeDate ? toWareki(activeDate) : "";
@@ -307,6 +338,15 @@ export default function BonusMain({
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="bg-gray-50 text-xs">
+                <th className="px-2 py-1.5 border-b text-center w-8">
+                  <input
+                    type="checkbox"
+                    checked={allVisibleSelected}
+                    onChange={toggleAll}
+                    className="w-3.5 h-3.5 accent-indigo-600 cursor-pointer"
+                    title="表示中を全選択/全解除"
+                  />
+                </th>
                 {table.getHeaderGroups()[0].headers.map((header) => {
                   const col = header.column;
                   return (
@@ -324,7 +364,7 @@ export default function BonusMain({
               {table.getRowModel().rows.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={COLUMNS.length}
+                    colSpan={COLUMNS.length + 1}
                     className="px-3 text-center text-gray-400"
                     style={{ height: "320px", verticalAlign: "middle" }}
                   >
@@ -336,11 +376,20 @@ export default function BonusMain({
               ) : (
                 table.getRowModel().rows.map((row) => {
                   const emp = row.original;
+                  const isSelected = selectedIds.has(emp.id);
                   const commentPreview = activeComment
                     ? activeComment.slice(0, 20) + (activeComment.length > 20 ? "…" : "")
                     : "（未設定）";
                   return (
-                    <tr key={emp.id} className="border-b last:border-b-0 hover:bg-gray-50">
+                    <tr key={emp.id} className={`border-b last:border-b-0 hover:bg-gray-50 ${!isSelected ? "opacity-40" : ""}`}>
+                      <td className="px-2 py-2 text-center">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleOne(emp.id)}
+                          className="w-3.5 h-3.5 accent-indigo-600 cursor-pointer"
+                        />
+                      </td>
                       <td className="px-3 py-2 text-gray-500 font-mono text-xs whitespace-nowrap">{emp.employee_number}</td>
                       <td className="px-3 py-2 font-medium text-gray-800 whitespace-nowrap">{emp.name}</td>
                       <td className="px-3 py-2 text-right text-gray-700 font-medium whitespace-nowrap">
@@ -422,11 +471,27 @@ export default function BonusMain({
             >
               {saving ? "保存中..." : "設定を保存"}
             </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setSelectedIds(new Set(employees.map((e) => e.id)))}
+                className="flex-1 py-2 border border-gray-300 text-gray-600 text-xs rounded hover:bg-gray-50"
+              >
+                全員選択
+              </button>
+              <button
+                onClick={() => setSelectedIds(new Set())}
+                className="flex-1 py-2 border border-gray-300 text-gray-600 text-xs rounded hover:bg-gray-50"
+              >
+                全解除
+              </button>
+            </div>
+            <p className="text-xs text-gray-400 text-center">{selectedIds.size}/{employees.length}名 選択中</p>
             <button
               onClick={handlePrint}
-              className="w-full py-2 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700"
+              disabled={selectedIds.size === 0}
+              className="w-full py-2 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700 disabled:opacity-50"
             >
-              {activeYear}年度{bonusSeason}賞与 印刷プレビュー →
+              選択中 {selectedIds.size}名 印刷プレビュー →
             </button>
           </div>
         </div>
