@@ -314,5 +314,5 @@ export async function getBonusNoticeEmployees(
   }
 
   results.sort((a, b) => a.employee_number.localeCompare(b.employee_number, "ja", { numeric: true }));
-  return results;
+  return results.filter((r) => r.employee_type !== "実習生");
 }
