@@ -180,7 +180,7 @@ export async function getBonusNoticeEmployees(
 
   const [empRecords, allEmpRecords, inflationSetting] = await Promise.all([
     prisma.employeeRecord.findMany({
-      where: { fiscal_year, user: { employee_number: { in: empNos } } },
+      where: { fiscal_year, user: { employee_number: { in: empNos }, deleted_at: null, is_active: true } },
       select: empRecordSelect,
     }),
     prisma.employeeRecord.findMany({
@@ -216,6 +216,7 @@ export async function getBonusNoticeEmployees(
   const results: BonusNoticeEmployee[] = [];
   for (const r of period.records) {
     const er = erMap.get(r.employee_number);
+    if (!er) continue; // ユーザー削除済みまたは退職済みはスキップ
     const paid = r.paid_leave_days != null ? Number(r.paid_leave_days) : null;
     const absent = r.absent_days != null ? Number(r.absent_days) : null;
     const late = r.late_early_hours != null ? Number(r.late_early_hours) : null;
