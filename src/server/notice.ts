@@ -159,30 +159,33 @@ export async function getBonusNoticeEmployees(
   const isSummer = season === "夏期";
   const empNos = period.records.map((r) => r.employee_number);
 
-  const [empRecords, inflationSetting] = await Promise.all([
-    prisma.employeeRecord.findMany({
-      where: {
-        fiscal_year,
-        user: { employee_number: { in: empNos } },
-      },
+  const empRecordSelect = {
+    birth_date: true,
+    gender: true,
+    employment_type: true,
+    training_period: true,
+    curr_summer_bonus: true,
+    curr_winter_bonus: true,
+    curr_position_allowance: true,
+    user: {
       select: {
-        birth_date: true,
-        gender: true,
-        employment_type: true,
-        training_period: true,
-        curr_summer_bonus: true,
-        curr_winter_bonus: true,
-        curr_position_allowance: true,
-        user: {
-          select: {
-            id: true,
-            employee_number: true,
-            employee_type: true,
-            name: true,
-            hire_date: true,
-          },
-        },
+        id: true,
+        employee_number: true,
+        employee_type: true,
+        name: true,
+        hire_date: true,
       },
+    },
+  } as const;
+
+  const [empRecords, allEmpRecords, inflationSetting] = await Promise.all([
+    prisma.employeeRecord.findMany({
+      where: { fiscal_year, user: { employee_number: { in: empNos } } },
+      select: empRecordSelect,
+    }),
+    prisma.employeeRecord.findMany({
+      where: { fiscal_year, user: { deleted_at: null, is_active: true } },
+      select: empRecordSelect,
     }),
     prisma.inflationSetting.findUnique({
       where: { fiscal_year_season: { fiscal_year, season } },
@@ -269,6 +272,42 @@ export async function getBonusNoticeEmployees(
       paid_leave_days: paid,
       absent_days: absent,
       late_early_hours: late,
+      inflation_amount: inflationAmount,
+      inflation_enabled: inflationEnabled,
+    });
+  }
+
+  // 精勤手当データのない社員台帳の社員を追加（精勤手当0円・出勤情報なし）
+  const attendanceEmpNosSet = new Set(empNos);
+  for (const er of allEmpRecords) {
+    const empNo = er.user.employee_number ?? "";
+    if (!empNo || attendanceEmpNosSet.has(empNo)) continue;
+
+    const rawBonusAmt = isSummer ? er.curr_summer_bonus : er.curr_winter_bonus;
+    const bonusAmount = rawBonusAmt != null ? Number(rawBonusAmt) : null;
+    const positionAllowance = er.curr_position_allowance != null ? Number(er.curr_position_allowance) : null;
+    const payment = calcPayment(false, bonusAmount != null && bonusAmount > 0 ? bonusAmount : null, positionAllowance, null, null);
+    const userId = er.user.id;
+    const autoInflation = inflationEnabled
+      ? calcInflationAmount(er.user.hire_date ?? null, er.birth_date ?? null, er.employment_type ?? null, er.training_period ?? null, inflationNoticeDate)
+      : 0;
+    const inflationAmount = inflationEnabled ? (inflationOverrideMap.get(userId) ?? autoInflation) : 0;
+
+    results.push({
+      id: userId,
+      employee_number: empNo,
+      name: er.user.name,
+      employee_type: er.user.employee_type ?? "",
+      birth_date: er.birth_date?.toISOString() ?? null,
+      gender: er.gender ?? null,
+      employment_type: er.employment_type ?? null,
+      bonus_amount: bonusAmount,
+      bonus_add: 0,
+      position_allowance: positionAllowance,
+      payment,
+      paid_leave_days: null,
+      absent_days: null,
+      late_early_hours: null,
       inflation_amount: inflationAmount,
       inflation_enabled: inflationEnabled,
     });
