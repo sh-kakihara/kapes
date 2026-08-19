@@ -5,15 +5,15 @@ import { forbidden } from "next/navigation";
 import { spawn } from "child_process";
 import { revalidatePath } from "next/cache";
 
-const PG_DUMP    = process.platform === "win32"
-  ? "C:\\Program Files\\PostgreSQL\\17\\bin\\pg_dump.exe"
-  : "pg_dump";
-const PG_RESTORE = process.platform === "win32"
-  ? "C:\\Program Files\\PostgreSQL\\17\\bin\\pg_restore.exe"
-  : "pg_restore";
-const PSQL       = process.platform === "win32"
-  ? "C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe"
-  : "psql";
+function pgBin(name: string) {
+  const dir = process.env.PG_BIN_DIR;
+  if (dir) return `${dir}/${name}`;
+  if (process.platform === "win32") return `C:\\Program Files\\PostgreSQL\\17\\bin\\${name}.exe`;
+  return name;
+}
+const PG_DUMP    = pgBin("pg_dump");
+const PG_RESTORE = pgBin("pg_restore");
+const PSQL       = pgBin("psql");
 
 function parseDbUrl(url: string) {
   const m = url.match(/postgresql:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/([^?]+)/);
