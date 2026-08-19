@@ -80,39 +80,52 @@ export async function restoreBackup(
 
   return new Promise((resolve) => {
     const errChunks: Buffer[] = [];
+    const outChunks: Buffer[] = [];
 
     const restore = spawn(PG_RESTORE, [
       "-h", host, "-p", port, "-U", user,
       "-d", dbname,
       "--clean", "--if-exists", "--no-owner", "--no-privileges",
-      "-F", "c",
+      "-F", "c", "-v",
     ], {
-      env: { ...process.env, PGPASSWORD: password },
+      env: { ...process.env, PGPASSWORD: password, PGSSLMODE: "require" },
       stdio: ["pipe", "pipe", "pipe"],
     });
 
     restore.stdin.write(buf);
     restore.stdin.end();
-    // stdout を捨てないとバッファが詰まってハングする
-    restore.stdout.resume();
+    restore.stdout.on("data", (d: Buffer) => outChunks.push(d));
     restore.stderr.on("data", (d: Buffer) => errChunks.push(d));
 
+    // 90秒でタイムアウト
+    const timer = setTimeout(() => {
+      restore.kill();
+      const stderr = Buffer.concat(errChunks).toString();
+      const stdout = Buffer.concat(outChunks).toString();
+      resolve({ ok: false, message: `タイムアウト（90秒）\nstderr:\n${stderr}\nstdout:\n${stdout}` });
+    }, 90000);
+
     restore.on("close", (code) => {
+      clearTimeout(timer);
       revalidatePath("/", "layout");
+      const errText = Buffer.concat(errChunks).toString();
       if (code !== 0) {
-        const errText = Buffer.concat(errChunks).toString();
-        // pg_restore は警告でも非0を返すことがある
         const hasRealError = errText.split("\n").some(
           (l) => l.includes("ERROR:") && !l.includes("does not exist")
         );
         if (hasRealError) {
-          resolve({ ok: false, message: `リストアエラー:\n${errText}` });
+          resolve({ ok: false, message: `リストアエラー (code=${code}):\n${errText}` });
         } else {
-          resolve({ ok: true, message: "リストアが完了しました（警告あり）" });
+          resolve({ ok: true, message: `リストアが完了しました（警告あり）\n${errText}` });
         }
       } else {
         resolve({ ok: true, message: "リストアが完了しました" });
       }
+    });
+
+    restore.on("error", (err) => {
+      clearTimeout(timer);
+      resolve({ ok: false, message: `pg_restore 起動エラー: ${err.message}` });
     });
   });
 }
