@@ -81,44 +81,38 @@ export async function restoreBackup(
   return new Promise((resolve) => {
     const errChunks: Buffer[] = [];
 
-    // --clean で既存オブジェクトを削除してから復元、--if-exists でエラー抑制
-    const proc = spawn(PSQL, [
-      "-h", host, "-p", port, "-U", user, "-d", dbname,
-      "-c", "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = current_database() AND pid <> pg_backend_pid();",
-    ], { env: { ...process.env, PGPASSWORD: password } });
+    const restore = spawn(PG_RESTORE, [
+      "-h", host, "-p", port, "-U", user,
+      "-d", dbname,
+      "--clean", "--if-exists", "--no-owner", "--no-privileges",
+      "-F", "c",
+    ], {
+      env: { ...process.env, PGPASSWORD: password },
+      stdio: ["pipe", "pipe", "pipe"],
+    });
 
-    proc.on("close", () => {
-      const restore = spawn(PG_RESTORE, [
-        "-h", host, "-p", port, "-U", user,
-        "-d", dbname,
-        "--clean", "--if-exists", "--no-owner", "--no-privileges",
-        "-F", "c",
-      ], {
-        env: { ...process.env, PGPASSWORD: password },
-        stdio: ["pipe", "pipe", "pipe"],
-      });
+    restore.stdin.write(buf);
+    restore.stdin.end();
+    // stdout を捨てないとバッファが詰まってハングする
+    restore.stdout.resume();
+    restore.stderr.on("data", (d: Buffer) => errChunks.push(d));
 
-      restore.stdin.write(buf);
-      restore.stdin.end();
-      restore.stderr.on("data", (d: Buffer) => errChunks.push(d));
-
-      restore.on("close", (code) => {
-        revalidatePath("/", "layout");
-        if (code !== 0) {
-          const errText = Buffer.concat(errChunks).toString();
-          // pg_restore は警告でも非0を返すことがある
-          const hasRealError = errText.split("\n").some(
-            (l) => l.includes("ERROR:") && !l.includes("does not exist")
-          );
-          if (hasRealError) {
-            resolve({ ok: false, message: `リストアエラー:\n${errText}` });
-          } else {
-            resolve({ ok: true, message: "リストアが完了しました（警告あり）" });
-          }
+    restore.on("close", (code) => {
+      revalidatePath("/", "layout");
+      if (code !== 0) {
+        const errText = Buffer.concat(errChunks).toString();
+        // pg_restore は警告でも非0を返すことがある
+        const hasRealError = errText.split("\n").some(
+          (l) => l.includes("ERROR:") && !l.includes("does not exist")
+        );
+        if (hasRealError) {
+          resolve({ ok: false, message: `リストアエラー:\n${errText}` });
         } else {
-          resolve({ ok: true, message: "リストアが完了しました" });
+          resolve({ ok: true, message: "リストアが完了しました（警告あり）" });
         }
-      });
+      } else {
+        resolve({ ok: true, message: "リストアが完了しました" });
+      }
     });
   });
 }
