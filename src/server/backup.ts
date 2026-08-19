@@ -8,7 +8,13 @@ import { revalidatePath } from "next/cache";
 function pgBin(name: string) {
   const dir = process.env.PG_BIN_DIR;
   if (dir) return `${dir}/${name}`;
-  if (process.platform === "win32") return `C:\\Program Files\\PostgreSQL\\17\\bin\\${name}.exe`;
+  if (process.platform === "win32") {
+    const { existsSync } = require("fs") as typeof import("fs");
+    for (const v of ["17", "16", "15"]) {
+      const p = `C:\\Program Files\\PostgreSQL\\${v}\\bin\\${name}.exe`;
+      if (existsSync(p)) return p;
+    }
+  }
   return name;
 }
 const PG_DUMP    = pgBin("pg_dump");
