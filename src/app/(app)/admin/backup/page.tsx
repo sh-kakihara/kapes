@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { createBackup, restoreBackup } from "@/server/backup";
 
 export default function BackupPage() {
@@ -11,7 +11,14 @@ export default function BackupPage() {
   const [restoreMsg, setRestoreMsg] = useState<string | null>(null);
   const [restoreFile, setRestoreFile] = useState<File | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [elapsedSec, setElapsedSec] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!restoreLoading) { setElapsedSec(0); return; }
+    const t = setInterval(() => setElapsedSec((s) => s + 1), 1000);
+    return () => clearInterval(t);
+  }, [restoreLoading]);
 
   async function handleBackup() {
     setBackupLoading(true);
@@ -100,7 +107,7 @@ export default function BackupPage() {
             disabled={!restoreFile || restoreLoading}
             className="px-5 py-2 bg-red-600 text-white rounded text-sm font-medium hover:bg-red-700 disabled:opacity-50 whitespace-nowrap"
           >
-            {restoreLoading ? "復元中..." : "リストア実行"}
+            {restoreLoading ? `復元中... (${elapsedSec}秒経過)` : "リストア実行"}
           </button>
         </div>
         {restoreFile && <p className="text-xs text-gray-500">選択ファイル: {restoreFile.name}</p>}
