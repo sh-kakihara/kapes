@@ -1,4 +1,4 @@
-FROM node:20-alpine AS base
+FROM node:20-alpine3.21 AS base
 
 # 依存関係インストール
 FROM base AS deps
