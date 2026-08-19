@@ -37,7 +37,7 @@ function FacetedFilter({ column, title }: { column: Column<EmpRow, unknown>; tit
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) { setOpen(false); setSearch(""); }
+      if (ref.current && !ref.current.contains(e.target as Node)) { setOpen(false); }
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
