@@ -54,6 +54,9 @@ export default function BackupPage() {
       const bytes = Array.from(new Uint8Array(buf));
       const result = await restoreBackup(bytes);
       setRestoreMsg(result.message);
+      if (result.ok) {
+        setTimeout(() => window.location.reload(), 1500);
+      }
     } catch (e) {
       setRestoreMsg(`エラー: ${e}`);
     } finally {
