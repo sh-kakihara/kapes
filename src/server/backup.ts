@@ -6,13 +6,13 @@ import { spawn } from "child_process";
 import { revalidatePath } from "next/cache";
 
 const PG_DUMP    = process.platform === "win32"
-  ? "C:\\Program Files\\PostgreSQL\\16\\bin\\pg_dump.exe"
+  ? "C:\\Program Files\\PostgreSQL\\17\\bin\\pg_dump.exe"
   : "pg_dump";
 const PG_RESTORE = process.platform === "win32"
-  ? "C:\\Program Files\\PostgreSQL\\16\\bin\\pg_restore.exe"
+  ? "C:\\Program Files\\PostgreSQL\\17\\bin\\pg_restore.exe"
   : "pg_restore";
 const PSQL       = process.platform === "win32"
-  ? "C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe"
+  ? "C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe"
   : "psql";
 
 function parseDbUrl(url: string) {
