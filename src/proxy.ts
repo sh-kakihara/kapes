@@ -8,7 +8,6 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const isLoginPage = nextUrl.pathname === "/login";
   const isResetPage = nextUrl.pathname === "/reset-password";
-  const isFirstLoginPage = nextUrl.pathname === "/first-login";
 
   if (isLoginPage) {
     if (isLoggedIn) return Response.redirect(new URL("/", nextUrl));
@@ -23,11 +22,6 @@ export default auth((req) => {
     return Response.redirect(loginUrl);
   }
 
-  // 初回ログインユーザーは設定ページへ強制リダイレクト
-  const isFirstLogin = (req.auth as { user?: { is_first_login?: boolean } })?.user?.is_first_login;
-  if (isFirstLogin && !isFirstLoginPage) {
-    return Response.redirect(new URL("/first-login", nextUrl));
-  }
 });
 
 export const config = {
