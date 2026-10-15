@@ -94,9 +94,23 @@ export async function createGroup(name: string) {
   const trimmed = name.trim();
   if (!trimmed) return { ok: false, error: "グループ名を入力してください" };
 
-  await prisma.group.create({
-    data: { name: trimmed, section_id: me.section_id! },
+  // 論理削除済みの同名グループがあれば復活、なければ新規作成
+  const existing = await prisma.group.findUnique({
+    where: { section_id_name: { section_id: me.section_id!, name: trimmed } },
   });
+  if (existing) {
+    if (!existing.deleted_at) {
+      return { ok: false, error: "同じ名前のグループがすでに存在します" };
+    }
+    await prisma.group.update({
+      where: { id: existing.id },
+      data: { deleted_at: null },
+    });
+  } else {
+    await prisma.group.create({
+      data: { name: trimmed, section_id: me.section_id! },
+    });
+  }
   revalidatePath("/manager/groups");
   return { ok: true };
 }
