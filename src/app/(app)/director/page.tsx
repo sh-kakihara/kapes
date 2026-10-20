@@ -51,7 +51,7 @@ export default async function DirectorPage() {
         popupColumns={[
           { key: "self",    label: "自己評価",     color: "text-blue-600" },
           { key: "leader",  label: "リーダー評価", color: "text-orange-500", showForRoles: ["STAFF"], hideIfSectionNoLeader: true, hideIfNoScore: true },
-          { key: "manager", label: "課長評価",     color: "text-green-700", roleOverride: "MANAGER", showForRoles: ["STAFF", "LEADER", "MANAGER", "COUNSELOR"], hideIfNoScore: true },
+          { key: "manager", label: "課長評価",     color: "text-green-700", roleOverride: "MANAGER", showForRoles: ["STAFF", "LEADER", "MANAGER", "COUNSELOR"] },
         ]}
       />
     </div>
