@@ -90,7 +90,7 @@ export default async function PresidentDetailPage({ params }: { params: Promise<
 
       <div className="mb-6 flex items-center gap-3 flex-wrap">
         <span className="inline-block bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full font-medium">
-          {STATUS_LABELS[evaluation.status] ?? evaluation.status}
+          {STATUS_LABELS[evaluation.status ?? "NO_EVAL"] ?? evaluation.status}
         </span>
         <span className="text-sm text-gray-600">
           合計（部長評価）: <strong className="text-purple-700">{dirTotal}</strong>

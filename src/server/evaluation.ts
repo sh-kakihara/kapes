@@ -669,7 +669,7 @@ export async function skipEvaluation(periodId: string, employeeId: string, reaso
 
   if (existing) {
     // すでに課長より先に進んでいる場合はスキップ不可
-    const skipable = ["DRAFT", "SUBMITTED_TO_LEADER"].includes(existing.status) || existing.status === null;
+    const skipable = ["DRAFT", "SUBMITTED_TO_LEADER"].includes(existing.status ?? "") || existing.status === null;
     if (!skipable) throw new Error("この評価はすでに課長評価以降に進んでいるためスキップできません");
     await prisma.evaluation.update({
       where: { id: existing.id },

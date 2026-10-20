@@ -51,7 +51,7 @@ export default async function DirectorEvalPage({ params }: { params: Promise<{ i
       <p className="text-sm text-gray-500 mb-6">期間: {evaluation.period.name}</p>
 
       <DirectorEvalForm
-        evaluation={{ id: evaluation.id, status: evaluation.status, period: { director_deadline: evaluation.period.director_deadline } }}
+        evaluation={{ id: evaluation.id, status: evaluation.status ?? "", period: { director_deadline: evaluation.period.director_deadline } }}
         selfScores={build("self")}
         leaderScores={leaderScores}
         managerScores={managerScores}

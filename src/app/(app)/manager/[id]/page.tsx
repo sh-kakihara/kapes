@@ -62,7 +62,7 @@ export default async function ManagerEvalPage({ params }: { params: Promise<{ id
       <p className="text-sm text-gray-500 mb-6">期間: {evaluation.period.name}</p>
 
       <ManagerEvalForm
-        evaluation={{ id: evaluation.id, status: evaluation.status, period: { manager_deadline: evaluation.period.manager_deadline }, skipDirector: evaluation.employee.department?.skip_director ?? false }}
+        evaluation={{ id: evaluation.id, status: evaluation.status ?? "", period: { manager_deadline: evaluation.period.manager_deadline }, skipDirector: evaluation.employee.department?.skip_director ?? false }}
         selfScores={selfScores}
         leaderScores={leaderScores}
         managerScores={managerScores}

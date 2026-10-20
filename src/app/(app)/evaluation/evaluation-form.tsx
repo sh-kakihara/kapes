@@ -8,7 +8,7 @@ import { saveSelfEvaluation, submitFromEmployee } from "@/server/evaluation";
 type Score = { item_code: string; evaluator: string; score: number | null; comment: string | null };
 type Evaluation = {
   id: string;
-  status: string;
+  status: string | null;
   scores: Score[];
   period: { self_deadline: Date | null };
 };
@@ -110,7 +110,7 @@ export default function EvaluationForm({
       {!isDraft && (
         <div className="mb-4 flex items-center gap-3 flex-wrap">
           <span className="inline-block bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full font-medium">
-            {STATUS_LABELS[evaluation.status] ?? evaluation.status}
+            {STATUS_LABELS[evaluation.status ?? "NO_EVAL"] ?? evaluation.status}
           </span>
           {withinDeadline && deadline && (
             <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-2 py-1 rounded">

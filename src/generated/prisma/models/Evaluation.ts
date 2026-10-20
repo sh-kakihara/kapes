@@ -255,7 +255,7 @@ export type EvaluationGroupByOutputType = {
   id: string
   period_id: string
   employee_id: string
-  status: $Enums.EvaluationStatus
+  status: $Enums.EvaluationStatus | null
   version: number
   created_at: Date
   updated_at: Date
@@ -298,7 +298,7 @@ export type EvaluationWhereInput = {
   id?: Prisma.StringFilter<"Evaluation"> | string
   period_id?: Prisma.StringFilter<"Evaluation"> | string
   employee_id?: Prisma.StringFilter<"Evaluation"> | string
-  status?: Prisma.EnumEvaluationStatusFilter<"Evaluation"> | $Enums.EvaluationStatus
+  status?: Prisma.EnumEvaluationStatusNullableFilter<"Evaluation"> | $Enums.EvaluationStatus | null
   version?: Prisma.IntFilter<"Evaluation"> | number
   created_at?: Prisma.DateTimeFilter<"Evaluation"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Evaluation"> | Date | string
@@ -325,7 +325,7 @@ export type EvaluationOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   period_id?: Prisma.SortOrder
   employee_id?: Prisma.SortOrder
-  status?: Prisma.SortOrder
+  status?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -356,7 +356,7 @@ export type EvaluationWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.EvaluationWhereInput | Prisma.EvaluationWhereInput[]
   period_id?: Prisma.StringFilter<"Evaluation"> | string
   employee_id?: Prisma.StringFilter<"Evaluation"> | string
-  status?: Prisma.EnumEvaluationStatusFilter<"Evaluation"> | $Enums.EvaluationStatus
+  status?: Prisma.EnumEvaluationStatusNullableFilter<"Evaluation"> | $Enums.EvaluationStatus | null
   version?: Prisma.IntFilter<"Evaluation"> | number
   created_at?: Prisma.DateTimeFilter<"Evaluation"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Evaluation"> | Date | string
@@ -383,7 +383,7 @@ export type EvaluationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   period_id?: Prisma.SortOrder
   employee_id?: Prisma.SortOrder
-  status?: Prisma.SortOrder
+  status?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -411,7 +411,7 @@ export type EvaluationScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Evaluation"> | string
   period_id?: Prisma.StringWithAggregatesFilter<"Evaluation"> | string
   employee_id?: Prisma.StringWithAggregatesFilter<"Evaluation"> | string
-  status?: Prisma.EnumEvaluationStatusWithAggregatesFilter<"Evaluation"> | $Enums.EvaluationStatus
+  status?: Prisma.EnumEvaluationStatusNullableWithAggregatesFilter<"Evaluation"> | $Enums.EvaluationStatus | null
   version?: Prisma.IntWithAggregatesFilter<"Evaluation"> | number
   created_at?: Prisma.DateTimeWithAggregatesFilter<"Evaluation"> | Date | string
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"Evaluation"> | Date | string
@@ -429,7 +429,7 @@ export type EvaluationScalarWhereWithAggregatesInput = {
 
 export type EvaluationCreateInput = {
   id?: string
-  status?: $Enums.EvaluationStatus
+  status?: $Enums.EvaluationStatus | null
   version?: number
   created_at?: Date | string
   updated_at?: Date | string
@@ -452,7 +452,7 @@ export type EvaluationUncheckedCreateInput = {
   id?: string
   period_id: string
   employee_id: string
-  status?: $Enums.EvaluationStatus
+  status?: $Enums.EvaluationStatus | null
   version?: number
   created_at?: Date | string
   updated_at?: Date | string
@@ -471,7 +471,7 @@ export type EvaluationUncheckedCreateInput = {
 
 export type EvaluationUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -494,7 +494,7 @@ export type EvaluationUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   period_id?: Prisma.StringFieldUpdateOperationsInput | string
   employee_id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -515,7 +515,7 @@ export type EvaluationCreateManyInput = {
   id?: string
   period_id: string
   employee_id: string
-  status?: $Enums.EvaluationStatus
+  status?: $Enums.EvaluationStatus | null
   version?: number
   created_at?: Date | string
   updated_at?: Date | string
@@ -533,7 +533,7 @@ export type EvaluationCreateManyInput = {
 
 export type EvaluationUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -549,7 +549,7 @@ export type EvaluationUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   period_id?: Prisma.StringFieldUpdateOperationsInput | string
   employee_id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -905,8 +905,8 @@ export type EvaluationUncheckedUpdateManyWithoutPeriodNestedInput = {
   deleteMany?: Prisma.EvaluationScalarWhereInput | Prisma.EvaluationScalarWhereInput[]
 }
 
-export type EnumEvaluationStatusFieldUpdateOperationsInput = {
-  set?: $Enums.EvaluationStatus
+export type NullableEnumEvaluationStatusFieldUpdateOperationsInput = {
+  set?: $Enums.EvaluationStatus | null
 }
 
 export type EvaluationCreateNestedOneWithoutScoresInput = {
@@ -925,7 +925,7 @@ export type EvaluationUpdateOneRequiredWithoutScoresNestedInput = {
 
 export type EvaluationCreateWithoutEmployeeInput = {
   id?: string
-  status?: $Enums.EvaluationStatus
+  status?: $Enums.EvaluationStatus | null
   version?: number
   created_at?: Date | string
   updated_at?: Date | string
@@ -946,7 +946,7 @@ export type EvaluationCreateWithoutEmployeeInput = {
 export type EvaluationUncheckedCreateWithoutEmployeeInput = {
   id?: string
   period_id: string
-  status?: $Enums.EvaluationStatus
+  status?: $Enums.EvaluationStatus | null
   version?: number
   created_at?: Date | string
   updated_at?: Date | string
@@ -975,7 +975,7 @@ export type EvaluationCreateManyEmployeeInputEnvelope = {
 
 export type EvaluationCreateWithoutLeaderInput = {
   id?: string
-  status?: $Enums.EvaluationStatus
+  status?: $Enums.EvaluationStatus | null
   version?: number
   created_at?: Date | string
   updated_at?: Date | string
@@ -997,7 +997,7 @@ export type EvaluationUncheckedCreateWithoutLeaderInput = {
   id?: string
   period_id: string
   employee_id: string
-  status?: $Enums.EvaluationStatus
+  status?: $Enums.EvaluationStatus | null
   version?: number
   created_at?: Date | string
   updated_at?: Date | string
@@ -1025,7 +1025,7 @@ export type EvaluationCreateManyLeaderInputEnvelope = {
 
 export type EvaluationCreateWithoutManagerInput = {
   id?: string
-  status?: $Enums.EvaluationStatus
+  status?: $Enums.EvaluationStatus | null
   version?: number
   created_at?: Date | string
   updated_at?: Date | string
@@ -1047,7 +1047,7 @@ export type EvaluationUncheckedCreateWithoutManagerInput = {
   id?: string
   period_id: string
   employee_id: string
-  status?: $Enums.EvaluationStatus
+  status?: $Enums.EvaluationStatus | null
   version?: number
   created_at?: Date | string
   updated_at?: Date | string
@@ -1075,7 +1075,7 @@ export type EvaluationCreateManyManagerInputEnvelope = {
 
 export type EvaluationCreateWithoutDirectorInput = {
   id?: string
-  status?: $Enums.EvaluationStatus
+  status?: $Enums.EvaluationStatus | null
   version?: number
   created_at?: Date | string
   updated_at?: Date | string
@@ -1097,7 +1097,7 @@ export type EvaluationUncheckedCreateWithoutDirectorInput = {
   id?: string
   period_id: string
   employee_id: string
-  status?: $Enums.EvaluationStatus
+  status?: $Enums.EvaluationStatus | null
   version?: number
   created_at?: Date | string
   updated_at?: Date | string
@@ -1125,7 +1125,7 @@ export type EvaluationCreateManyDirectorInputEnvelope = {
 
 export type EvaluationCreateWithoutExecutiveInput = {
   id?: string
-  status?: $Enums.EvaluationStatus
+  status?: $Enums.EvaluationStatus | null
   version?: number
   created_at?: Date | string
   updated_at?: Date | string
@@ -1147,7 +1147,7 @@ export type EvaluationUncheckedCreateWithoutExecutiveInput = {
   id?: string
   period_id: string
   employee_id: string
-  status?: $Enums.EvaluationStatus
+  status?: $Enums.EvaluationStatus | null
   version?: number
   created_at?: Date | string
   updated_at?: Date | string
@@ -1196,7 +1196,7 @@ export type EvaluationScalarWhereInput = {
   id?: Prisma.StringFilter<"Evaluation"> | string
   period_id?: Prisma.StringFilter<"Evaluation"> | string
   employee_id?: Prisma.StringFilter<"Evaluation"> | string
-  status?: Prisma.EnumEvaluationStatusFilter<"Evaluation"> | $Enums.EvaluationStatus
+  status?: Prisma.EnumEvaluationStatusNullableFilter<"Evaluation"> | $Enums.EvaluationStatus | null
   version?: Prisma.IntFilter<"Evaluation"> | number
   created_at?: Prisma.DateTimeFilter<"Evaluation"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Evaluation"> | Date | string
@@ -1278,7 +1278,7 @@ export type EvaluationUpdateManyWithWhereWithoutExecutiveInput = {
 
 export type EvaluationCreateWithoutPeriodInput = {
   id?: string
-  status?: $Enums.EvaluationStatus
+  status?: $Enums.EvaluationStatus | null
   version?: number
   created_at?: Date | string
   updated_at?: Date | string
@@ -1299,7 +1299,7 @@ export type EvaluationCreateWithoutPeriodInput = {
 export type EvaluationUncheckedCreateWithoutPeriodInput = {
   id?: string
   employee_id: string
-  status?: $Enums.EvaluationStatus
+  status?: $Enums.EvaluationStatus | null
   version?: number
   created_at?: Date | string
   updated_at?: Date | string
@@ -1344,7 +1344,7 @@ export type EvaluationUpdateManyWithWhereWithoutPeriodInput = {
 
 export type EvaluationCreateWithoutScoresInput = {
   id?: string
-  status?: $Enums.EvaluationStatus
+  status?: $Enums.EvaluationStatus | null
   version?: number
   created_at?: Date | string
   updated_at?: Date | string
@@ -1366,7 +1366,7 @@ export type EvaluationUncheckedCreateWithoutScoresInput = {
   id?: string
   period_id: string
   employee_id: string
-  status?: $Enums.EvaluationStatus
+  status?: $Enums.EvaluationStatus | null
   version?: number
   created_at?: Date | string
   updated_at?: Date | string
@@ -1400,7 +1400,7 @@ export type EvaluationUpdateToOneWithWhereWithoutScoresInput = {
 
 export type EvaluationUpdateWithoutScoresInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1422,7 +1422,7 @@ export type EvaluationUncheckedUpdateWithoutScoresInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   period_id?: Prisma.StringFieldUpdateOperationsInput | string
   employee_id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1441,7 +1441,7 @@ export type EvaluationUncheckedUpdateWithoutScoresInput = {
 export type EvaluationCreateManyEmployeeInput = {
   id?: string
   period_id: string
-  status?: $Enums.EvaluationStatus
+  status?: $Enums.EvaluationStatus | null
   version?: number
   created_at?: Date | string
   updated_at?: Date | string
@@ -1461,7 +1461,7 @@ export type EvaluationCreateManyLeaderInput = {
   id?: string
   period_id: string
   employee_id: string
-  status?: $Enums.EvaluationStatus
+  status?: $Enums.EvaluationStatus | null
   version?: number
   created_at?: Date | string
   updated_at?: Date | string
@@ -1480,7 +1480,7 @@ export type EvaluationCreateManyManagerInput = {
   id?: string
   period_id: string
   employee_id: string
-  status?: $Enums.EvaluationStatus
+  status?: $Enums.EvaluationStatus | null
   version?: number
   created_at?: Date | string
   updated_at?: Date | string
@@ -1499,7 +1499,7 @@ export type EvaluationCreateManyDirectorInput = {
   id?: string
   period_id: string
   employee_id: string
-  status?: $Enums.EvaluationStatus
+  status?: $Enums.EvaluationStatus | null
   version?: number
   created_at?: Date | string
   updated_at?: Date | string
@@ -1518,7 +1518,7 @@ export type EvaluationCreateManyExecutiveInput = {
   id?: string
   period_id: string
   employee_id: string
-  status?: $Enums.EvaluationStatus
+  status?: $Enums.EvaluationStatus | null
   version?: number
   created_at?: Date | string
   updated_at?: Date | string
@@ -1535,7 +1535,7 @@ export type EvaluationCreateManyExecutiveInput = {
 
 export type EvaluationUpdateWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1556,7 +1556,7 @@ export type EvaluationUpdateWithoutEmployeeInput = {
 export type EvaluationUncheckedUpdateWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   period_id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1576,7 +1576,7 @@ export type EvaluationUncheckedUpdateWithoutEmployeeInput = {
 export type EvaluationUncheckedUpdateManyWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   period_id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1594,7 +1594,7 @@ export type EvaluationUncheckedUpdateManyWithoutEmployeeInput = {
 
 export type EvaluationUpdateWithoutLeaderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1616,7 +1616,7 @@ export type EvaluationUncheckedUpdateWithoutLeaderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   period_id?: Prisma.StringFieldUpdateOperationsInput | string
   employee_id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1636,7 +1636,7 @@ export type EvaluationUncheckedUpdateManyWithoutLeaderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   period_id?: Prisma.StringFieldUpdateOperationsInput | string
   employee_id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1653,7 +1653,7 @@ export type EvaluationUncheckedUpdateManyWithoutLeaderInput = {
 
 export type EvaluationUpdateWithoutManagerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1675,7 +1675,7 @@ export type EvaluationUncheckedUpdateWithoutManagerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   period_id?: Prisma.StringFieldUpdateOperationsInput | string
   employee_id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1695,7 +1695,7 @@ export type EvaluationUncheckedUpdateManyWithoutManagerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   period_id?: Prisma.StringFieldUpdateOperationsInput | string
   employee_id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1712,7 +1712,7 @@ export type EvaluationUncheckedUpdateManyWithoutManagerInput = {
 
 export type EvaluationUpdateWithoutDirectorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1734,7 +1734,7 @@ export type EvaluationUncheckedUpdateWithoutDirectorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   period_id?: Prisma.StringFieldUpdateOperationsInput | string
   employee_id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1754,7 +1754,7 @@ export type EvaluationUncheckedUpdateManyWithoutDirectorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   period_id?: Prisma.StringFieldUpdateOperationsInput | string
   employee_id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1771,7 +1771,7 @@ export type EvaluationUncheckedUpdateManyWithoutDirectorInput = {
 
 export type EvaluationUpdateWithoutExecutiveInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1793,7 +1793,7 @@ export type EvaluationUncheckedUpdateWithoutExecutiveInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   period_id?: Prisma.StringFieldUpdateOperationsInput | string
   employee_id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1813,7 +1813,7 @@ export type EvaluationUncheckedUpdateManyWithoutExecutiveInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   period_id?: Prisma.StringFieldUpdateOperationsInput | string
   employee_id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1831,7 +1831,7 @@ export type EvaluationUncheckedUpdateManyWithoutExecutiveInput = {
 export type EvaluationCreateManyPeriodInput = {
   id?: string
   employee_id: string
-  status?: $Enums.EvaluationStatus
+  status?: $Enums.EvaluationStatus | null
   version?: number
   created_at?: Date | string
   updated_at?: Date | string
@@ -1849,7 +1849,7 @@ export type EvaluationCreateManyPeriodInput = {
 
 export type EvaluationUpdateWithoutPeriodInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1870,7 +1870,7 @@ export type EvaluationUpdateWithoutPeriodInput = {
 export type EvaluationUncheckedUpdateWithoutPeriodInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   employee_id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1890,7 +1890,7 @@ export type EvaluationUncheckedUpdateWithoutPeriodInput = {
 export type EvaluationUncheckedUpdateManyWithoutPeriodInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   employee_id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus
+  status?: Prisma.NullableEnumEvaluationStatusFieldUpdateOperationsInput | $Enums.EvaluationStatus | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2083,7 +2083,7 @@ export type $EvaluationPayload<ExtArgs extends runtime.Types.Extensions.Internal
      * 評価対象社員
      */
     employee_id: string
-    status: $Enums.EvaluationStatus
+    status: $Enums.EvaluationStatus | null
     version: number
     created_at: Date
     updated_at: Date

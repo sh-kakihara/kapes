@@ -459,6 +459,21 @@ export async function togglePeriod(id: string, is_active: boolean) {
 export async function resetPeriodEvaluations(periodId: string) {
   if (process.env.NODE_ENV !== "development") throw new Error("この操作はローカル環境でのみ使用できます");
   await requireAdmin();
+
+  const period = await prisma.evaluationPeriod.findUnique({ where: { id: periodId } });
+  if (!period) throw new Error("評価期間が見つかりません");
+
+  const evaluations = await prisma.evaluation.findMany({
+    where: { period_id: periodId },
+    select: { employee_id: true },
+  });
+  const employeeIds = evaluations.map((e) => e.employee_id);
+
+  const isSummer = period.name.includes("夏期");
+  const isWinter = period.name.includes("冬期");
+  const nameMatch = period.name.match(/(\d{4})年度/);
+  const fiscal_year = nameMatch ? parseInt(nameMatch[1]) : null;
+
   await prisma.$transaction([
     prisma.evaluationScore.deleteMany({
       where: { evaluation: { period_id: periodId } },
@@ -466,7 +481,7 @@ export async function resetPeriodEvaluations(periodId: string) {
     prisma.evaluation.updateMany({
       where: { period_id: periodId },
       data: {
-        status: "DRAFT",
+        status: null,
         submitted_to_leader_at: null,
         submitted_to_manager_at: null,
         submitted_to_director_at: null,
@@ -480,5 +495,18 @@ export async function resetPeriodEvaluations(periodId: string) {
       },
     }),
   ]);
+
+  // 社員台帳の部長評価・社長評価をリセット
+  if (fiscal_year && employeeIds.length > 0 && (isSummer || isWinter)) {
+    const clearData = isSummer
+      ? { curr_summer_director_eval: null, curr_summer_president_eval: null }
+      : { curr_winter_director_eval: null, curr_winter_president_eval: null };
+
+    await prisma.employeeRecord.updateMany({
+      where: { user_id: { in: employeeIds }, fiscal_year },
+      data: clearData,
+    });
+  }
+
   revalidatePath("/admin/periods");
 }

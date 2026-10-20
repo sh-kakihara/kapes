@@ -39,7 +39,7 @@ export default async function LeaderEvalPage({ params }: { params: Promise<{ id:
       <p className="text-sm text-gray-500 mb-6">期間: {evaluation.period.name}</p>
 
       <LeaderEvalForm
-        evaluation={{ id: evaluation.id, status: evaluation.status, period: { leader_deadline: evaluation.period.leader_deadline } }}
+        evaluation={{ id: evaluation.id, status: evaluation.status ?? "", period: { leader_deadline: evaluation.period.leader_deadline } }}
         selfScores={selfScores}
         leaderScores={leaderScores}
       />
