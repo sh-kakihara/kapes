@@ -766,7 +766,7 @@ export async function getPresidentEvaluations(periodId: string) {
 
   // 在籍中の社員（未開始含めて表示）
   const activeEmployees = await prisma.user.findMany({
-    where: { deleted_at: null, is_active: true, role: { notIn: ["PRESIDENT", "ADMIN"] }, employee_type: { not: "実習生" }, department: { skip_evaluation: false } },
+    where: { deleted_at: null, is_active: true, resign_date: null, role: { notIn: ["PRESIDENT", "ADMIN"] }, employee_type: { not: "実習生" }, department: { skip_evaluation: false } },
     include: employeeWithOrgInclude,
     orderBy: [{ department: { name: "asc" } }, { employee_number: "asc" }, { name: "asc" }],
   });
