@@ -270,6 +270,29 @@ export async function getPeriods() {
   return prisma.evaluationPeriod.findMany({ orderBy: { start_date: "desc" } });
 }
 
+function checkDeadlineWindow(
+  label: string,
+  from: Date | null,
+  to: Date | null,
+  periodStart: Date,
+  periodEnd: Date
+) {
+  if (from && from < periodStart) throw new Error(`${label}のFROMが評価期間開始日より前です`);
+  if (from && from > periodEnd)   throw new Error(`${label}のFROMが評価期間終了日より後です`);
+  if (to   && to   < periodStart) throw new Error(`${label}のTOが評価期間開始日より前です`);
+  if (to   && to   > periodEnd)   throw new Error(`${label}のTOが評価期間終了日より後です`);
+  if (from && to && from > to)    throw new Error(`${label}のFROMはTOより前の日付にしてください`);
+}
+
+function checkAllDeadlines(
+  start: Date, end: Date,
+  windows: { label: string; from: Date | null; to: Date | null }[]
+) {
+  for (const { label, from, to } of windows) {
+    checkDeadlineWindow(label, from, to, start, end);
+  }
+}
+
 export async function createPeriod(data: {
   name: string; start_date: string; end_date: string;
   self_deadline_from?: string; self_deadline?: string;
@@ -278,6 +301,16 @@ export async function createPeriod(data: {
   director_deadline_from?: string; director_deadline?: string;
 }) {
   await requireAdmin();
+  const start = new Date(data.start_date);
+  const end   = new Date(data.end_date);
+  if (!data.start_date || !data.end_date) throw new Error("開始日・終了日は必須です");
+  if (start > end) throw new Error("開始日は終了日より前にしてください");
+  checkAllDeadlines(start, end, [
+    { label: "自己評価",     from: data.self_deadline_from ? new Date(data.self_deadline_from) : null,     to: data.self_deadline ? new Date(data.self_deadline) : null },
+    { label: "リーダー評価", from: data.leader_deadline_from ? new Date(data.leader_deadline_from) : null, to: data.leader_deadline ? new Date(data.leader_deadline) : null },
+    { label: "課長評価",     from: data.manager_deadline_from ? new Date(data.manager_deadline_from) : null, to: data.manager_deadline ? new Date(data.manager_deadline) : null },
+    { label: "部長評価",     from: data.director_deadline_from ? new Date(data.director_deadline_from) : null, to: data.director_deadline ? new Date(data.director_deadline) : null },
+  ]);
   await prisma.evaluationPeriod.create({
     data: {
       name: data.name,
@@ -299,10 +332,21 @@ export async function createPeriod(data: {
 export async function updatePeriodDates(id: string, start_date: string, end_date: string) {
   await requireAdmin();
   if (!start_date || !end_date) throw new Error("開始日・終了日は必須です");
-  if (new Date(start_date) > new Date(end_date)) throw new Error("開始日は終了日より前にしてください");
+  const start = new Date(start_date);
+  const end   = new Date(end_date);
+  if (start > end) throw new Error("開始日は終了日より前にしてください");
+  const period = await prisma.evaluationPeriod.findUnique({ where: { id } });
+  if (period) {
+    checkAllDeadlines(start, end, [
+      { label: "自己評価",     from: period.self_deadline_from,     to: period.self_deadline },
+      { label: "リーダー評価", from: period.leader_deadline_from,   to: period.leader_deadline },
+      { label: "課長評価",     from: period.manager_deadline_from,  to: period.manager_deadline },
+      { label: "部長評価",     from: period.director_deadline_from, to: period.director_deadline },
+    ]);
+  }
   await prisma.evaluationPeriod.update({
     where: { id },
-    data: { start_date: new Date(start_date), end_date: new Date(end_date) },
+    data: { start_date: start, end_date: end },
   });
   revalidatePath("/admin/periods");
 }
@@ -328,6 +372,15 @@ export async function updatePeriodDeadlines(
   }
 ) {
   await requireAdmin();
+  const period = await prisma.evaluationPeriod.findUnique({ where: { id } });
+  if (!period) throw new Error("評価期間が見つかりません");
+  const d = (v: string | null | undefined) => (v != null ? new Date(v) : null);
+  checkAllDeadlines(period.start_date, period.end_date, [
+    { label: "自己評価",     from: d(deadlines.self_deadline_from),     to: d(deadlines.self_deadline) },
+    { label: "リーダー評価", from: d(deadlines.leader_deadline_from),   to: d(deadlines.leader_deadline) },
+    { label: "課長評価",     from: d(deadlines.manager_deadline_from),  to: d(deadlines.manager_deadline) },
+    { label: "部長評価",     from: d(deadlines.director_deadline_from), to: d(deadlines.director_deadline) },
+  ]);
   await prisma.evaluationPeriod.update({
     where: { id },
     data: {
