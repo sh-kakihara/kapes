@@ -272,8 +272,10 @@ export async function getPeriods() {
 
 export async function createPeriod(data: {
   name: string; start_date: string; end_date: string;
-  self_deadline?: string; leader_deadline?: string;
-  manager_deadline?: string; director_deadline?: string;
+  self_deadline_from?: string; self_deadline?: string;
+  leader_deadline_from?: string; leader_deadline?: string;
+  manager_deadline_from?: string; manager_deadline?: string;
+  director_deadline_from?: string; director_deadline?: string;
 }) {
   await requireAdmin();
   await prisma.evaluationPeriod.create({
@@ -281,9 +283,13 @@ export async function createPeriod(data: {
       name: data.name,
       start_date: new Date(data.start_date),
       end_date: new Date(data.end_date),
+      self_deadline_from: data.self_deadline_from ? new Date(data.self_deadline_from) : null,
       self_deadline: data.self_deadline ? new Date(data.self_deadline) : null,
+      leader_deadline_from: data.leader_deadline_from ? new Date(data.leader_deadline_from) : null,
       leader_deadline: data.leader_deadline ? new Date(data.leader_deadline) : null,
+      manager_deadline_from: data.manager_deadline_from ? new Date(data.manager_deadline_from) : null,
       manager_deadline: data.manager_deadline ? new Date(data.manager_deadline) : null,
+      director_deadline_from: data.director_deadline_from ? new Date(data.director_deadline_from) : null,
       director_deadline: data.director_deadline ? new Date(data.director_deadline) : null,
     },
   });
@@ -314,15 +320,24 @@ export async function updatePeriodName(id: string, name: string) {
 
 export async function updatePeriodDeadlines(
   id: string,
-  deadlines: { self_deadline?: string | null; leader_deadline?: string | null; manager_deadline?: string | null; director_deadline?: string | null }
+  deadlines: {
+    self_deadline_from?: string | null; self_deadline?: string | null;
+    leader_deadline_from?: string | null; leader_deadline?: string | null;
+    manager_deadline_from?: string | null; manager_deadline?: string | null;
+    director_deadline_from?: string | null; director_deadline?: string | null;
+  }
 ) {
   await requireAdmin();
   await prisma.evaluationPeriod.update({
     where: { id },
     data: {
+      self_deadline_from: deadlines.self_deadline_from != null ? new Date(deadlines.self_deadline_from) : null,
       self_deadline: deadlines.self_deadline != null ? new Date(deadlines.self_deadline) : null,
+      leader_deadline_from: deadlines.leader_deadline_from != null ? new Date(deadlines.leader_deadline_from) : null,
       leader_deadline: deadlines.leader_deadline != null ? new Date(deadlines.leader_deadline) : null,
+      manager_deadline_from: deadlines.manager_deadline_from != null ? new Date(deadlines.manager_deadline_from) : null,
       manager_deadline: deadlines.manager_deadline != null ? new Date(deadlines.manager_deadline) : null,
+      director_deadline_from: deadlines.director_deadline_from != null ? new Date(deadlines.director_deadline_from) : null,
       director_deadline: deadlines.director_deadline != null ? new Date(deadlines.director_deadline) : null,
     },
   });

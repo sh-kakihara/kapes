@@ -5,14 +5,18 @@ import { createPeriod, togglePeriod, updatePeriodDates, updatePeriodDeadlines, u
 
 type Period = {
   id: string; name: string; start_date: Date; end_date: Date;
-  self_deadline: Date | null; leader_deadline: Date | null;
-  manager_deadline: Date | null; director_deadline: Date | null;
+  self_deadline_from: Date | null; self_deadline: Date | null;
+  leader_deadline_from: Date | null; leader_deadline: Date | null;
+  manager_deadline_from: Date | null; manager_deadline: Date | null;
+  director_deadline_from: Date | null; director_deadline: Date | null;
   is_active: boolean;
 };
 
 type DeadlineFields = {
-  self_deadline: string; leader_deadline: string;
-  manager_deadline: string; director_deadline: string;
+  self_deadline_from: string; self_deadline: string;
+  leader_deadline_from: string; leader_deadline: string;
+  manager_deadline_from: string; manager_deadline: string;
+  director_deadline_from: string; director_deadline: string;
 };
 
 function toDateValue(d: Date | null): string {
@@ -29,11 +33,17 @@ export default function PeriodAdmin({ periods }: { periods: Period[] }) {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
     nameYear: "", nameSeason: "夏期", start_date: "", end_date: "",
-    self_deadline: "", leader_deadline: "", manager_deadline: "", director_deadline: "",
+    self_deadline_from: "", self_deadline: "",
+    leader_deadline_from: "", leader_deadline: "",
+    manager_deadline_from: "", manager_deadline: "",
+    director_deadline_from: "", director_deadline: "",
   });
   const [editId, setEditId] = useState<string | null>(null);
   const [editDeadlines, setEditDeadlines] = useState<DeadlineFields>({
-    self_deadline: "", leader_deadline: "", manager_deadline: "", director_deadline: "",
+    self_deadline_from: "", self_deadline: "",
+    leader_deadline_from: "", leader_deadline: "",
+    manager_deadline_from: "", manager_deadline: "",
+    director_deadline_from: "", director_deadline: "",
   });
   const [editDatesId, setEditDatesId] = useState<string | null>(null);
   const [editDates, setEditDates] = useState({ start_date: "", end_date: "" });
@@ -53,7 +63,7 @@ export default function PeriodAdmin({ periods }: { periods: Period[] }) {
       await createPeriod({ ...form, name });
       setMessage("作成しました");
       setShowForm(false);
-      setForm({ nameYear: "", nameSeason: "夏期", start_date: "", end_date: "", self_deadline: "", leader_deadline: "", manager_deadline: "", director_deadline: "" });
+      setForm({ nameYear: "", nameSeason: "夏期", start_date: "", end_date: "", self_deadline_from: "", self_deadline: "", leader_deadline_from: "", leader_deadline: "", manager_deadline_from: "", manager_deadline: "", director_deadline_from: "", director_deadline: "" });
     } catch (e: unknown) {
       setMessage(e instanceof Error ? e.message : "エラーが発生しました");
     }
@@ -98,9 +108,13 @@ export default function PeriodAdmin({ periods }: { periods: Period[] }) {
   function startEdit(p: Period) {
     setEditId(p.id);
     setEditDeadlines({
+      self_deadline_from: toDateValue(p.self_deadline_from),
       self_deadline: toDateValue(p.self_deadline),
+      leader_deadline_from: toDateValue(p.leader_deadline_from),
       leader_deadline: toDateValue(p.leader_deadline),
+      manager_deadline_from: toDateValue(p.manager_deadline_from),
       manager_deadline: toDateValue(p.manager_deadline),
+      director_deadline_from: toDateValue(p.director_deadline_from),
       director_deadline: toDateValue(p.director_deadline),
     });
   }
@@ -109,9 +123,13 @@ export default function PeriodAdmin({ periods }: { periods: Period[] }) {
     if (!editId) return;
     try {
       await updatePeriodDeadlines(editId, {
+        self_deadline_from: editDeadlines.self_deadline_from || null,
         self_deadline: editDeadlines.self_deadline || null,
+        leader_deadline_from: editDeadlines.leader_deadline_from || null,
         leader_deadline: editDeadlines.leader_deadline || null,
+        manager_deadline_from: editDeadlines.manager_deadline_from || null,
         manager_deadline: editDeadlines.manager_deadline || null,
+        director_deadline_from: editDeadlines.director_deadline_from || null,
         director_deadline: editDeadlines.director_deadline || null,
       });
       setEditId(null);
@@ -121,11 +139,11 @@ export default function PeriodAdmin({ periods }: { periods: Period[] }) {
     }
   }
 
-  const deadlineLabels: { key: keyof DeadlineFields; label: string; color: string }[] = [
-    { key: "self_deadline", label: "自己評価", color: "text-blue-700" },
-    { key: "leader_deadline", label: "リーダー評価", color: "text-orange-700" },
-    { key: "manager_deadline", label: "課長評価", color: "text-green-700" },
-    { key: "director_deadline", label: "部長評価", color: "text-purple-700" },
+  const deadlineRows: { fromKey: keyof DeadlineFields; toKey: keyof DeadlineFields; label: string; color: string }[] = [
+    { fromKey: "self_deadline_from", toKey: "self_deadline", label: "自己評価", color: "text-blue-700" },
+    { fromKey: "leader_deadline_from", toKey: "leader_deadline", label: "リーダー評価", color: "text-orange-700" },
+    { fromKey: "manager_deadline_from", toKey: "manager_deadline", label: "課長評価", color: "text-green-700" },
+    { fromKey: "director_deadline_from", toKey: "director_deadline", label: "部長評価", color: "text-purple-700" },
   ];
 
   return (
@@ -178,12 +196,17 @@ export default function PeriodAdmin({ periods }: { periods: Period[] }) {
                     required className="w-full border rounded px-3 py-2 text-sm" />
                 </div>
               </div>
-              <p className="text-xs font-medium text-gray-700 mt-2">提出期限（期限内は提出後も修正可）</p>
-              {deadlineLabels.map(({ key, label, color }) => (
-                <div key={key}>
+              <p className="text-xs font-medium text-gray-700 mt-2">提出期限（FROM / TO）</p>
+              {deadlineRows.map(({ fromKey, toKey, label, color }) => (
+                <div key={toKey}>
                   <label className={`block text-xs font-medium mb-1 ${color}`}>{label}</label>
-                  <input type="date" value={form[key]} onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                    className="w-full border rounded px-3 py-2 text-sm" />
+                  <div className="flex items-center gap-2">
+                    <input type="date" value={form[fromKey]} onChange={(e) => setForm({ ...form, [fromKey]: e.target.value })}
+                      placeholder="FROM" className="flex-1 border rounded px-3 py-2 text-sm" />
+                    <span className="text-gray-400 text-sm">〜</span>
+                    <input type="date" value={form[toKey]} onChange={(e) => setForm({ ...form, [toKey]: e.target.value })}
+                      placeholder="TO" className="flex-1 border rounded px-3 py-2 text-sm" />
+                  </div>
                 </div>
               ))}
               <div className="flex gap-2 pt-2">
@@ -290,17 +313,23 @@ export default function PeriodAdmin({ periods }: { periods: Period[] }) {
             {/* 提出期限エリア */}
             {editId === p.id ? (
               <div className="border rounded p-4 bg-gray-50 space-y-3">
-                <p className="text-xs font-semibold text-gray-700 mb-2">提出期限を編集</p>
-                {deadlineLabels.map(({ key, label, color }) => (
-                  <div key={key} className="flex items-center gap-3">
-                    <label className={`text-xs font-medium w-24 shrink-0 ${color}`}>{label}</label>
-                    <input type="date" value={editDeadlines[key]}
-                      onChange={(e) => setEditDeadlines({ ...editDeadlines, [key]: e.target.value })}
-                      className="border rounded px-2 py-1 text-xs flex-1" />
-                    {editDeadlines[key] && (
-                      <button onClick={() => setEditDeadlines({ ...editDeadlines, [key]: "" })}
-                        className="text-xs text-gray-400 hover:text-red-400">クリア</button>
-                    )}
+                <p className="text-xs font-semibold text-gray-700 mb-2">提出期限を編集（FROM 〜 TO）</p>
+                {deadlineRows.map(({ fromKey, toKey, label, color }) => (
+                  <div key={toKey}>
+                    <label className={`block text-xs font-medium mb-1 ${color}`}>{label}</label>
+                    <div className="flex items-center gap-2">
+                      <input type="date" value={editDeadlines[fromKey]}
+                        onChange={(e) => setEditDeadlines({ ...editDeadlines, [fromKey]: e.target.value })}
+                        className="border rounded px-2 py-1 text-xs flex-1" />
+                      <span className="text-xs text-gray-400">〜</span>
+                      <input type="date" value={editDeadlines[toKey]}
+                        onChange={(e) => setEditDeadlines({ ...editDeadlines, [toKey]: e.target.value })}
+                        className="border rounded px-2 py-1 text-xs flex-1" />
+                      {(editDeadlines[fromKey] || editDeadlines[toKey]) && (
+                        <button onClick={() => setEditDeadlines({ ...editDeadlines, [fromKey]: "", [toKey]: "" })}
+                          className="text-xs text-gray-400 hover:text-red-400">クリア</button>
+                      )}
+                    </div>
                   </div>
                 ))}
                 <div className="flex gap-2 mt-2">
@@ -311,14 +340,16 @@ export default function PeriodAdmin({ periods }: { periods: Period[] }) {
             ) : (
               <div className="border rounded p-3 bg-gray-50">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-xs font-semibold text-gray-600">提出期限（期限内は修正可）</p>
+                  <p className="text-xs font-semibold text-gray-600">提出期限（FROM 〜 TO）</p>
                   <button onClick={() => startEdit(p)} className="text-xs text-blue-500 hover:underline">変更</button>
                 </div>
-                <div className="grid grid-cols-2 gap-x-6 gap-y-1">
-                  {deadlineLabels.map(({ key, label, color }) => (
-                    <div key={key} className="flex items-center gap-2">
-                      <span className={`text-xs font-medium w-20 ${color}`}>{label}</span>
-                      <span className="text-xs text-gray-600">{fmtDate(p[key])}</span>
+                <div className="space-y-1">
+                  {deadlineRows.map(({ fromKey, toKey, label, color }) => (
+                    <div key={toKey} className="flex items-center gap-2">
+                      <span className={`text-xs font-medium w-24 shrink-0 ${color}`}>{label}</span>
+                      <span className="text-xs text-gray-600">
+                        {fmtDate(p[fromKey])} 〜 {fmtDate(p[toKey])}
+                      </span>
                     </div>
                   ))}
                 </div>

@@ -14,9 +14,12 @@ async function requireManagerOrDeptViewer(userId: string, role: string) {
   if (!me || me.section_id || !me.department_id) forbidden();
 }
 
-function isWithinDeadline(deadline: Date | null): boolean {
-  if (!deadline) return false;
-  return new Date() <= new Date(deadline);
+function isWithinWindow(from: Date | null, to: Date | null): boolean {
+  const now = new Date();
+  if (from === null && to === null) return false;
+  if (from !== null && now < new Date(from)) return false;
+  if (to !== null && now > new Date(to)) return false;
+  return true;
 }
 
 function isPeriodStarted(startDate: Date): boolean {
@@ -71,7 +74,7 @@ export async function saveSelfEvaluation(
 
   const canEdit =
     evaluation.status === "DRAFT" ||
-    isWithinDeadline(evaluation.period.self_deadline);
+    isWithinWindow(evaluation.period.self_deadline_from, evaluation.period.self_deadline);
   if (!canEdit) throw new Error("修正期限を過ぎているため編集できません");
 
   for (const s of scores) {
@@ -102,7 +105,7 @@ export async function submitFromEmployee(evaluationId: string) {
 
   const canSubmit =
     evaluation.status === "DRAFT" ||
-    isWithinDeadline(evaluation.period.self_deadline);
+    isWithinWindow(evaluation.period.self_deadline_from, evaluation.period.self_deadline);
   if (!canSubmit) throw new Error("修正期限を過ぎています");
 
   const employeeRole = evaluation.employee.role;

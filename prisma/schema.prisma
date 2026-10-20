@@ -169,10 +169,14 @@ model EvaluationPeriod {
   name             String    @unique /// 例: 2026年度上期
   start_date       DateTime
   end_date         DateTime
-  self_deadline    DateTime? /// 自己評価の提出期限（期限内は修正可）
-  leader_deadline  DateTime? /// リーダー評価の提出期限
-  manager_deadline DateTime? /// 課長評価の提出期限
-  director_deadline DateTime? /// 部長評価の提出期限
+  self_deadline_from    DateTime? /// 自己評価の入力開始日
+  self_deadline         DateTime? /// 自己評価の入力終了日
+  leader_deadline_from  DateTime? /// リーダー評価の入力開始日
+  leader_deadline       DateTime? /// リーダー評価の入力終了日
+  manager_deadline_from DateTime? /// 課長評価の入力開始日
+  manager_deadline      DateTime? /// 課長評価の入力終了日
+  director_deadline_from DateTime? /// 部長評価の入力開始日
+  director_deadline     DateTime? /// 部長評価の入力終了日
   is_active        Boolean   @default(true)
   created_at       DateTime  @default(now())
   updated_at       DateTime  @updatedAt
