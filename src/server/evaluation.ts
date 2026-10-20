@@ -19,6 +19,10 @@ function isWithinDeadline(deadline: Date | null): boolean {
   return new Date() <= new Date(deadline);
 }
 
+function isPeriodStarted(startDate: Date): boolean {
+  return new Date() >= new Date(startDate);
+}
+
 // 自分の評価を取得（なければ作成）
 export async function getOrCreateMyEvaluation(periodId: string) {
   const session = await auth();
@@ -63,6 +67,7 @@ export async function saveSelfEvaluation(
     include: { period: true },
   });
   if (!evaluation || evaluation.employee_id !== session.user.id) throw new Error("権限なし");
+  if (!isPeriodStarted(evaluation.period.start_date)) throw new Error("評価期間が開始していないため入力できません");
 
   const canEdit =
     evaluation.status === "DRAFT" ||
@@ -248,6 +253,10 @@ export async function saveLeaderEvaluation(
   if (!session?.user?.id) throw new Error("未認証");
   if (!["LEADER", "ADMIN"].includes(session.user.role)) forbidden();
 
+  const evaluation = await prisma.evaluation.findUnique({ where: { id: evaluationId }, include: { period: true } });
+  if (!evaluation) throw new Error("評価が見つかりません");
+  if (!isPeriodStarted(evaluation.period.start_date)) throw new Error("評価期間が開始していないため入力できません");
+
   for (const s of scores) {
     await prisma.evaluationScore.upsert({
       where: { evaluation_id_item_code_evaluator: { evaluation_id: evaluationId, item_code: s.item_code, evaluator: "leader" } },
@@ -299,6 +308,10 @@ export async function saveManagerEvaluation(
   const session = await auth();
   if (!session?.user?.id) throw new Error("未認証");
   await requireManagerOrDeptViewer(session.user.id, session.user.role);
+
+  const evaluation = await prisma.evaluation.findUnique({ where: { id: evaluationId }, include: { period: true } });
+  if (!evaluation) throw new Error("評価が見つかりません");
+  if (!isPeriodStarted(evaluation.period.start_date)) throw new Error("評価期間が開始していないため入力できません");
 
   for (const s of scores) {
     await prisma.evaluationScore.upsert({
@@ -362,6 +375,10 @@ export async function saveDirectorEvaluation(
   const session = await auth();
   if (!session?.user?.id) throw new Error("未認証");
   if (!["DIRECTOR", "ADMIN"].includes(session.user.role)) forbidden();
+
+  const evaluation = await prisma.evaluation.findUnique({ where: { id: evaluationId }, include: { period: true } });
+  if (!evaluation) throw new Error("評価が見つかりません");
+  if (!isPeriodStarted(evaluation.period.start_date)) throw new Error("評価期間が開始していないため入力できません");
 
   for (const s of scores) {
     await prisma.evaluationScore.upsert({
@@ -429,6 +446,10 @@ export async function saveExecutiveEvaluation(
   const session = await auth();
   if (!session?.user?.id) throw new Error("未認証");
   if (!["EXECUTIVE", "ADMIN"].includes(session.user.role)) forbidden();
+
+  const evaluation = await prisma.evaluation.findUnique({ where: { id: evaluationId }, include: { period: true } });
+  if (!evaluation) throw new Error("評価が見つかりません");
+  if (!isPeriodStarted(evaluation.period.start_date)) throw new Error("評価期間が開始していないため入力できません");
 
   for (const s of scores) {
     await prisma.evaluationScore.upsert({
