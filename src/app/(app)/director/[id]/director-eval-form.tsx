@@ -18,7 +18,6 @@ export default function DirectorEvalForm({
   leaderScores,
   managerScores,
   directorScores,
-  directorHasSaved,
   employeeRole,
   readOnly = false,
 }: {
@@ -27,7 +26,6 @@ export default function DirectorEvalForm({
   leaderScores: ScoreEntry[];
   managerScores: ScoreEntry[];
   directorScores: ScoreEntry[];
-  directorHasSaved: boolean;
   employeeRole?: string;
   readOnly?: boolean;
 }) {
@@ -38,15 +36,13 @@ export default function DirectorEvalForm({
   const canEdit = evaluation.status === "SUBMITTED_TO_DIRECTOR" || withinDeadline;
   const canSubmit = evaluation.status === "SUBMITTED_TO_DIRECTOR";
 
-  const [scores, setScores] = useState<ScoreEntry[]>(() => {
-    if (!directorHasSaved && managerScores.some((s) => s.score !== null)) {
-      return directorScores.map((s) => ({
-        ...s,
-        score: managerScores.find((m) => m.item_code === s.item_code)?.score ?? null,
-      }));
-    }
-    return directorScores;
-  });
+  // 部長スコアが null の項目は課長評価で補完する（保存済みでも未入力項目は自動プリセット）
+  const [scores, setScores] = useState<ScoreEntry[]>(() =>
+    directorScores.map((s) => ({
+      ...s,
+      score: s.score ?? (managerScores.find((m) => m.item_code === s.item_code)?.score ?? null),
+    }))
+  );
 
   const [saving, setSaving] = useState(false);
   const [submitting, setSubmitting] = useState(false);

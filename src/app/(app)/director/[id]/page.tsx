@@ -57,7 +57,6 @@ export default async function DirectorEvalPage({ params }: { params: Promise<{ i
         managerScores={managerScores}
         employeeRole={employeeRole}
         directorScores={build("director")}
-        directorHasSaved={evaluation.scores.some((s) => s.evaluator === "director")}
         readOnly={readOnly}
       />
     </div>
