@@ -29,9 +29,11 @@ export default async function PresidentDetailPage({ params }: { params: Promise<
       }))
     : false;
 
+  const scoresVisible = ["SUBMITTED_TO_PRESIDENT", "COMPLETED"].includes(evaluation.status ?? "");
+
   function build(evaluator: string) {
     return EVALUATION_ITEMS.map((item) => {
-      const s = evaluation!.scores.find((x) => x.item_code === item.code && x.evaluator === evaluator);
+      const s = scoresVisible ? evaluation!.scores.find((x) => x.item_code === item.code && x.evaluator === evaluator) : undefined;
       return { item_code: item.code, score: s?.score ?? null, comment: s?.comment ?? "" };
     });
   }

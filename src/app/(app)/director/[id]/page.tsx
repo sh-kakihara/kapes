@@ -24,8 +24,16 @@ export default async function DirectorEvalPage({ params }: { params: Promise<{ i
 
   if (!evaluation) redirect("/director");
 
+  const VISIBLE_TO_DIRECTOR_STATUSES = [
+    "SUBMITTED_TO_DIRECTOR",
+    "SUBMITTED_TO_EXECUTIVE",
+    "SUBMITTED_TO_PRESIDENT",
+    "COMPLETED",
+  ];
+  const scoresVisible = VISIBLE_TO_DIRECTOR_STATUSES.includes(evaluation.status ?? "");
+
   const build = (evaluator: string) => EVALUATION_ITEMS.map((item) => {
-    const s = evaluation.scores.find((x) => x.item_code === item.code && x.evaluator === evaluator);
+    const s = scoresVisible ? evaluation.scores.find((x) => x.item_code === item.code && x.evaluator === evaluator) : undefined;
     return { item_code: item.code, score: s?.score ?? null, comment: s?.comment ?? "" };
   });
 
