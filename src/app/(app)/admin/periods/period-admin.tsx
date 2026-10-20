@@ -198,7 +198,8 @@ export default function PeriodAdmin({ periods }: { periods: Period[] }) {
       <div className="space-y-4">
         {periods.map((p) => (
           <div key={p.id} className="bg-white rounded-lg border p-5">
-            <div className="flex items-start justify-between mb-3">
+            {/* 期間名 + 有効/無効 */}
+            <div className="flex items-center justify-between mb-3">
               <div className="flex-1 min-w-0 mr-4">
                 {editNameId === p.id ? (
                   <div className="flex items-center gap-2 flex-wrap">
@@ -236,29 +237,6 @@ export default function PeriodAdmin({ periods }: { periods: Period[] }) {
                     >名前を変更</button>
                   </div>
                 )}
-                {editDatesId === p.id ? (
-                  <div className="flex items-center gap-2 mt-1 flex-wrap">
-                    <input type="date" value={editDates.start_date}
-                      onChange={(e) => setEditDates({ ...editDates, start_date: e.target.value })}
-                      className="border rounded px-2 py-1 text-xs" />
-                    <span className="text-xs text-gray-500">～</span>
-                    <input type="date" value={editDates.end_date}
-                      onChange={(e) => setEditDates({ ...editDates, end_date: e.target.value })}
-                      className="border rounded px-2 py-1 text-xs" />
-                    <button onClick={handleSaveDates} className="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700">保存</button>
-                    <button onClick={() => setEditDatesId(null)} className="px-3 py-1 border rounded text-xs hover:bg-gray-50">取消</button>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <p className="text-sm text-gray-500">
-                      {new Date(p.start_date).toLocaleDateString("ja-JP")} ～ {new Date(p.end_date).toLocaleDateString("ja-JP")}
-                    </p>
-                    <button
-                      onClick={() => { setEditDates({ start_date: toDateValue(p.start_date), end_date: toDateValue(p.end_date) }); setEditDatesId(p.id); }}
-                      className="text-xs text-blue-500 hover:underline shrink-0"
-                    >期間を変更</button>
-                  </div>
-                )}
               </div>
               <div className="flex items-center gap-2">
                 <span className={`text-xs px-2 py-0.5 rounded-full ${p.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
@@ -269,6 +247,45 @@ export default function PeriodAdmin({ periods }: { periods: Period[] }) {
                 </button>
               </div>
             </div>
+
+            {/* 評価期間 FROM / TO */}
+            {editDatesId === p.id ? (
+              <div className="border rounded p-4 bg-blue-50 mb-3 space-y-3">
+                <p className="text-xs font-semibold text-blue-700 mb-2">評価期間（FROM / TO）を編集</p>
+                <div className="flex items-end gap-4 flex-wrap">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-medium text-gray-600">FROM（開始日）</label>
+                    <input type="date" value={editDates.start_date}
+                      onChange={(e) => setEditDates({ ...editDates, start_date: e.target.value })}
+                      required className="border rounded px-3 py-1.5 text-sm" />
+                  </div>
+                  <span className="text-gray-400 mb-1.5">〜</span>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-medium text-gray-600">TO（終了日）</label>
+                    <input type="date" value={editDates.end_date}
+                      onChange={(e) => setEditDates({ ...editDates, end_date: e.target.value })}
+                      required className="border rounded px-3 py-1.5 text-sm" />
+                  </div>
+                </div>
+                <div className="flex gap-2 mt-2">
+                  <button onClick={handleSaveDates} className="px-4 py-1.5 bg-blue-600 text-white rounded text-xs hover:bg-blue-700">保存</button>
+                  <button onClick={() => setEditDatesId(null)} className="px-4 py-1.5 border rounded text-xs hover:bg-gray-50">取消</button>
+                </div>
+              </div>
+            ) : (
+              <div className="border rounded p-3 bg-blue-50 mb-3">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-xs font-semibold text-blue-700">評価期間（FROM / TO）</p>
+                  <button
+                    onClick={() => { setEditDates({ start_date: toDateValue(p.start_date), end_date: toDateValue(p.end_date) }); setEditDatesId(p.id); }}
+                    className="text-xs text-blue-500 hover:underline"
+                  >変更</button>
+                </div>
+                <p className="text-sm font-medium text-gray-800">
+                  {new Date(p.start_date).toLocaleDateString("ja-JP")} 〜 {new Date(p.end_date).toLocaleDateString("ja-JP")}
+                </p>
+              </div>
+            )}
 
             {/* 提出期限エリア */}
             {editId === p.id ? (
