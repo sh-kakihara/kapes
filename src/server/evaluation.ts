@@ -619,7 +619,7 @@ export async function getManagerEvaluationList(periodId: string) {
   if (!me) throw new Error("ユーザー情報取得失敗");
 
   const employees = await prisma.user.findMany({
-    where: { section_id: me.section_id ?? undefined, deleted_at: null, is_active: true, role: { notIn: ["DIRECTOR", "EXECUTIVE", "PRESIDENT", "ADMIN"] }, employee_type: { not: "実習生" }, department: { skip_evaluation: false } },
+    where: { section_id: me.section_id ?? undefined, deleted_at: null, is_active: true, resign_date: null, role: { notIn: ["DIRECTOR", "EXECUTIVE", "PRESIDENT", "ADMIN"] }, employee_type: { not: "実習生" }, department: { skip_evaluation: false } },
     include: employeeWithOrgInclude,
     orderBy: [{ employee_number: "asc" }, { name: "asc" }],
   });
@@ -646,7 +646,7 @@ export async function getDirectorEvaluationList(periodId: string) {
   if (!me) throw new Error("ユーザー情報取得失敗");
 
   const employees = await prisma.user.findMany({
-    where: { department_id: me.department_id ?? undefined, deleted_at: null, is_active: true, role: { notIn: ["EXECUTIVE", "PRESIDENT", "ADMIN"] }, employee_type: { not: "実習生" }, department: { skip_evaluation: false } },
+    where: { department_id: me.department_id ?? undefined, deleted_at: null, is_active: true, resign_date: null, role: { notIn: ["EXECUTIVE", "PRESIDENT", "ADMIN"] }, employee_type: { not: "実習生" }, department: { skip_evaluation: false } },
     include: employeeWithOrgInclude,
     orderBy: [{ employee_number: "asc" }, { name: "asc" }],
   });
@@ -675,6 +675,7 @@ export async function getDeptViewerEvaluationList(periodId: string) {
       department_id: me.department_id,
       deleted_at: null,
       is_active: true,
+      resign_date: null,
       role: { notIn: ["DIRECTOR", "EXECUTIVE", "COUNSELOR", "PRESIDENT", "ADMIN"] },
       employee_type: { not: "実習生" },
       department: { skip_evaluation: false },
