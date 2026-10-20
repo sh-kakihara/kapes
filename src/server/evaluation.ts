@@ -72,9 +72,10 @@ export async function saveSelfEvaluation(
   if (!evaluation || evaluation.employee_id !== session.user.id) throw new Error("権限なし");
   if (!isPeriodStarted(evaluation.period.start_date)) throw new Error("評価期間が開始していないため入力できません");
 
-  const canEdit =
-    evaluation.status === "DRAFT" ||
-    isWithinWindow(evaluation.period.self_deadline_from, evaluation.period.self_deadline);
+  const selfFrom = evaluation.period.self_deadline_from;
+  const selfTo   = evaluation.period.self_deadline;
+  if (selfFrom && new Date() < new Date(selfFrom)) throw new Error("自己評価の入力期間はまだ始まっていません");
+  const canEdit = evaluation.status === "DRAFT" || isWithinWindow(selfFrom, selfTo);
   if (!canEdit) throw new Error("修正期限を過ぎているため編集できません");
 
   for (const s of scores) {
@@ -103,9 +104,10 @@ export async function submitFromEmployee(evaluationId: string) {
   });
   if (!evaluation || evaluation.employee_id !== session.user.id) throw new Error("権限なし");
 
-  const canSubmit =
-    evaluation.status === "DRAFT" ||
-    isWithinWindow(evaluation.period.self_deadline_from, evaluation.period.self_deadline);
+  const selfFrom = evaluation.period.self_deadline_from;
+  const selfTo   = evaluation.period.self_deadline;
+  if (selfFrom && new Date() < new Date(selfFrom)) throw new Error("自己評価の入力期間はまだ始まっていません");
+  const canSubmit = evaluation.status === "DRAFT" || isWithinWindow(selfFrom, selfTo);
   if (!canSubmit) throw new Error("修正期限を過ぎています");
 
   const employeeRole = evaluation.employee.role;
