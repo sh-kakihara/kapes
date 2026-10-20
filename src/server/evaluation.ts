@@ -360,6 +360,7 @@ export async function submitFromManager(evaluationId: string) {
       where: { id: evaluationId },
       data: { status: "SUBMITTED_TO_PRESIDENT", submitted_to_president_at: new Date() },
     });
+    await syncDirectorEvalToRecord(evaluationId, "manager");
     revalidatePath("/manager");
     return { ok: true };
   }
