@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import ManagerEvalForm from "./manager-eval-form";
@@ -30,8 +31,17 @@ export default async function ManagerEvalPage({ params }: { params: Promise<{ id
   });
   const hasLeader = me?.section?.has_leader ?? false;
 
+  const VISIBLE_TO_MANAGER_STATUSES = [
+    "SUBMITTED_TO_MANAGER",
+    "SUBMITTED_TO_DIRECTOR",
+    "SUBMITTED_TO_EXECUTIVE",
+    "SUBMITTED_TO_PRESIDENT",
+    "COMPLETED",
+  ];
+  const scoresVisible = VISIBLE_TO_MANAGER_STATUSES.includes(evaluation.status ?? "");
+
   const selfScores = EVALUATION_ITEMS.map((item) => {
-    const s = evaluation.scores.find((x) => x.item_code === item.code && x.evaluator === "self");
+    const s = scoresVisible ? evaluation.scores.find((x) => x.item_code === item.code && x.evaluator === "self") : undefined;
     return { item_code: item.code, score: s?.score ?? null, comment: s?.comment ?? "" };
   });
   const isLeaderEmployee = evaluation.employee.role === "LEADER";
@@ -39,7 +49,7 @@ export default async function ManagerEvalPage({ params }: { params: Promise<{ id
   // リーダー社員の場合、リーダー評価欄に自己評価点を表示する
   const leaderScores = EVALUATION_ITEMS.map((item) => {
     const ev = isLeaderEmployee ? "self" : "leader";
-    const s = evaluation.scores.find((x) => x.item_code === item.code && x.evaluator === ev);
+    const s = scoresVisible ? evaluation.scores.find((x) => x.item_code === item.code && x.evaluator === ev) : undefined;
     return { item_code: item.code, score: s?.score ?? null, comment: s?.comment ?? "" };
   });
   const managerScores = EVALUATION_ITEMS.map((item) => {

@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import LeaderEvalForm from "./leader-eval-form";
@@ -17,12 +18,15 @@ export default async function LeaderEvalPage({ params }: { params: Promise<{ id:
 
   if (!evaluation) redirect("/leader");
 
+  // リーダーは自己評価が提出されてから（SUBMITTED_TO_LEADER以降）スコアを表示
+  const scoresVisible = evaluation.status !== "DRAFT" && evaluation.status !== null;
+
   const selfScores = EVALUATION_ITEMS.map((item) => {
-    const s = evaluation.scores.find((x) => x.item_code === item.code && x.evaluator === "self");
+    const s = scoresVisible ? evaluation.scores.find((x) => x.item_code === item.code && x.evaluator === "self") : undefined;
     return { item_code: item.code, score: s?.score ?? null, comment: s?.comment ?? "" };
   });
   const leaderScores = EVALUATION_ITEMS.map((item) => {
-    const s = evaluation.scores.find((x) => x.item_code === item.code && x.evaluator === "leader");
+    const s = scoresVisible ? evaluation.scores.find((x) => x.item_code === item.code && x.evaluator === "leader") : undefined;
     return { item_code: item.code, score: s?.score ?? null, comment: s?.comment ?? "" };
   });
 
