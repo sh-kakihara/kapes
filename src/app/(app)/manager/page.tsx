@@ -1,4 +1,5 @@
-import { auth } from "@/auth";
+﻿import { auth } from "@/auth";
+export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { getActivePeriods, getManagerEvaluationList, getDeptViewerEvaluationList, skipEvaluation, undoSkipEvaluation } from "@/server/evaluation";
 import { prisma } from "@/lib/db";
@@ -64,11 +65,8 @@ export default async function ManagerPage() {
 
   const items = await getManagerEvaluationList(period.id);
 
-  const me = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    include: { section: true },
-  });
-  const hasLeader = me?.section?.has_leader ?? false;
+  // 管理下の社員の中に has_leader=true の課が1つでもあればリーダー評価列を表示
+  const hasLeader = items.some((item) => item.employee.section?.has_leader === true);
   const scoreEvaluator = hasLeader ? "leader" : "self";
 
   const scoreOptions = [
