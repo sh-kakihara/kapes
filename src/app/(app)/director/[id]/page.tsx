@@ -26,11 +26,14 @@ export default async function DirectorEvalPage({ params }: { params: Promise<{ i
 
   const STATUS_ORDER = ["DRAFT","SUBMITTED_TO_LEADER","SUBMITTED_TO_MANAGER","SUBMITTED_TO_DIRECTOR","SUBMITTED_TO_EXECUTIVE","SUBMITTED_TO_PRESIDENT","COMPLETED"];
   const statusIdx = STATUS_ORDER.indexOf(evaluation.status ?? "");
-  const selfVisible    = statusIdx >= STATUS_ORDER.indexOf("SUBMITTED_TO_MANAGER");
+  const selfVisible    = statusIdx >= STATUS_ORDER.indexOf("SUBMITTED_TO_LEADER");
+  const leaderVisible  = statusIdx >= STATUS_ORDER.indexOf("SUBMITTED_TO_MANAGER");
   const managerVisible = statusIdx >= STATUS_ORDER.indexOf("SUBMITTED_TO_DIRECTOR");
 
   const build = (evaluator: string) => EVALUATION_ITEMS.map((item) => {
-    const visible = (evaluator === "self" || evaluator === "leader") ? selfVisible : managerVisible;
+    const visible = evaluator === "self" ? selfVisible
+                  : evaluator === "leader" ? leaderVisible
+                  : managerVisible;
     const s = visible ? evaluation.scores.find((x) => x.item_code === item.code && x.evaluator === evaluator) : undefined;
     return { item_code: item.code, score: s?.score ?? null, comment: s?.comment ?? "" };
   });

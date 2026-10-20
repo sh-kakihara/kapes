@@ -578,14 +578,28 @@ function maskScoresBelow(evaluations: EvalWithScores[], minStatus: typeof STATUS
   });
 }
 
-// 部長向け: self/leader は SUBMITTED_TO_MANAGER 以降、manager/director は SUBMITTED_TO_DIRECTOR 以降に公開
+// 課長向け: self は SUBMITTED_TO_LEADER 以降、leader/manager は SUBMITTED_TO_MANAGER 以降に公開
+function maskScoresForManager(evaluations: EvalWithScores[]): EvalWithScores[] {
+  const idxLeader  = STATUS_ORDER.indexOf("SUBMITTED_TO_LEADER");
+  const idxManager = STATUS_ORDER.indexOf("SUBMITTED_TO_MANAGER");
+  return evaluations.map((ev) => {
+    const idx = STATUS_ORDER.indexOf(ev.status as typeof STATUS_ORDER[number]);
+    if (idx >= idxManager) return ev;
+    if (idx >= idxLeader) return { ...ev, scores: ev.scores.filter((s) => s.evaluator === "self") };
+    return { ...ev, scores: [] };
+  });
+}
+
+// 部長向け: self は SUBMITTED_TO_LEADER 以降、leader は SUBMITTED_TO_MANAGER 以降、manager/director は SUBMITTED_TO_DIRECTOR 以降に公開
 function maskScoresForDirector(evaluations: EvalWithScores[]): EvalWithScores[] {
+  const idxLeader   = STATUS_ORDER.indexOf("SUBMITTED_TO_LEADER");
   const idxManager  = STATUS_ORDER.indexOf("SUBMITTED_TO_MANAGER");
   const idxDirector = STATUS_ORDER.indexOf("SUBMITTED_TO_DIRECTOR");
   return evaluations.map((ev) => {
     const idx = STATUS_ORDER.indexOf(ev.status as typeof STATUS_ORDER[number]);
     if (idx >= idxDirector) return ev;
     if (idx >= idxManager) return { ...ev, scores: ev.scores.filter((s) => s.evaluator === "self" || s.evaluator === "leader") };
+    if (idx >= idxLeader)  return { ...ev, scores: ev.scores.filter((s) => s.evaluator === "self") };
     return { ...ev, scores: [] };
   });
 }
@@ -717,8 +731,8 @@ export async function getManagerEvaluationList(periodId: string) {
     include: evalWithScoresInclude,
   });
 
-  // 課長はリーダー評価提出後（SUBMITTED_TO_MANAGER以降）にスコアを表示
-  return await mergeUsersWithEvaluations(employees, maskScoresBelow(evaluations, "SUBMITTED_TO_MANAGER"));
+  // 課長: selfはSUBMITTED_TO_LEADER以降、leader/managerはSUBMITTED_TO_MANAGER以降に公開
+  return await mergeUsersWithEvaluations(employees, maskScoresForManager(evaluations));
 }
 
 // 部長/執行役員: 担当部署の全社員一覧（未開始含む）
