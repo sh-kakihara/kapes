@@ -1,4 +1,5 @@
-import { auth } from "@/auth";
+﻿import { auth } from "@/auth";
+export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { getPeriods, createPeriod, togglePeriod } from "@/server/admin";
 import PeriodAdmin from "./period-admin";
@@ -15,7 +16,7 @@ export default async function AdminPeriodsPage() {
         <a href="/admin" className="text-sm text-blue-600 hover:underline">← 管理者メニュー</a>
       </div>
       <h2 className="text-xl font-bold mb-6 text-gray-800">評価期間管理</h2>
-      <PeriodAdmin periods={periods} />
+      <PeriodAdmin periods={periods} isDev={process.env.NODE_ENV === "development"} />
     </div>
   );
 }

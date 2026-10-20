@@ -457,6 +457,7 @@ export async function togglePeriod(id: string, is_active: boolean) {
 }
 
 export async function resetPeriodEvaluations(periodId: string) {
+  if (process.env.NODE_ENV !== "development") throw new Error("この操作はローカル環境でのみ使用できます");
   await requireAdmin();
   await prisma.$transaction([
     prisma.evaluationScore.deleteMany({

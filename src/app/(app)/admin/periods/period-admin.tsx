@@ -29,7 +29,7 @@ function fmtDate(d: Date | null): string {
   return new Date(d).toLocaleDateString("ja-JP");
 }
 
-export default function PeriodAdmin({ periods }: { periods: Period[] }) {
+export default function PeriodAdmin({ periods, isDev }: { periods: Period[]; isDev?: boolean }) {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
     nameYear: "", nameSeason: "夏期", start_date: "", end_date: "",
@@ -278,9 +278,11 @@ export default function PeriodAdmin({ periods }: { periods: Period[] }) {
                 <button onClick={() => handleToggle(p.id, p.is_active)} className="text-xs text-blue-600 hover:underline">
                   {p.is_active ? "無効にする" : "有効にする"}
                 </button>
-                <button onClick={() => handleReset(p.id, p.name)} className="text-xs text-red-500 hover:underline">
-                  評価リセット
-                </button>
+                {isDev && (
+                  <button onClick={() => handleReset(p.id, p.name)} className="text-xs text-red-500 hover:underline">
+                    評価リセット
+                  </button>
+                )}
               </div>
             </div>
 
