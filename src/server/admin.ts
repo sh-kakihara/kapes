@@ -455,3 +455,29 @@ export async function togglePeriod(id: string, is_active: boolean) {
   await prisma.evaluationPeriod.update({ where: { id }, data: { is_active } });
   revalidatePath("/admin/periods");
 }
+
+export async function resetPeriodEvaluations(periodId: string) {
+  await requireAdmin();
+  await prisma.$transaction([
+    prisma.evaluationScore.deleteMany({
+      where: { evaluation: { period_id: periodId } },
+    }),
+    prisma.evaluation.updateMany({
+      where: { period_id: periodId },
+      data: {
+        status: "DRAFT",
+        submitted_to_leader_at: null,
+        submitted_to_manager_at: null,
+        submitted_to_director_at: null,
+        submitted_to_executive_at: null,
+        submitted_to_president_at: null,
+        leader_id: null,
+        manager_id: null,
+        director_id: null,
+        executive_id: null,
+        skip_reason: null,
+      },
+    }),
+  ]);
+  revalidatePath("/admin/periods");
+}

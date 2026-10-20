@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createPeriod, togglePeriod, updatePeriodDates, updatePeriodDeadlines, updatePeriodName } from "@/server/admin";
+import { createPeriod, togglePeriod, updatePeriodDates, updatePeriodDeadlines, updatePeriodName, resetPeriodEvaluations } from "@/server/admin";
 
 type Period = {
   id: string; name: string; start_date: Date; end_date: Date;
@@ -73,6 +73,16 @@ export default function PeriodAdmin({ periods }: { periods: Period[] }) {
     try {
       await togglePeriod(id, !current);
       setMessage(!current ? "有効にしました" : "無効にしました");
+    } catch (e: unknown) {
+      setMessage(e instanceof Error ? e.message : "エラーが発生しました");
+    }
+  }
+
+  async function handleReset(id: string, name: string) {
+    if (!window.confirm(`「${name}」の全評価スコアと提出状況をリセットします。\nこの操作は取り消せません。よろしいですか？`)) return;
+    try {
+      await resetPeriodEvaluations(id);
+      setMessage("評価をリセットしました");
     } catch (e: unknown) {
       setMessage(e instanceof Error ? e.message : "エラーが発生しました");
     }
@@ -267,6 +277,9 @@ export default function PeriodAdmin({ periods }: { periods: Period[] }) {
                 </span>
                 <button onClick={() => handleToggle(p.id, p.is_active)} className="text-xs text-blue-600 hover:underline">
                   {p.is_active ? "無効にする" : "有効にする"}
+                </button>
+                <button onClick={() => handleReset(p.id, p.name)} className="text-xs text-red-500 hover:underline">
+                  評価リセット
                 </button>
               </div>
             </div>
