@@ -29,9 +29,13 @@ export type EvaluationPeriodMinAggregateOutputType = {
   name: string | null
   start_date: Date | null
   end_date: Date | null
+  self_deadline_from: Date | null
   self_deadline: Date | null
+  leader_deadline_from: Date | null
   leader_deadline: Date | null
+  manager_deadline_from: Date | null
   manager_deadline: Date | null
+  director_deadline_from: Date | null
   director_deadline: Date | null
   is_active: boolean | null
   created_at: Date | null
@@ -43,9 +47,13 @@ export type EvaluationPeriodMaxAggregateOutputType = {
   name: string | null
   start_date: Date | null
   end_date: Date | null
+  self_deadline_from: Date | null
   self_deadline: Date | null
+  leader_deadline_from: Date | null
   leader_deadline: Date | null
+  manager_deadline_from: Date | null
   manager_deadline: Date | null
+  director_deadline_from: Date | null
   director_deadline: Date | null
   is_active: boolean | null
   created_at: Date | null
@@ -57,9 +65,13 @@ export type EvaluationPeriodCountAggregateOutputType = {
   name: number
   start_date: number
   end_date: number
+  self_deadline_from: number
   self_deadline: number
+  leader_deadline_from: number
   leader_deadline: number
+  manager_deadline_from: number
   manager_deadline: number
+  director_deadline_from: number
   director_deadline: number
   is_active: number
   created_at: number
@@ -73,9 +85,13 @@ export type EvaluationPeriodMinAggregateInputType = {
   name?: true
   start_date?: true
   end_date?: true
+  self_deadline_from?: true
   self_deadline?: true
+  leader_deadline_from?: true
   leader_deadline?: true
+  manager_deadline_from?: true
   manager_deadline?: true
+  director_deadline_from?: true
   director_deadline?: true
   is_active?: true
   created_at?: true
@@ -87,9 +103,13 @@ export type EvaluationPeriodMaxAggregateInputType = {
   name?: true
   start_date?: true
   end_date?: true
+  self_deadline_from?: true
   self_deadline?: true
+  leader_deadline_from?: true
   leader_deadline?: true
+  manager_deadline_from?: true
   manager_deadline?: true
+  director_deadline_from?: true
   director_deadline?: true
   is_active?: true
   created_at?: true
@@ -101,9 +121,13 @@ export type EvaluationPeriodCountAggregateInputType = {
   name?: true
   start_date?: true
   end_date?: true
+  self_deadline_from?: true
   self_deadline?: true
+  leader_deadline_from?: true
   leader_deadline?: true
+  manager_deadline_from?: true
   manager_deadline?: true
+  director_deadline_from?: true
   director_deadline?: true
   is_active?: true
   created_at?: true
@@ -188,9 +212,13 @@ export type EvaluationPeriodGroupByOutputType = {
   name: string
   start_date: Date
   end_date: Date
+  self_deadline_from: Date | null
   self_deadline: Date | null
+  leader_deadline_from: Date | null
   leader_deadline: Date | null
+  manager_deadline_from: Date | null
   manager_deadline: Date | null
+  director_deadline_from: Date | null
   director_deadline: Date | null
   is_active: boolean
   created_at: Date
@@ -223,9 +251,13 @@ export type EvaluationPeriodWhereInput = {
   name?: Prisma.StringFilter<"EvaluationPeriod"> | string
   start_date?: Prisma.DateTimeFilter<"EvaluationPeriod"> | Date | string
   end_date?: Prisma.DateTimeFilter<"EvaluationPeriod"> | Date | string
+  self_deadline_from?: Prisma.DateTimeNullableFilter<"EvaluationPeriod"> | Date | string | null
   self_deadline?: Prisma.DateTimeNullableFilter<"EvaluationPeriod"> | Date | string | null
+  leader_deadline_from?: Prisma.DateTimeNullableFilter<"EvaluationPeriod"> | Date | string | null
   leader_deadline?: Prisma.DateTimeNullableFilter<"EvaluationPeriod"> | Date | string | null
+  manager_deadline_from?: Prisma.DateTimeNullableFilter<"EvaluationPeriod"> | Date | string | null
   manager_deadline?: Prisma.DateTimeNullableFilter<"EvaluationPeriod"> | Date | string | null
+  director_deadline_from?: Prisma.DateTimeNullableFilter<"EvaluationPeriod"> | Date | string | null
   director_deadline?: Prisma.DateTimeNullableFilter<"EvaluationPeriod"> | Date | string | null
   is_active?: Prisma.BoolFilter<"EvaluationPeriod"> | boolean
   created_at?: Prisma.DateTimeFilter<"EvaluationPeriod"> | Date | string
@@ -238,9 +270,13 @@ export type EvaluationPeriodOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   start_date?: Prisma.SortOrder
   end_date?: Prisma.SortOrder
+  self_deadline_from?: Prisma.SortOrderInput | Prisma.SortOrder
   self_deadline?: Prisma.SortOrderInput | Prisma.SortOrder
+  leader_deadline_from?: Prisma.SortOrderInput | Prisma.SortOrder
   leader_deadline?: Prisma.SortOrderInput | Prisma.SortOrder
+  manager_deadline_from?: Prisma.SortOrderInput | Prisma.SortOrder
   manager_deadline?: Prisma.SortOrderInput | Prisma.SortOrder
+  director_deadline_from?: Prisma.SortOrderInput | Prisma.SortOrder
   director_deadline?: Prisma.SortOrderInput | Prisma.SortOrder
   is_active?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -256,9 +292,13 @@ export type EvaluationPeriodWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.EvaluationPeriodWhereInput | Prisma.EvaluationPeriodWhereInput[]
   start_date?: Prisma.DateTimeFilter<"EvaluationPeriod"> | Date | string
   end_date?: Prisma.DateTimeFilter<"EvaluationPeriod"> | Date | string
+  self_deadline_from?: Prisma.DateTimeNullableFilter<"EvaluationPeriod"> | Date | string | null
   self_deadline?: Prisma.DateTimeNullableFilter<"EvaluationPeriod"> | Date | string | null
+  leader_deadline_from?: Prisma.DateTimeNullableFilter<"EvaluationPeriod"> | Date | string | null
   leader_deadline?: Prisma.DateTimeNullableFilter<"EvaluationPeriod"> | Date | string | null
+  manager_deadline_from?: Prisma.DateTimeNullableFilter<"EvaluationPeriod"> | Date | string | null
   manager_deadline?: Prisma.DateTimeNullableFilter<"EvaluationPeriod"> | Date | string | null
+  director_deadline_from?: Prisma.DateTimeNullableFilter<"EvaluationPeriod"> | Date | string | null
   director_deadline?: Prisma.DateTimeNullableFilter<"EvaluationPeriod"> | Date | string | null
   is_active?: Prisma.BoolFilter<"EvaluationPeriod"> | boolean
   created_at?: Prisma.DateTimeFilter<"EvaluationPeriod"> | Date | string
@@ -271,9 +311,13 @@ export type EvaluationPeriodOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   start_date?: Prisma.SortOrder
   end_date?: Prisma.SortOrder
+  self_deadline_from?: Prisma.SortOrderInput | Prisma.SortOrder
   self_deadline?: Prisma.SortOrderInput | Prisma.SortOrder
+  leader_deadline_from?: Prisma.SortOrderInput | Prisma.SortOrder
   leader_deadline?: Prisma.SortOrderInput | Prisma.SortOrder
+  manager_deadline_from?: Prisma.SortOrderInput | Prisma.SortOrder
   manager_deadline?: Prisma.SortOrderInput | Prisma.SortOrder
+  director_deadline_from?: Prisma.SortOrderInput | Prisma.SortOrder
   director_deadline?: Prisma.SortOrderInput | Prisma.SortOrder
   is_active?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -291,9 +335,13 @@ export type EvaluationPeriodScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"EvaluationPeriod"> | string
   start_date?: Prisma.DateTimeWithAggregatesFilter<"EvaluationPeriod"> | Date | string
   end_date?: Prisma.DateTimeWithAggregatesFilter<"EvaluationPeriod"> | Date | string
+  self_deadline_from?: Prisma.DateTimeNullableWithAggregatesFilter<"EvaluationPeriod"> | Date | string | null
   self_deadline?: Prisma.DateTimeNullableWithAggregatesFilter<"EvaluationPeriod"> | Date | string | null
+  leader_deadline_from?: Prisma.DateTimeNullableWithAggregatesFilter<"EvaluationPeriod"> | Date | string | null
   leader_deadline?: Prisma.DateTimeNullableWithAggregatesFilter<"EvaluationPeriod"> | Date | string | null
+  manager_deadline_from?: Prisma.DateTimeNullableWithAggregatesFilter<"EvaluationPeriod"> | Date | string | null
   manager_deadline?: Prisma.DateTimeNullableWithAggregatesFilter<"EvaluationPeriod"> | Date | string | null
+  director_deadline_from?: Prisma.DateTimeNullableWithAggregatesFilter<"EvaluationPeriod"> | Date | string | null
   director_deadline?: Prisma.DateTimeNullableWithAggregatesFilter<"EvaluationPeriod"> | Date | string | null
   is_active?: Prisma.BoolWithAggregatesFilter<"EvaluationPeriod"> | boolean
   created_at?: Prisma.DateTimeWithAggregatesFilter<"EvaluationPeriod"> | Date | string
@@ -305,9 +353,13 @@ export type EvaluationPeriodCreateInput = {
   name: string
   start_date: Date | string
   end_date: Date | string
+  self_deadline_from?: Date | string | null
   self_deadline?: Date | string | null
+  leader_deadline_from?: Date | string | null
   leader_deadline?: Date | string | null
+  manager_deadline_from?: Date | string | null
   manager_deadline?: Date | string | null
+  director_deadline_from?: Date | string | null
   director_deadline?: Date | string | null
   is_active?: boolean
   created_at?: Date | string
@@ -320,9 +372,13 @@ export type EvaluationPeriodUncheckedCreateInput = {
   name: string
   start_date: Date | string
   end_date: Date | string
+  self_deadline_from?: Date | string | null
   self_deadline?: Date | string | null
+  leader_deadline_from?: Date | string | null
   leader_deadline?: Date | string | null
+  manager_deadline_from?: Date | string | null
   manager_deadline?: Date | string | null
+  director_deadline_from?: Date | string | null
   director_deadline?: Date | string | null
   is_active?: boolean
   created_at?: Date | string
@@ -335,9 +391,13 @@ export type EvaluationPeriodUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  self_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   self_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  leader_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leader_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manager_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   manager_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  director_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   director_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -350,9 +410,13 @@ export type EvaluationPeriodUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  self_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   self_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  leader_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leader_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manager_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   manager_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  director_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   director_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -365,9 +429,13 @@ export type EvaluationPeriodCreateManyInput = {
   name: string
   start_date: Date | string
   end_date: Date | string
+  self_deadline_from?: Date | string | null
   self_deadline?: Date | string | null
+  leader_deadline_from?: Date | string | null
   leader_deadline?: Date | string | null
+  manager_deadline_from?: Date | string | null
   manager_deadline?: Date | string | null
+  director_deadline_from?: Date | string | null
   director_deadline?: Date | string | null
   is_active?: boolean
   created_at?: Date | string
@@ -379,9 +447,13 @@ export type EvaluationPeriodUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  self_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   self_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  leader_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leader_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manager_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   manager_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  director_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   director_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -393,9 +465,13 @@ export type EvaluationPeriodUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  self_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   self_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  leader_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leader_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manager_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   manager_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  director_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   director_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -407,9 +483,13 @@ export type EvaluationPeriodCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   start_date?: Prisma.SortOrder
   end_date?: Prisma.SortOrder
+  self_deadline_from?: Prisma.SortOrder
   self_deadline?: Prisma.SortOrder
+  leader_deadline_from?: Prisma.SortOrder
   leader_deadline?: Prisma.SortOrder
+  manager_deadline_from?: Prisma.SortOrder
   manager_deadline?: Prisma.SortOrder
+  director_deadline_from?: Prisma.SortOrder
   director_deadline?: Prisma.SortOrder
   is_active?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -421,9 +501,13 @@ export type EvaluationPeriodMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   start_date?: Prisma.SortOrder
   end_date?: Prisma.SortOrder
+  self_deadline_from?: Prisma.SortOrder
   self_deadline?: Prisma.SortOrder
+  leader_deadline_from?: Prisma.SortOrder
   leader_deadline?: Prisma.SortOrder
+  manager_deadline_from?: Prisma.SortOrder
   manager_deadline?: Prisma.SortOrder
+  director_deadline_from?: Prisma.SortOrder
   director_deadline?: Prisma.SortOrder
   is_active?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -435,9 +519,13 @@ export type EvaluationPeriodMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   start_date?: Prisma.SortOrder
   end_date?: Prisma.SortOrder
+  self_deadline_from?: Prisma.SortOrder
   self_deadline?: Prisma.SortOrder
+  leader_deadline_from?: Prisma.SortOrder
   leader_deadline?: Prisma.SortOrder
+  manager_deadline_from?: Prisma.SortOrder
   manager_deadline?: Prisma.SortOrder
+  director_deadline_from?: Prisma.SortOrder
   director_deadline?: Prisma.SortOrder
   is_active?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -468,9 +556,13 @@ export type EvaluationPeriodCreateWithoutEvaluationsInput = {
   name: string
   start_date: Date | string
   end_date: Date | string
+  self_deadline_from?: Date | string | null
   self_deadline?: Date | string | null
+  leader_deadline_from?: Date | string | null
   leader_deadline?: Date | string | null
+  manager_deadline_from?: Date | string | null
   manager_deadline?: Date | string | null
+  director_deadline_from?: Date | string | null
   director_deadline?: Date | string | null
   is_active?: boolean
   created_at?: Date | string
@@ -482,9 +574,13 @@ export type EvaluationPeriodUncheckedCreateWithoutEvaluationsInput = {
   name: string
   start_date: Date | string
   end_date: Date | string
+  self_deadline_from?: Date | string | null
   self_deadline?: Date | string | null
+  leader_deadline_from?: Date | string | null
   leader_deadline?: Date | string | null
+  manager_deadline_from?: Date | string | null
   manager_deadline?: Date | string | null
+  director_deadline_from?: Date | string | null
   director_deadline?: Date | string | null
   is_active?: boolean
   created_at?: Date | string
@@ -512,9 +608,13 @@ export type EvaluationPeriodUpdateWithoutEvaluationsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  self_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   self_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  leader_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leader_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manager_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   manager_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  director_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   director_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -526,9 +626,13 @@ export type EvaluationPeriodUncheckedUpdateWithoutEvaluationsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  self_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   self_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  leader_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leader_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manager_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   manager_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  director_deadline_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   director_deadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -571,9 +675,13 @@ export type EvaluationPeriodSelect<ExtArgs extends runtime.Types.Extensions.Inte
   name?: boolean
   start_date?: boolean
   end_date?: boolean
+  self_deadline_from?: boolean
   self_deadline?: boolean
+  leader_deadline_from?: boolean
   leader_deadline?: boolean
+  manager_deadline_from?: boolean
   manager_deadline?: boolean
+  director_deadline_from?: boolean
   director_deadline?: boolean
   is_active?: boolean
   created_at?: boolean
@@ -587,9 +695,13 @@ export type EvaluationPeriodSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   name?: boolean
   start_date?: boolean
   end_date?: boolean
+  self_deadline_from?: boolean
   self_deadline?: boolean
+  leader_deadline_from?: boolean
   leader_deadline?: boolean
+  manager_deadline_from?: boolean
   manager_deadline?: boolean
+  director_deadline_from?: boolean
   director_deadline?: boolean
   is_active?: boolean
   created_at?: boolean
@@ -601,9 +713,13 @@ export type EvaluationPeriodSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   name?: boolean
   start_date?: boolean
   end_date?: boolean
+  self_deadline_from?: boolean
   self_deadline?: boolean
+  leader_deadline_from?: boolean
   leader_deadline?: boolean
+  manager_deadline_from?: boolean
   manager_deadline?: boolean
+  director_deadline_from?: boolean
   director_deadline?: boolean
   is_active?: boolean
   created_at?: boolean
@@ -615,16 +731,20 @@ export type EvaluationPeriodSelectScalar = {
   name?: boolean
   start_date?: boolean
   end_date?: boolean
+  self_deadline_from?: boolean
   self_deadline?: boolean
+  leader_deadline_from?: boolean
   leader_deadline?: boolean
+  manager_deadline_from?: boolean
   manager_deadline?: boolean
+  director_deadline_from?: boolean
   director_deadline?: boolean
   is_active?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type EvaluationPeriodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "start_date" | "end_date" | "self_deadline" | "leader_deadline" | "manager_deadline" | "director_deadline" | "is_active" | "created_at" | "updated_at", ExtArgs["result"]["evaluationPeriod"]>
+export type EvaluationPeriodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "start_date" | "end_date" | "self_deadline_from" | "self_deadline" | "leader_deadline_from" | "leader_deadline" | "manager_deadline_from" | "manager_deadline" | "director_deadline_from" | "director_deadline" | "is_active" | "created_at" | "updated_at", ExtArgs["result"]["evaluationPeriod"]>
 export type EvaluationPeriodInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   evaluations?: boolean | Prisma.EvaluationPeriod$evaluationsArgs<ExtArgs>
   _count?: boolean | Prisma.EvaluationPeriodCountOutputTypeDefaultArgs<ExtArgs>
@@ -646,19 +766,35 @@ export type $EvaluationPeriodPayload<ExtArgs extends runtime.Types.Extensions.In
     start_date: Date
     end_date: Date
     /**
-     * 自己評価の提出期限（期限内は修正可）
+     * 自己評価の入力開始日
+     */
+    self_deadline_from: Date | null
+    /**
+     * 自己評価の入力終了日
      */
     self_deadline: Date | null
     /**
-     * リーダー評価の提出期限
+     * リーダー評価の入力開始日
+     */
+    leader_deadline_from: Date | null
+    /**
+     * リーダー評価の入力終了日
      */
     leader_deadline: Date | null
     /**
-     * 課長評価の提出期限
+     * 課長評価の入力開始日
+     */
+    manager_deadline_from: Date | null
+    /**
+     * 課長評価の入力終了日
      */
     manager_deadline: Date | null
     /**
-     * 部長評価の提出期限
+     * 部長評価の入力開始日
+     */
+    director_deadline_from: Date | null
+    /**
+     * 部長評価の入力終了日
      */
     director_deadline: Date | null
     is_active: boolean
@@ -1092,9 +1228,13 @@ export interface EvaluationPeriodFieldRefs {
   readonly name: Prisma.FieldRef<"EvaluationPeriod", 'String'>
   readonly start_date: Prisma.FieldRef<"EvaluationPeriod", 'DateTime'>
   readonly end_date: Prisma.FieldRef<"EvaluationPeriod", 'DateTime'>
+  readonly self_deadline_from: Prisma.FieldRef<"EvaluationPeriod", 'DateTime'>
   readonly self_deadline: Prisma.FieldRef<"EvaluationPeriod", 'DateTime'>
+  readonly leader_deadline_from: Prisma.FieldRef<"EvaluationPeriod", 'DateTime'>
   readonly leader_deadline: Prisma.FieldRef<"EvaluationPeriod", 'DateTime'>
+  readonly manager_deadline_from: Prisma.FieldRef<"EvaluationPeriod", 'DateTime'>
   readonly manager_deadline: Prisma.FieldRef<"EvaluationPeriod", 'DateTime'>
+  readonly director_deadline_from: Prisma.FieldRef<"EvaluationPeriod", 'DateTime'>
   readonly director_deadline: Prisma.FieldRef<"EvaluationPeriod", 'DateTime'>
   readonly is_active: Prisma.FieldRef<"EvaluationPeriod", 'Boolean'>
   readonly created_at: Prisma.FieldRef<"EvaluationPeriod", 'DateTime'>

@@ -1,4 +1,5 @@
-import { auth } from "@/auth";
+﻿import { auth } from "@/auth";
+export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { getAllPeriods, getAdminEvaluations } from "@/server/evaluation";
 import EvaluationListTable, { type EvalListItem } from "@/components/evaluation-list-table";

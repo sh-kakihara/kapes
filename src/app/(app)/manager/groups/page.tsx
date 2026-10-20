@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { getMyGroups } from "@/server/manager";
 import GroupEditor from "./group-editor";
 
+export const dynamic = "force-dynamic";
+
 export default async function ManagerGroupsPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");

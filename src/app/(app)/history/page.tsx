@@ -1,4 +1,5 @@
-import { auth } from "@/auth";
+﻿import { auth } from "@/auth";
+export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { getMyEvaluationHistory } from "@/server/evaluation";
 import HistoryView from "./history-view";

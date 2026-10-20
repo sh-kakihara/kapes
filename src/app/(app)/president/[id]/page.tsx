@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { EVALUATION_ITEMS, STATUS_LABELS } from "@/lib/constants";

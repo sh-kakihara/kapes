@@ -1,4 +1,5 @@
-import { auth } from "@/auth";
+﻿import { auth } from "@/auth";
+export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { getMyBonusNotice } from "@/server/my-notice";
 import BonusPrintView from "@/app/(app)/admin/notices/print/bonus-print-view";

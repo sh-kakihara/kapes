@@ -1,4 +1,6 @@
 import { auth, signOut } from "@/auth";
+
+export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { ROLE_LABELS } from "@/lib/constants";
 import Link from "next/link";
@@ -9,7 +11,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex flex-col">
-      <header className="bg-blue-700 text-white px-6 py-3 flex items-center justify-between">
+      <header className={`${process.env.NODE_ENV === "development" ? "bg-gray-900" : "bg-blue-700"} text-white px-6 py-3 flex items-center justify-between`}>
         <Link href="/" className="font-bold text-lg hover:text-blue-200 transition-colors">人事評価システム</Link>
         <div className="flex items-center gap-4 text-sm">
           <span>{session.user.name}（{ROLE_LABELS[session.user.role] ?? session.user.role}）</span>

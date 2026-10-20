@@ -1,4 +1,5 @@
-import { auth } from "@/auth";
+﻿import { auth } from "@/auth";
+export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { getBonusNoticeDocument, getBonusNoticeEmployees } from "@/server/notice";
 import { DEFAULT_REP } from "@/lib/notice-constants";

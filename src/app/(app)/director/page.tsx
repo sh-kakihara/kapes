@@ -1,4 +1,5 @@
-import { auth } from "@/auth";
+﻿import { auth } from "@/auth";
+export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { getActivePeriods, getDirectorEvaluationList } from "@/server/evaluation";
 import { prisma } from "@/lib/db";

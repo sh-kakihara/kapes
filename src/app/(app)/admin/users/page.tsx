@@ -1,4 +1,5 @@
-import { auth } from "@/auth";
+﻿import { auth } from "@/auth";
+export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { getUsers, getDepartments, createUser, updateUser, deleteUser } from "@/server/admin";
 import UserAdmin from "./user-admin";
