@@ -1,7 +1,7 @@
 ﻿import { auth } from "@/auth";
 export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
-import { getActivePeriods, getManagerEvaluationList, getDeptViewerEvaluationList, skipEvaluation, undoSkipEvaluation } from "@/server/evaluation";
+import { getActivePeriods, getManagerEvaluationList, getDeptViewerEvaluationList } from "@/server/evaluation";
 import { prisma } from "@/lib/db";
 import EvaluationListTable from "@/components/evaluation-list-table";
 
@@ -50,14 +50,6 @@ export default async function ManagerPage() {
             { key: "leader",  label: "リーダー評価", color: "text-orange-500", hideIfSectionNoLeader: true, showForRoles: ["STAFF"] },
             { key: "manager", label: "課長評価",     color: "text-green-700" },
           ]}
-          onSkipEvaluation={async (item, reason) => {
-            "use server";
-            await skipEvaluation(period.id, item.employee.id, reason);
-          }}
-          onUndoSkipEvaluation={async (item) => {
-            "use server";
-            await undoSkipEvaluation(item.evalId!);
-          }}
         />
       </div>
     );
@@ -92,14 +84,6 @@ export default async function ManagerPage() {
           { key: "self",   label: "自己評価",     color: "text-blue-600" },
           { key: "leader", label: "リーダー評価", color: "text-orange-500", hideIfSectionNoLeader: true, showForRoles: ["STAFF"] },
         ]}
-        onSkipEvaluation={async (item, reason) => {
-          "use server";
-          await skipEvaluation(period.id, item.employee.id, reason);
-        }}
-        onUndoSkipEvaluation={async (item) => {
-          "use server";
-          await undoSkipEvaluation(item.evalId!);
-        }}
       />
     </div>
   );
