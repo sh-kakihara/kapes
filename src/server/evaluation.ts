@@ -529,6 +529,25 @@ const evalWithScoresInclude = {
 type EmployeeWithOrg = Awaited<ReturnType<typeof prisma.user.findMany<{ include: typeof employeeWithOrgInclude }>>>[number];
 type EvalWithScores = Awaited<ReturnType<typeof prisma.evaluation.findMany<{ include: typeof evalWithScoresInclude }>>>[number];
 
+// 指定ステータス未満の評価はスコアを非表示にする（上位者が提出前の内容を見ないため）
+const STATUS_ORDER = [
+  "DRAFT",
+  "SUBMITTED_TO_LEADER",
+  "SUBMITTED_TO_MANAGER",
+  "SUBMITTED_TO_DIRECTOR",
+  "SUBMITTED_TO_EXECUTIVE",
+  "SUBMITTED_TO_PRESIDENT",
+  "COMPLETED",
+] as const;
+
+function maskScoresBelow(evaluations: EvalWithScores[], minStatus: typeof STATUS_ORDER[number]): EvalWithScores[] {
+  const minIdx = STATUS_ORDER.indexOf(minStatus);
+  return evaluations.map((ev) => {
+    const idx = STATUS_ORDER.indexOf(ev.status as typeof STATUS_ORDER[number]);
+    return idx >= minIdx ? ev : { ...ev, scores: [] };
+  });
+}
+
 async function mergeUsersWithEvaluations(
   employees: Awaited<ReturnType<typeof prisma.user.findMany<{ include: typeof employeeWithOrgInclude }>>>,
   evaluations: EvalWithScores[]
@@ -576,7 +595,8 @@ export async function getLeaderEvaluationList(periodId: string) {
     include: evalWithScoresInclude,
   });
 
-  return await mergeUsersWithEvaluations(employees, evaluations);
+  // リーダーは自己評価が提出されてから（SUBMITTED_TO_LEADER以降）スコアを表示
+  return await mergeUsersWithEvaluations(employees, maskScoresBelow(evaluations, "SUBMITTED_TO_LEADER"));
 }
 
 // 課長: 全評価をスキップして社長へ直送（育休・長期病欠など）
@@ -655,7 +675,8 @@ export async function getManagerEvaluationList(periodId: string) {
     include: evalWithScoresInclude,
   });
 
-  return await mergeUsersWithEvaluations(employees, evaluations);
+  // 課長はリーダー評価提出後（SUBMITTED_TO_MANAGER以降）にスコアを表示
+  return await mergeUsersWithEvaluations(employees, maskScoresBelow(evaluations, "SUBMITTED_TO_MANAGER"));
 }
 
 // 部長/執行役員: 担当部署の全社員一覧（未開始含む）
@@ -682,7 +703,8 @@ export async function getDirectorEvaluationList(periodId: string) {
     include: evalWithScoresInclude,
   });
 
-  return await mergeUsersWithEvaluations(employees, evaluations);
+  // 部長は課長評価提出後（SUBMITTED_TO_DIRECTOR以降）にスコアを表示
+  return await mergeUsersWithEvaluations(employees, maskScoresBelow(evaluations, "SUBMITTED_TO_DIRECTOR"));
 }
 
 // 課なし閲覧者: 自部署の全課の課長評価一覧（閲覧専用）
@@ -715,7 +737,8 @@ export async function getDeptViewerEvaluationList(periodId: string) {
     include: evalWithScoresInclude,
   });
 
-  return await mergeUsersWithEvaluations(employees, evaluations);
+  // 課なし閲覧者も課長評価提出後（SUBMITTED_TO_MANAGER以降）にスコアを表示
+  return await mergeUsersWithEvaluations(employees, maskScoresBelow(evaluations, "SUBMITTED_TO_MANAGER"));
 }
 
 // リーダー: 担当社員の評価一覧（SUBMITTED_TO_LEADER以降）
