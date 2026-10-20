@@ -261,10 +261,8 @@ export async function saveLeaderEvaluation(
   const evaluation = await prisma.evaluation.findUnique({ where: { id: evaluationId }, include: { period: true } });
   if (!evaluation) throw new Error("評価が見つかりません");
   if (!isPeriodStarted(evaluation.period.start_date)) throw new Error("評価期間が開始していないため入力できません");
-  const lFrom = evaluation.period.leader_deadline_from;
-  const lTo   = evaluation.period.leader_deadline;
-  if (lFrom && new Date() < new Date(lFrom)) throw new Error("リーダー評価の入力期間はまだ始まっていません");
-  if (lTo   && new Date() > new Date(lTo))   throw new Error("リーダー評価の入力期限を過ぎています");
+  const lTo = evaluation.period.leader_deadline;
+  if (lTo && new Date() > new Date(lTo)) throw new Error("リーダー評価の入力期限を過ぎています");
 
   for (const s of scores) {
     await prisma.evaluationScore.upsert({
@@ -325,10 +323,8 @@ export async function saveManagerEvaluation(
   const evaluation = await prisma.evaluation.findUnique({ where: { id: evaluationId }, include: { period: true } });
   if (!evaluation) throw new Error("評価が見つかりません");
   if (!isPeriodStarted(evaluation.period.start_date)) throw new Error("評価期間が開始していないため入力できません");
-  const mFrom = evaluation.period.manager_deadline_from;
-  const mTo   = evaluation.period.manager_deadline;
-  if (mFrom && new Date() < new Date(mFrom)) throw new Error("課長評価の入力期間はまだ始まっていません");
-  if (mTo   && new Date() > new Date(mTo))   throw new Error("課長評価の入力期限を過ぎています");
+  const mTo = evaluation.period.manager_deadline;
+  if (mTo && new Date() > new Date(mTo)) throw new Error("課長評価の入力期限を過ぎています");
 
   for (const s of scores) {
     await prisma.evaluationScore.upsert({
@@ -400,10 +396,8 @@ export async function saveDirectorEvaluation(
   const evaluation = await prisma.evaluation.findUnique({ where: { id: evaluationId }, include: { period: true } });
   if (!evaluation) throw new Error("評価が見つかりません");
   if (!isPeriodStarted(evaluation.period.start_date)) throw new Error("評価期間が開始していないため入力できません");
-  const dFrom = evaluation.period.director_deadline_from;
-  const dTo   = evaluation.period.director_deadline;
-  if (dFrom && new Date() < new Date(dFrom)) throw new Error("部長評価の入力期間はまだ始まっていません");
-  if (dTo   && new Date() > new Date(dTo))   throw new Error("部長評価の入力期限を過ぎています");
+  const dTo = evaluation.period.director_deadline;
+  if (dTo && new Date() > new Date(dTo)) throw new Error("部長評価の入力期限を過ぎています");
 
   for (const s of scores) {
     await prisma.evaluationScore.upsert({
@@ -482,10 +476,8 @@ export async function saveExecutiveEvaluation(
   const evaluation = await prisma.evaluation.findUnique({ where: { id: evaluationId }, include: { period: true } });
   if (!evaluation) throw new Error("評価が見つかりません");
   if (!isPeriodStarted(evaluation.period.start_date)) throw new Error("評価期間が開始していないため入力できません");
-  const dFrom = evaluation.period.director_deadline_from;
-  const dTo   = evaluation.period.director_deadline;
-  if (dFrom && new Date() < new Date(dFrom)) throw new Error("執行役員評価の入力期間はまだ始まっていません");
-  if (dTo   && new Date() > new Date(dTo))   throw new Error("執行役員評価の入力期限を過ぎています");
+  const dTo = evaluation.period.director_deadline;
+  if (dTo && new Date() > new Date(dTo)) throw new Error("執行役員評価の入力期限を過ぎています");
 
   for (const s of scores) {
     await prisma.evaluationScore.upsert({
