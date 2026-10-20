@@ -74,7 +74,7 @@ export async function saveSelfEvaluation(
 
   const selfFrom = evaluation.period.self_deadline_from;
   const selfTo   = evaluation.period.self_deadline;
-  if (selfFrom && new Date() < new Date(selfFrom)) throw new Error("自己評価の入力期間はまだ始まっていません");
+  // 一時保存は DRAFT なら期間前でも可。TO を過ぎた場合のみブロック。
   const canEdit = evaluation.status === "DRAFT" || isWithinWindow(selfFrom, selfTo);
   if (!canEdit) throw new Error("修正期限を過ぎているため編集できません");
 
