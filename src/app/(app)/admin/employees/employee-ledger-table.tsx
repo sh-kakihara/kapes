@@ -55,12 +55,15 @@ type EmpRecord = {
   birth_date?: Date | string | null;
   [key: string]: unknown;
 };
-type PrevWinter = {
-  director_eval: string | null;
-  president_eval: string | null;
-  bonus: number | null;
+type PrevYear = {
+  summer_director_eval: string | null;
+  summer_president_eval: string | null;
+  summer_bonus: number | null;
+  winter_director_eval: string | null;
+  winter_president_eval: string | null;
+  winter_bonus: number | null;
 } | null;
-type Row = { user: User; record: EmpRecord | null; prevWinter: PrevWinter };
+type Row = { user: User; record: EmpRecord | null; prevYear: PrevYear };
 
 // ---------- helpers ----------
 function fmt(n: number | null | undefined) {
@@ -496,10 +499,13 @@ function makeColumns(refDate: Date): ColumnDef<Row>[] {
     faceted("tech_intern_3_years",   "（３号）年数",   (r) => calcYears(rec(r, "tech_intern_3_date") as string | null, refDate)),
     faceted("specified_skilled_date","特定技能",        (r) => fmtDate(rec(r, "specified_skilled_date") as string | null)),
     faceted("specified_skilled_years","（特定）年数",  (r) => calcYears(rec(r, "specified_skilled_date") as string | null, refDate)),
-    // 前年冬期参照（読み取り専用）
-    faceted("prev_winter_director_eval", "前年冬部長評価", (r) => r.prevWinter?.director_eval ?? ""),
-    faceted("prev_winter_president_eval","前年冬社長評価", (r) => r.prevWinter?.president_eval ?? ""),
-    faceted("prev_winter_bonus",         "前年冬賞与額",   (r) => r.prevWinter?.bonus != null ? fmt(r.prevWinter.bonus) : ""),
+    // 前年参照（読み取り専用）
+    faceted("prev_summer_director_eval", "前年夏部長評価", (r) => r.prevYear?.summer_director_eval ?? ""),
+    faceted("prev_summer_president_eval","前年夏社長評価", (r) => r.prevYear?.summer_president_eval ?? ""),
+    faceted("prev_summer_bonus",         "前年夏賞与額",   (r) => r.prevYear?.summer_bonus != null ? fmt(r.prevYear.summer_bonus) : ""),
+    faceted("prev_winter_director_eval", "前年冬部長評価", (r) => r.prevYear?.winter_director_eval ?? ""),
+    faceted("prev_winter_president_eval","前年冬社長評価", (r) => r.prevYear?.winter_president_eval ?? ""),
+    faceted("prev_winter_bonus",         "前年冬賞与額",   (r) => r.prevYear?.winter_bonus != null ? fmt(r.prevYear.winter_bonus) : ""),
     // 今年度
     faceted("prev_annual_income",      "前年度年収", (r) => fmt(rec(r, "prev_annual_income") as number)),
     faceted("curr_base_salary",        "基本給",   (r) => fmt(rec(r, "curr_base_salary") as number)),
@@ -524,7 +530,7 @@ function makeColGroupSpans(fy: number, showInternCols: boolean) {
   return [
     { label: "基本情報",     count: 15 },
     ...(showInternCols ? [{ label: "実習生情報", count: 7 }] : []),
-    { label: `${fy - 1}年度冬期参照`, count: 3 },
+    { label: `${fy - 1}年度参照`, count: 6 },
     { label: `${fy}年度`, count: 15 },
   ];
 }

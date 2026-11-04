@@ -212,11 +212,14 @@ export async function getEmployeeRecords(selectedFiscalYear: number) {
         section2_name: u.section2_name,
       },
       record,
-      prevWinter: prevRec
+      prevYear: prevRec
         ? {
-            director_eval: prevRec.curr_winter_director_eval,
-            president_eval: prevRec.curr_winter_president_eval,
-            bonus: prevRec.curr_winter_bonus,
+            summer_director_eval: prevRec.curr_summer_director_eval,
+            summer_president_eval: prevRec.curr_summer_president_eval,
+            summer_bonus: prevRec.curr_summer_bonus,
+            winter_director_eval: prevRec.curr_winter_director_eval,
+            winter_president_eval: prevRec.curr_winter_president_eval,
+            winter_bonus: prevRec.curr_winter_bonus,
           }
         : null,
     };
