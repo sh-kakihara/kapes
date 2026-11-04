@@ -866,7 +866,7 @@ export default function EmployeeLedgerTable({
       {/* fixed バー分の底部スペーサー */}
       <div style={{ paddingBottom: 16 }} />
 
-      <div ref={tableScrollRef} className="overflow-x-auto rounded-lg border bg-white min-h-[400px]">
+      <div ref={tableScrollRef} className="overflow-x-auto rounded-lg border bg-white min-h-[400px] [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none" }}>
         <table className="text-xs w-max">
           <thead className="bg-gray-50 border-b">
             {/* グループヘッダー */}
