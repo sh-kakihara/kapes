@@ -159,15 +159,15 @@ export async function getEmployeeRecords(selectedFiscalYear: number) {
       section: true,
       section2: true,
       employee_records: {
-        where: { fiscal_year: selectedFiscalYear },
-        take: 1,
+        where: { fiscal_year: { in: [selectedFiscalYear, selectedFiscalYear - 1] } },
       },
     },
     orderBy: [{ department: { name: "asc" } }, { employee_number: "asc" }, { name: "asc" }],
   });
 
   return users.map((u) => {
-    const rec = u.employee_records[0] ?? null;
+    const rec = u.employee_records.find((r) => r.fiscal_year === selectedFiscalYear) ?? null;
+    const prevRec = u.employee_records.find((r) => r.fiscal_year === selectedFiscalYear - 1) ?? null;
 
     // 選択年度のレコードがある場合のみデータを返す（他年度で補完しない）
     const record = rec
@@ -212,6 +212,13 @@ export async function getEmployeeRecords(selectedFiscalYear: number) {
         section2_name: u.section2_name,
       },
       record,
+      prevWinter: prevRec
+        ? {
+            director_eval: prevRec.curr_winter_director_eval,
+            president_eval: prevRec.curr_winter_president_eval,
+            bonus: prevRec.curr_winter_bonus,
+          }
+        : null,
     };
   });
 }
