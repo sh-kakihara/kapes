@@ -43,6 +43,7 @@ type User = {
   name: string;
   role: string;
   employee_type: string | null;
+  resign_date: Date | string | null;
   department: { name: string } | null;
   section: { name: string } | null;
   section2: { name: string } | null;
@@ -466,6 +467,17 @@ function makeColumns(refDate: Date): ColumnDef<Row>[] {
     // 基本情報（非sticky）
     faceted("employee_type",   "社員種別", (r) => r.user.employee_type ?? ""),
     faceted("employment_type", "雇用形態", (r) => (rec(r, "employment_type") as string) ?? ""),
+    {
+      id: "resigned",
+      accessorFn: (r: Row) => r.user.resign_date ? "退職済み" : "",
+      header: "退職済み",
+      filterFn: multiSelectFilter,
+      meta: {},
+      cell: ({ row }: { row: { original: Row } }) =>
+        row.original.user.resign_date ? (
+          <span className="inline-block px-1.5 py-0.5 text-xs bg-red-100 text-red-700 rounded font-medium">退職済み</span>
+        ) : null,
+    },
     faceted("hire_date",       "入社年月日", (r) => fmtDate(rec(r, "hire_date") as string | null)),
     faceted("years",           "勤続年数",  (r) => calcYears(rec(r, "hire_date") as string | null, refDate)),
     faceted("birth_date",      "生年月日",  (r) => fmtDate(rec(r, "birth_date") as string | null)),
@@ -501,7 +513,7 @@ function makeColumns(refDate: Date): ColumnDef<Row>[] {
 // グループヘッダー定義（列数は COLUMNS に合わせる）
 function makeColGroupSpans(fy: number, showInternCols: boolean) {
   return [
-    { label: "基本情報",     count: 14 },
+    { label: "基本情報",     count: 15 },
     ...(showInternCols ? [{ label: "実習生情報", count: 7 }] : []),
     { label: `${fy}年度`, count: 15 },
   ];

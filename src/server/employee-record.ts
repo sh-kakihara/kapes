@@ -205,6 +205,7 @@ export async function getEmployeeRecords(selectedFiscalYear: number) {
         name: u.name,
         role: u.role,
         employee_type: u.employee_type,
+        resign_date: u.resign_date,
         department: u.department,
         section: u.section,
         section2: u.section2,
