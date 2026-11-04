@@ -146,9 +146,9 @@ export async function getEmployeeRecords(selectedFiscalYear: number) {
   const users = await prisma.user.findMany({
     where: {
       deleted_at: null,
-      is_active: true,
       role: { notIn: ["PRESIDENT", "ADMIN"] },
-      // 在籍期間フィルター（hire_date未設定の場合は制限なし）
+      // 在籍期間フィルター（hire_date/resign_date未設定の場合は制限なし）
+      // 退職者も在籍年度分は表示するため is_active チェックなし
       AND: [
         { OR: [{ hire_date: null }, { hire_date: { lte: yearEnd } }] },
         { OR: [{ resign_date: null }, { resign_date: { gte: yearStart } }] },
