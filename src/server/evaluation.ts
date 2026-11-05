@@ -450,9 +450,7 @@ export async function submitFromDirector(evaluationId: string) {
   const evalForCheck = await prisma.evaluation.findUnique({ where: { id: evaluationId }, include: { period: true } });
   if (!evalForCheck) throw new Error("評価が見つかりません");
   const dFrom = evalForCheck.period.director_deadline_from;
-  const dTo   = evalForCheck.period.director_deadline;
   if (dFrom && new Date() < new Date(dFrom)) throw new Error("部長評価の提出期間はまだ始まっていません");
-  if (dTo   && new Date() > new Date(dTo))   throw new Error("部長評価の提出期限を過ぎています");
 
   await prisma.evaluation.update({
     where: { id: evaluationId },
