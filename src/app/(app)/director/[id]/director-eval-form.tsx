@@ -7,6 +7,11 @@ import { saveDirectorEvaluation, submitFromDirector } from "@/server/evaluation"
 
 type ScoreEntry = { item_code: string; score: number | null; comment: string };
 
+function isWithinDeadline(deadline: Date | null): boolean {
+  if (!deadline) return false;
+  return new Date() <= new Date(deadline);
+}
+
 export default function DirectorEvalForm({
   evaluation,
   selfScores,
@@ -16,7 +21,7 @@ export default function DirectorEvalForm({
   employeeRole,
   readOnly = false,
 }: {
-  evaluation: { id: string; status: string };
+  evaluation: { id: string; status: string; period: { director_deadline: Date | null } };
   selfScores: ScoreEntry[];
   leaderScores: ScoreEntry[];
   managerScores: ScoreEntry[];
@@ -25,7 +30,10 @@ export default function DirectorEvalForm({
   readOnly?: boolean;
 }) {
   const router = useRouter();
-  const canEdit = evaluation.status === "SUBMITTED_TO_DIRECTOR";
+  const deadline = evaluation.period.director_deadline;
+  const withinDeadline = isWithinDeadline(deadline);
+
+  const canEdit = evaluation.status === "SUBMITTED_TO_DIRECTOR" || withinDeadline;
   const canSubmit = evaluation.status === "SUBMITTED_TO_DIRECTOR";
 
   // 部長スコアが null の項目は課長評価で補完する（保存済みでも未入力項目は自動プリセット）
@@ -79,6 +87,11 @@ export default function DirectorEvalForm({
         <span className="inline-block bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full font-medium">
           {STATUS_LABELS[evaluation.status] ?? evaluation.status}
         </span>
+        {withinDeadline && deadline && (
+          <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-2 py-1 rounded">
+            修正期限: {new Date(deadline).toLocaleDateString("ja-JP")} まで修正可
+          </span>
+        )}
         {canEdit && !canSubmit && (
           <span className="text-xs text-red-500 bg-red-50 border border-red-200 px-2 py-1 rounded">
             課長評価がまだ届いていないため提出できません
