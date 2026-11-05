@@ -1,107 +1,23 @@
 "use client";
 
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef } from "react";
 import {
   useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel,
   getFacetedRowModel, getFacetedUniqueValues,
   flexRender, type ColumnDef, type SortingState, type ColumnFiltersState,
-  type Column, type FilterFn,
+  type FilterFn,
 } from "@tanstack/react-table";
 import { createUser, updateUser, deleteUser, importUsersFromCsv, bulkSetCanViewNotices } from "@/server/admin";
 import { ROLE_LABELS } from "@/lib/constants";
 import { downloadCsv } from "@/lib/csv-utils";
+import { FacetedFilter, NONE_SELECTED } from "@/components/faceted-filter";
 
-const NONE_SELECTED = "__none__";
 const multiSelectFilter: FilterFn<User> = (row, columnId, filterValue: string[]) => {
   if (!filterValue || filterValue.length === 0) return true;
   if (filterValue[0] === NONE_SELECTED) return false;
   return filterValue.includes(String(row.getValue(columnId) ?? ""));
 };
 multiSelectFilter.autoRemove = (val: string[]) => !val || val.length === 0;
-
-function FacetedFilter({ column, title }: { column: Column<User, unknown>; title: string }) {
-  const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState("");
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) { setOpen(false); }
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
-
-  const uniqueValues = useMemo(
-    () => column.getCanFilter() ? Array.from(column.getFacetedUniqueValues().keys()).filter((v) => v !== "").sort() : [],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [column.getFacetedUniqueValues()]
-  );
-
-  useEffect(() => {
-    if (search === "") { column.setFilterValue([]); return; }
-    const lower = search.toLowerCase();
-    const matches = uniqueValues.filter((v) => String(v).toLowerCase().includes(lower)).map(String);
-    column.setFilterValue(matches.length > 0 ? matches : [NONE_SELECTED]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search]);
-
-  const filtered = useMemo(
-    () => uniqueValues.filter((v) => String(v).toLowerCase().includes(search.toLowerCase())),
-    [uniqueValues, search]
-  );
-  const filterValue = (column.getFilterValue() as string[]) ?? [];
-  const isAllSelected = filterValue.length === 0;
-  const isNoneSelected = filterValue.length === 1 && filterValue[0] === NONE_SELECTED;
-  const isFiltered = !isAllSelected;
-  const sortDir = column.getIsSorted();
-
-  function isChecked(val: string) {
-    if (isAllSelected) return true; if (isNoneSelected) return false;
-    return filterValue.includes(val);
-  }
-  function toggleAll() { column.setFilterValue(isAllSelected ? [NONE_SELECTED] : []); setSearch(""); }
-  function toggleValue(val: string) {
-    const current = isAllSelected ? uniqueValues.map(String) : isNoneSelected ? [] : filterValue;
-    const next = current.includes(val) ? current.filter((v) => v !== val) : [...current, val];
-    if (next.length === 0) column.setFilterValue([NONE_SELECTED]);
-    else if (next.length === uniqueValues.length) column.setFilterValue([]);
-    else column.setFilterValue(next);
-    setSearch("");
-  }
-
-  return (
-    <div ref={ref} className="relative inline-block w-full">
-      <div className={`flex items-center gap-0.5 text-xs font-medium px-1 py-0.5 rounded w-full ${isFiltered ? "text-blue-700 bg-blue-50" : "text-gray-600"}`}>
-        <button onClick={() => column.toggleSorting(sortDir === "asc")} className="flex items-center gap-1 hover:text-blue-700 flex-1 min-w-0">
-          <span className="truncate">{title}</span>
-          <span className="text-gray-400 shrink-0">{sortDir === "asc" ? "▲" : sortDir === "desc" ? "▼" : "⇅"}</span>
-        </button>
-        <button onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }} className={`shrink-0 hover:text-blue-700 ${isFiltered ? "text-blue-600" : "text-gray-400"}`} title="フィルター">
-          {isFiltered ? "▼" : "▽"}
-        </button>
-      </div>
-      {open && (
-        <div className="absolute left-0 top-full mt-1 z-50 bg-white border border-gray-200 rounded-lg shadow-lg w-44 p-2">
-          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="検索..." className="w-full border border-gray-200 rounded px-2 py-1 text-xs mb-2 focus:outline-none focus:ring-1 focus:ring-blue-400" autoFocus />
-          <div className="max-h-48 overflow-y-auto space-y-0.5">
-            <label className="flex items-center gap-2 px-1.5 py-1 rounded hover:bg-gray-50 cursor-pointer text-xs">
-              <input type="checkbox" checked={isAllSelected} onChange={toggleAll} className="w-3.5 h-3.5 accent-blue-600" />
-              <span className="text-gray-700 font-medium">（すべて選択）</span>
-            </label>
-            {filtered.map((val) => (
-              <label key={String(val)} className="flex items-center gap-2 px-1.5 py-1 rounded hover:bg-gray-50 cursor-pointer text-xs">
-                <input type="checkbox" checked={isChecked(String(val))} onChange={() => toggleValue(String(val))} className="w-3.5 h-3.5 accent-blue-600" />
-                <span className="text-gray-700 truncate">{val || "（空白）"}</span>
-              </label>
-            ))}
-          </div>
-          {isFiltered && <button onClick={toggleAll} className="mt-2 w-full text-xs text-blue-600 hover:underline text-left px-1.5">フィルターをクリア</button>}
-        </div>
-      )}
-    </div>
-  );
-}
 
 type Group = { id: string; name: string };
 type Section = { id: string; name: string; has_leader: boolean; groups: Group[] };
