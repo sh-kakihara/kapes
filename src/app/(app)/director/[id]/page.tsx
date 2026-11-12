@@ -24,6 +24,12 @@ export default async function DirectorEvalPage({ params }: { params: Promise<{ i
 
   if (!evaluation) redirect("/director");
 
+  // 部長評価期間が始まる前は閲覧不可（ADMIN除く）
+  if (session.user.role !== "ADMIN") {
+    const dFrom = evaluation.period.director_deadline_from;
+    if (dFrom && new Date() < new Date(dFrom)) redirect("/director");
+  }
+
   const STATUS_ORDER = ["DRAFT","SUBMITTED_TO_LEADER","SUBMITTED_TO_MANAGER","SUBMITTED_TO_DIRECTOR","SUBMITTED_TO_EXECUTIVE","SUBMITTED_TO_PRESIDENT","COMPLETED"];
   const statusIdx = STATUS_ORDER.indexOf(evaluation.status ?? "");
   const selfVisible    = statusIdx >= STATUS_ORDER.indexOf("SUBMITTED_TO_LEADER");

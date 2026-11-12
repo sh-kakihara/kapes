@@ -30,6 +30,10 @@ export default async function ManagerPage() {
 
   const period = periods[0];
 
+  const isAdmin = role === "ADMIN";
+  const mFrom = period.manager_deadline_from;
+  const beforeManagerPeriod = !isAdmin && !isDeptViewer && !!mFrom && new Date() < new Date(mFrom);
+
   if (isDeptViewer) {
     const items = await getDeptViewerEvaluationList(period.id);
     return (
@@ -55,10 +59,11 @@ export default async function ManagerPage() {
     );
   }
 
-  const items = await getManagerEvaluationList(period.id);
+  const rawItems = await getManagerEvaluationList(period.id);
+  const items = beforeManagerPeriod ? rawItems.map(item => ({ ...item, scores: [] })) : rawItems;
 
   // 管理下の社員の中に has_leader=true の課が1つでもあればリーダー評価列を表示
-  const hasLeader = items.some((item) => item.employee.section?.has_leader === true);
+  const hasLeader = rawItems.some((item) => item.employee.section?.has_leader === true);
   const scoreEvaluator = hasLeader ? "leader" : "self";
 
   const scoreOptions = [
@@ -77,6 +82,7 @@ export default async function ManagerPage() {
         scoreEvaluator={scoreEvaluator}
         scoreOptions={scoreOptions}
         selfUserId={session.user.id}
+        beforePeriodMessage={beforeManagerPeriod ? "課長評価期間前です" : undefined}
         hideForEvaluator="leader"
         selfHidesForEvaluator="manager"
         noManagerFallbackToSelf

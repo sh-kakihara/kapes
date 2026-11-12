@@ -87,6 +87,7 @@ export default function EvaluationListTable({
   onSkipEvaluation,
   onUndoSkipEvaluation,
   extraActions,
+  beforePeriodMessage,
 }: {
   items: EvalListItem[];
   detailBasePath: string;
@@ -130,6 +131,8 @@ export default function EvaluationListTable({
   onUndoSkipEvaluation?: (item: EvalListItem) => Promise<void>;
   /** CSVエクスポートボタンの左に追加するアクション要素 */
   extraActions?: React.ReactNode;
+  /** 設定時、行クリックでポップアップを開かずこのメッセージを表示する（評価期間外） */
+  beforePeriodMessage?: string;
 }) {
   const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -137,6 +140,7 @@ export default function EvaluationListTable({
   const [selectedItem, setSelectedItem] = useState<EvalListItem | null>(null);
   const [selectedEvaluator, setSelectedEvaluator] = useState(scoreEvaluator);
   const [skipping, setSkipping] = useState(false);
+  const [beforePeriodToast, setBeforePeriodToast] = useState(false);
   const [skipDialogItem, setSkipDialogItem] = useState<EvalListItem | null>(null);
   const [skipReason, setSkipReason] = useState("");
 
@@ -476,6 +480,11 @@ export default function EvaluationListTable({
                 <tr
                   key={row.id}
                   onClick={isSelfRow ? undefined : () => {
+                    if (beforePeriodMessage) {
+                      setBeforePeriodToast(true);
+                      setTimeout(() => setBeforePeriodToast(false), 3000);
+                      return;
+                    }
                     const item = items.find((i) => i.employee.id === row.original.employeeId);
                     if (item) setSelectedItem(item);
                   }}
@@ -695,6 +704,13 @@ export default function EvaluationListTable({
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* 評価期間外メッセージ */}
+      {beforePeriodToast && beforePeriodMessage && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-gray-800 text-white text-sm px-5 py-3 rounded-lg shadow-lg">
+          {beforePeriodMessage}
         </div>
       )}
 

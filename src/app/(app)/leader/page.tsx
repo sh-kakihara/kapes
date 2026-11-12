@@ -17,13 +17,20 @@ export default async function LeaderPage() {
   const period = periods[0];
   const items = await getLeaderEvaluationList(period.id);
 
+  const isAdmin = session.user.role === "ADMIN";
+  const lFrom = period.leader_deadline_from;
+  const beforeLeaderPeriod = !isAdmin && !!lFrom && new Date() < new Date(lFrom);
+
+  const displayItems = beforeLeaderPeriod ? items.map(item => ({ ...item, scores: [] })) : items;
+
   return (
     <div>
       <h2 className="text-xl font-bold mb-1 text-gray-800">リーダー評価画面</h2>
       <p className="text-sm text-gray-500 mb-6">評価期間: {period.name}</p>
       <EvaluationListTable
-        items={items}
+        items={displayItems}
         detailBasePath="/leader"
+        beforePeriodMessage={beforeLeaderPeriod ? "リーダー評価期間前です" : undefined}
         scoreEvaluator="self"
         scoreOptions={[
           { value: "self", label: "自己評価" },

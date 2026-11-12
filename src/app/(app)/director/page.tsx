@@ -21,7 +21,13 @@ export default async function DirectorPage() {
   }
 
   const period = periods[0];
-  const items = await getDirectorEvaluationList(period.id);
+  const rawItems = await getDirectorEvaluationList(period.id);
+
+  const isAdmin = session.user.role === "ADMIN";
+  const dFrom = period.director_deadline_from;
+  const beforeDirectorPeriod = !isAdmin && !!dFrom && new Date() < new Date(dFrom);
+
+  const items = beforeDirectorPeriod ? rawItems.map(item => ({ ...item, scores: [] })) : rawItems;
 
   const me = await prisma.user.findUnique({ where: { id: session.user.id } });
   const hasLeader = me?.department_id
@@ -42,6 +48,7 @@ export default async function DirectorPage() {
       <EvaluationListTable
         items={items}
         detailBasePath="/director"
+        beforePeriodMessage={beforeDirectorPeriod ? "部長評価期間前です" : undefined}
         scoreEvaluator="manager"
         scoreOptions={scoreOptions}
         selfUserId={session.user.id}

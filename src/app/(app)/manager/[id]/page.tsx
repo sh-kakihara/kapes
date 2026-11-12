@@ -24,6 +24,12 @@ export default async function ManagerEvalPage({ params }: { params: Promise<{ id
 
   if (!evaluation) redirect("/manager");
 
+  // 課長評価期間が始まる前は閲覧不可（ADMIN・閲覧者除く）
+  if (!isDeptViewer && session.user.role !== "ADMIN") {
+    const mFrom = evaluation.period.manager_deadline_from;
+    if (mFrom && new Date() < new Date(mFrom)) redirect("/manager");
+  }
+
   // 課長自身の部署の has_leader を取得
   const me = await prisma.user.findUnique({
     where: { id: session.user.id },
