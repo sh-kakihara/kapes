@@ -15,7 +15,10 @@ type Evaluation = {
 
 function isWithinDeadline(deadline: Date | null): boolean {
   if (!deadline) return false;
-  return new Date() <= new Date(deadline);
+  const offset = 9 * 60 * 60 * 1000;
+  const todayJST = new Date(Date.now() + offset).toISOString().slice(0, 10);
+  const deadlineJST = new Date(new Date(deadline).getTime() + offset).toISOString().slice(0, 10);
+  return todayJST <= deadlineJST;
 }
 
 function getSubmitLabel(role: string, hasLeader: boolean, skipDirector: boolean, hasManager: boolean, hasExecutive: boolean): string {
