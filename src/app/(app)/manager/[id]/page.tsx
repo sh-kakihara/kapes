@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import ManagerEvalForm from "./manager-eval-form";
 import { EVALUATION_ITEMS } from "@/lib/constants";
+import { isBeforeDateJST } from "@/lib/date-jst";
 
 export default async function ManagerEvalPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -27,7 +28,7 @@ export default async function ManagerEvalPage({ params }: { params: Promise<{ id
   // 課長評価期間が始まる前は閲覧不可（ADMIN・閲覧者除く）
   if (!isDeptViewer && session.user.role !== "ADMIN") {
     const mFrom = evaluation.period.manager_deadline_from;
-    if (mFrom && new Date() < new Date(mFrom)) redirect("/manager");
+    if (mFrom && isBeforeDateJST(mFrom)) redirect("/manager");
   }
 
   // 課長自身の部署の has_leader を取得

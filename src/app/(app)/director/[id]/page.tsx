@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import DirectorEvalForm from "./director-eval-form";
 import { EVALUATION_ITEMS } from "@/lib/constants";
+import { isBeforeDateJST } from "@/lib/date-jst";
 
 export default async function DirectorEvalPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -27,7 +28,7 @@ export default async function DirectorEvalPage({ params }: { params: Promise<{ i
   // 部長評価期間が始まる前は閲覧不可（ADMIN除く）
   if (session.user.role !== "ADMIN") {
     const dFrom = evaluation.period.director_deadline_from;
-    if (dFrom && new Date() < new Date(dFrom)) redirect("/director");
+    if (dFrom && isBeforeDateJST(dFrom)) redirect("/director");
   }
 
   const STATUS_ORDER = ["DRAFT","SUBMITTED_TO_LEADER","SUBMITTED_TO_MANAGER","SUBMITTED_TO_DIRECTOR","SUBMITTED_TO_EXECUTIVE","SUBMITTED_TO_PRESIDENT","COMPLETED"];

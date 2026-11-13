@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getActivePeriods, getDirectorEvaluationList } from "@/server/evaluation";
 import { prisma } from "@/lib/db";
 import EvaluationListTable from "@/components/evaluation-list-table";
+import { isBeforeDateJST } from "@/lib/date-jst";
 
 export default async function DirectorPage() {
   const session = await auth();
@@ -25,7 +26,7 @@ export default async function DirectorPage() {
 
   const isAdmin = session.user.role === "ADMIN";
   const dFrom = period.director_deadline_from;
-  const beforeDirectorPeriod = !isAdmin && !!dFrom && new Date() < new Date(dFrom);
+  const beforeDirectorPeriod = !isAdmin && !!dFrom && isBeforeDateJST(dFrom);
 
   const items = beforeDirectorPeriod ? rawItems.map(item => ({ ...item, scores: [] })) : rawItems;
 

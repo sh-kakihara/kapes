@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getActivePeriods, getManagerEvaluationList, getDeptViewerEvaluationList } from "@/server/evaluation";
 import { prisma } from "@/lib/db";
 import EvaluationListTable from "@/components/evaluation-list-table";
+import { isBeforeDateJST } from "@/lib/date-jst";
 
 export default async function ManagerPage() {
   const session = await auth();
@@ -32,7 +33,7 @@ export default async function ManagerPage() {
 
   const isAdmin = role === "ADMIN";
   const mFrom = period.manager_deadline_from;
-  const beforeManagerPeriod = !isAdmin && !isDeptViewer && !!mFrom && new Date() < new Date(mFrom);
+  const beforeManagerPeriod = !isAdmin && !isDeptViewer && !!mFrom && isBeforeDateJST(mFrom);
 
   if (isDeptViewer) {
     const items = await getDeptViewerEvaluationList(period.id);

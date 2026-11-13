@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import LeaderEvalForm from "./leader-eval-form";
 import { EVALUATION_ITEMS } from "@/lib/constants";
+import { isBeforeDateJST } from "@/lib/date-jst";
 
 export default async function LeaderEvalPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -21,7 +22,7 @@ export default async function LeaderEvalPage({ params }: { params: Promise<{ id:
   // リーダー評価期間が始まる前は閲覧不可（ADMIN除く）
   if (session.user.role !== "ADMIN") {
     const lFrom = evaluation.period.leader_deadline_from;
-    if (lFrom && new Date() < new Date(lFrom)) redirect("/leader");
+    if (lFrom && isBeforeDateJST(lFrom)) redirect("/leader");
   }
 
   // リーダーは自己評価が提出されてから（SUBMITTED_TO_LEADER以降）スコアを表示

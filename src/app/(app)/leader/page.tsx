@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { getActivePeriods, getLeaderEvaluationList } from "@/server/evaluation";
 import EvaluationListTable from "@/components/evaluation-list-table";
+import { isBeforeDateJST } from "@/lib/date-jst";
 
 export default async function LeaderPage() {
   const session = await auth();
@@ -19,7 +20,7 @@ export default async function LeaderPage() {
 
   const isAdmin = session.user.role === "ADMIN";
   const lFrom = period.leader_deadline_from;
-  const beforeLeaderPeriod = !isAdmin && !!lFrom && new Date() < new Date(lFrom);
+  const beforeLeaderPeriod = !isAdmin && !!lFrom && isBeforeDateJST(lFrom);
 
   const displayItems = beforeLeaderPeriod ? items.map(item => ({ ...item, scores: [] })) : items;
 
