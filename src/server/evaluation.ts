@@ -908,21 +908,31 @@ export async function getPresidentEvaluations(periodId: string) {
   return [...activeItems, ...deletedItems];
 }
 
-// 管理者: 全評価一覧（admin閲覧用）
+// 管理者: 全評価一覧（admin閲覧用・未開始含む）
 export async function getAdminEvaluations(periodId: string) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("未認証");
   if (!["ADMIN", "PRESIDENT"].includes(session.user.role)) forbidden();
 
-  return prisma.evaluation.findMany({
-    where: { period_id: periodId },
-    include: {
-      employee: { include: employeeWithOrgInclude },
-      scores: true,
-      period: true,
+  const employees = await prisma.user.findMany({
+    where: {
+      deleted_at: null,
+      is_active: true,
+      resign_date: null,
+      role: { notIn: ["PRESIDENT", "ADMIN"] },
+      employee_type: { not: "実習生" },
+      department: { skip_evaluation: false },
     },
-    orderBy: [{ employee: { department: { name: "asc" } } }, { employee: { name: "asc" } }],
+    include: employeeWithOrgInclude,
+    orderBy: [{ department: { name: "asc" } }, { employee_number: "asc" }, { name: "asc" }],
   });
+
+  const evaluations = await prisma.evaluation.findMany({
+    where: { period_id: periodId, employee_id: { in: employees.map((e) => e.id) } },
+    include: evalWithScoresInclude,
+  });
+
+  return mergeUsersWithEvaluations(employees, evaluations);
 }
 
 // 評価詳細を取得（IDから）

@@ -433,7 +433,7 @@ export default function EvaluationListTable({
                     : header.id === "name" ? "px-2 w-24"
                     : header.id === "department" ? "px-2 w-20"
                     : header.id === "section" ? "px-2 w-20"
-                    : header.id === "group" ? "px-2 w-16"
+                    : header.id === "group" ? "px-2 w-52"
                     : header.id === "total" ? "px-2 w-14 text-center"
                     : header.id === "diff" ? "px-2 w-14 text-center"
                     : header.id === "status" ? "px-2 w-24"

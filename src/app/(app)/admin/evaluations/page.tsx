@@ -25,7 +25,7 @@ export default async function AdminEvaluationsPage({ searchParams }: { searchPar
   const evaluations = await getAdminEvaluations(period.id);
 
   const items: EvalListItem[] = evaluations.map((ev) => ({
-    evalId: ev.id,
+    evalId: ev.evalId,
     employee: {
       id: ev.employee.id,
       employee_number: ev.employee.employee_number,
@@ -42,6 +42,7 @@ export default async function AdminEvaluationsPage({ searchParams }: { searchPar
       score: s.score,
       comment: s.comment,
     })),
+    skip_reason: ev.skip_reason,
   }));
 
   return (
