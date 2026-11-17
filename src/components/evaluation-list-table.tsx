@@ -45,6 +45,7 @@ type RowData = {
   status: string;
   employee_number: string;
   name: string;
+  role: string;
   department: string;
   section: string;
   group: string;
@@ -174,6 +175,7 @@ export default function EvaluationListTable({
         status: STATUS_LABELS[item.status ?? "NO_EVAL"] ?? item.status ?? "",
         employee_number: item.employee.employee_number ?? "",
         name: item.employee.name.length > 10 ? item.employee.name.slice(0, 10) : item.employee.name,
+        role: item.employee.role,
         department: item.employee.department?.name ?? "",
         section: item.employee.section?.name ?? "",
         group: item.employee.group?.name ?? "",
@@ -233,10 +235,12 @@ export default function EvaluationListTable({
       filterFn: multiSelectFilter,
       cell: (info) => {
         const isSelf = info.row.original.isSelf as boolean;
+        const isLeader = info.row.original.role === "LEADER" && selectedEvaluator === "leader";
         return (
           <span className={`font-medium ${isSelf ? "text-orange-600" : ""}`}>
             {info.getValue()}
             {isSelf && <span className="ml-1 text-xs bg-orange-100 text-orange-600 px-1 rounded">本人</span>}
+            {isLeader && <span className="ml-1 text-xs bg-yellow-100 text-yellow-700 px-1 rounded">リーダー</span>}
           </span>
         );
       },
