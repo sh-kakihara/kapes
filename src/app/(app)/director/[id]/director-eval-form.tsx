@@ -95,7 +95,7 @@ export default function DirectorEvalForm({
             修正期限: {new Date(deadline).toLocaleDateString("ja-JP")} まで修正可
           </span>
         )}
-        {canEdit && !canSubmit && (
+        {canEdit && !canSubmit && !readOnly && (
           <span className="text-xs text-red-500 bg-red-50 border border-red-200 px-2 py-1 rounded">
             課長評価がまだ届いていないため提出できません
           </span>
@@ -179,9 +179,11 @@ export default function DirectorEvalForm({
                     />
                   </>
                 ) : (
-                  <div className="flex items-center gap-3">
-                    <span className="text-purple-700 font-bold">{dir.score ?? "未入力"}</span>
-                    {dir.comment && <span className="text-sm text-gray-600">「{dir.comment}」</span>}
+                  <div className="bg-gray-50 rounded p-3">
+                    <div className="flex items-center gap-3">
+                      <span className="text-purple-700 font-bold">{dir.score ?? "未入力"}</span>
+                      {dir.comment && <span className="text-sm text-gray-600">「{dir.comment}」</span>}
+                    </div>
                   </div>
                 )}
               </div>
