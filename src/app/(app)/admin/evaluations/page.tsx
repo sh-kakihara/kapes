@@ -56,7 +56,7 @@ export default async function AdminEvaluationsPage({ searchParams }: { searchPar
         <PeriodSelect periods={periods} selectedId={period.id} />
       </div>
 
-      <AdminEvalTable items={items} />
+      <AdminEvalTable items={items} periodId={period.id} />
     </div>
   );
 }

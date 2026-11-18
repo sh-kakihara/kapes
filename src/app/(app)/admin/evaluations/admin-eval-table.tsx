@@ -2,14 +2,25 @@
 
 import { useRouter } from "next/navigation";
 import EvaluationListTable, { type EvalListItem } from "@/components/evaluation-list-table";
-import { rollbackEvaluationStatus } from "@/server/evaluation";
+import { rollbackEvaluationStatus, skipEvaluation, undoSkipEvaluation } from "@/server/evaluation";
 
-export default function AdminEvalTable({ items }: { items: EvalListItem[] }) {
+export default function AdminEvalTable({ items, periodId }: { items: EvalListItem[]; periodId: string }) {
   const router = useRouter();
 
   async function handleRollback(item: EvalListItem) {
     if (!item.evalId) return;
     await rollbackEvaluationStatus(item.evalId);
+    router.refresh();
+  }
+
+  async function handleSkip(item: EvalListItem, reason: string) {
+    await skipEvaluation(periodId, item.employee.id, reason);
+    router.refresh();
+  }
+
+  async function handleUndoSkip(item: EvalListItem) {
+    if (!item.evalId) return;
+    await undoSkipEvaluation(item.evalId);
     router.refresh();
   }
 
@@ -33,6 +44,8 @@ export default function AdminEvalTable({ items }: { items: EvalListItem[] }) {
       ]}
       detailButtonLabel="評価を見る"
       onRollbackStatus={handleRollback}
+      onSkipEvaluation={handleSkip}
+      onUndoSkipEvaluation={handleUndoSkip}
     />
   );
 }
