@@ -9,7 +9,6 @@ import {
   type FilterFn,
 } from "@tanstack/react-table";
 import { upsertEmployeeRecord, importEmployeeRecordsCsv, createFiscalYearRecords, type EmployeeRecordData } from "@/server/employee-record";
-import { updateUserSection2 } from "@/server/admin";
 import { downloadCsv, parseCsvFile } from "@/lib/csv-utils";
 import { FacetedFilter, NONE_SELECTED } from "@/components/faceted-filter";
 
@@ -46,8 +45,7 @@ type User = {
   resign_date: Date | string | null;
   department: { name: string } | null;
   section: { name: string } | null;
-  section2: { name: string } | null;
-  section2_name: string | null;
+  managed_section2: { name: string } | null;
 };
 type EmpRecord = {
   id?: string;
@@ -223,9 +221,6 @@ function makeEditFields(fy: number) {
 
 function EditModal({ row, fiscalYear, onClose, onSaved }: { row: Row; fiscalYear: number; onClose: () => void; onSaved: () => void }) {
   const [form, setForm] = useState<EmployeeRecordData>(toFormData(row.record));
-  const [section2Name, setSection2Name] = useState<string>(
-    row.user.section2_name ?? row.user.section2?.name ?? ""
-  );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -238,7 +233,6 @@ function EditModal({ row, fiscalYear, onClose, onSaved }: { row: Row; fiscalYear
     try {
       const [res] = await Promise.all([
         upsertEmployeeRecord(row.user.id, fiscalYear, form),
-        updateUserSection2(row.user.id, section2Name || null),
       ]);
       setSaving(false);
       if (res.ok) onSaved();
@@ -322,17 +316,14 @@ function EditModal({ row, fiscalYear, onClose, onSaved }: { row: Row; fiscalYear
               <div key={sec.section}>
                 <h3 className="text-sm font-bold text-gray-700 mb-3 pb-1 border-b">{sec.section}</h3>
                 <div className="grid grid-cols-2 gap-3">
-                  {sec.section === "個人情報" && (
+                  {sec.section === "個人情報" && row.user.managed_section2 && (
                     <>
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">課２</label>
-                      <input
-                        type="text"
-                        value={section2Name}
-                        onChange={(e) => setSection2Name(e.target.value)}
-                        className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        placeholder="任意の課名を入力"
-                      />
+                      <label className="block text-xs font-medium text-gray-600 mb-1">担当課２（兼務評価）</label>
+                      <p className="px-2 py-1 text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded">
+                        {row.user.managed_section2.name}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-0.5">変更はユーザー管理画面から</p>
                     </div>
                     <div />
                     </>
@@ -384,7 +375,7 @@ function makeColumns(refDate: Date): ColumnDef<Row>[] {
     faceted("name",            "氏名",     (r) => r.user.name,                  { stickyLeft: 96 }),
     faceted("department",      "部署",     (r) => r.user.department?.name ?? "", { stickyLeft: 176 }),
     faceted("section",         "課",       (r) => r.user.section?.name ?? "",    { stickyLeft: 256 }),
-    faceted("section2",        "課２",     (r) => r.user.section2_name ?? r.user.section2?.name ?? "",   { stickyLeft: 336 }),
+    faceted("managed_section2", "担当課２", (r) => r.user.managed_section2?.name ?? "",                  { stickyLeft: 336 }),
     faceted("job_title",       "役職",     (r) => (rec(r, "job_title") as string) ?? "", { stickyLeft: 416 }),
     // 基本情報（非sticky）
     faceted("employee_type",   "社員種別", (r) => r.user.employee_type ?? ""),
@@ -451,7 +442,7 @@ function makeColGroupSpans(fy: number, showInternCols: boolean) {
 
 // 列幅マップ（sticky列はpx、それ以外はtailwind）
 const COL_WIDTH: Record<string, string> = {
-  employee_number: "w-24", name: "w-20", department: "w-20", section: "w-20", section2: "w-20", job_title: "w-24",
+  employee_number: "w-24", name: "w-20", department: "w-20", section: "w-20", managed_section2: "w-20", job_title: "w-24",
   employee_type: "w-24", employment_type: "w-24",
   hire_date: "w-28", years: "w-20", birth_date: "w-28", age: "w-14", gender: "w-14", education: "w-28", training_period: "w-24",
   prev_annual_income: "w-28", curr_base_salary: "w-24", curr_position_allowance: "w-24", curr_salary_increase: "w-20",
@@ -617,7 +608,7 @@ export default function EmployeeLedgerTable({
     const dataRows = rows.map((row) => {
       const cols = Array(headers.length).fill("") as string[];
       cols[0] = row.user.employee_number ?? "";
-      cols[1] = row.user.section2_name ?? row.user.section2?.name ?? "";
+      cols[1] = row.user.managed_section2?.name ?? "";
       cols[11] = String(fiscalYear); // 対象年度
       return cols;
     });
@@ -626,7 +617,7 @@ export default function EmployeeLedgerTable({
 
   function handleExport() {
     const headers = [
-      "社員番号", "氏名", "部署", "課", "課２", "役職", "社員種別", "雇用形態",
+      "社員番号", "氏名", "部署", "課", "担当課２", "役職", "社員種別", "雇用形態",
       "入社年月日", "勤続年数", "生年月日", "年齢", "性別", "最終学歴", "実習生期",
       "技能実習生１号開始日", "技能実習生１号年数",
       "技能実習生３号開始日", "技能実習生３号年数",
@@ -643,7 +634,7 @@ export default function EmployeeLedgerTable({
         r.user.name,
         r.user.department?.name ?? "",
         r.user.section?.name ?? "",
-        r.user.section2_name ?? r.user.section2?.name ?? "",
+        r.user.managed_section2?.name ?? "",
         (rec(r, "job_title") as string) ?? "",
         r.user.employee_type ?? "",
         (rec(r, "employment_type") as string) ?? "",

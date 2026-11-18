@@ -28,7 +28,6 @@ type User = {
   hire_date: Date | null; resign_date: Date | null;
   department: Department | null;
   section: Section | null;
-  section2: Section | null;
   managed_section2: Section | null;
   group: Group | null;
   [key: string]: unknown;
@@ -63,7 +62,7 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
 
   const [form, setForm] = useState({
     employee_number: "", login_id: "", name: "", password: "", role: "STAFF",
-    department_id: "", section_id: "", section2_id: "", managed_section2_id: "", group_id: "", is_active: true, employee_type: "",
+    department_id: "", section_id: "", managed_section2_id: "", group_id: "", is_active: true, employee_type: "",
     can_view_evaluations: false, can_view_notices: false, hire_date: "", resign_date: "",
   });
 
@@ -77,7 +76,7 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
   const groups = (!isManagerOrAbove && sectionHasLeader) ? (selectedSection?.groups ?? []) : [];
 
   function openNew() {
-    setForm({ employee_number: "", login_id: "", name: "", password: "", role: "STAFF", department_id: "", section_id: "", section2_id: "", managed_section2_id: "", group_id: "", is_active: true, employee_type: "", can_view_evaluations: false, can_view_notices: false, hire_date: "", resign_date: "" });
+    setForm({ employee_number: "", login_id: "", name: "", password: "", role: "STAFF", department_id: "", section_id: "", managed_section2_id: "", group_id: "", is_active: true, employee_type: "", can_view_evaluations: false, can_view_notices: false, hire_date: "", resign_date: "" });
     setFormError("");
     setEditUser(null);
     setShowForm(true);
@@ -90,7 +89,6 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
       login_id: u.login_id, name: u.name, password: "", role: u.role,
       department_id: u.department?.id ?? "",
       section_id: u.section?.id ?? "",
-      section2_id: u.section2?.id ?? "",
       managed_section2_id: u.managed_section2?.id ?? "",
       group_id: u.group?.id ?? "",
       is_active: u.is_active,
@@ -115,7 +113,6 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
           name: form.name, role: form.role as "STAFF",
           department_id: form.department_id || undefined,
           section_id: form.section_id || undefined,
-          section2_id: form.section2_id || undefined,
           managed_section2_id: form.managed_section2_id || undefined,
           group_id: form.group_id || undefined,
           is_active: form.is_active,
@@ -135,7 +132,6 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
           role: form.role as "STAFF",
           department_id: form.department_id || undefined,
           section_id: form.section_id || undefined,
-          section2_id: form.section2_id || undefined,
           managed_section2_id: form.managed_section2_id || undefined,
           group_id: form.group_id || undefined,
           employee_type: form.employee_type || undefined,
@@ -309,7 +305,7 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
                 ROLE_LABELS[u.role] ?? u.role,
                 u.department?.name ?? "",
                 u.section?.name ?? "",
-                (u as unknown as { section2_name?: string }).section2_name ?? u.section2?.name ?? "",
+                u.managed_section2?.name ?? "",
                 u.group?.name ?? "",
                 u.employee_type ?? "",
                 u.resign_date ? "退職済み" : "在籍",
@@ -492,14 +488,6 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
                   </select>
                 </div>
               )}
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">課２（兼務等）</label>
-                <select value={form.section2_id} onChange={(e) => setForm({ ...form, section2_id: e.target.value })}
-                  className="w-full border rounded px-3 py-2 text-sm">
-                  <option value="">（なし）</option>
-                  {departments.flatMap((d) => d.sections).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-                </select>
-              </div>
               {form.role === "MANAGER" && (
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">担当課２（兼務評価）</label>

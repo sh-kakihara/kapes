@@ -10,7 +10,6 @@ async function main() {
     include: {
       department: { include: { sections: { where: { deleted_at: null }, include: { groups: { where: { deleted_at: null } } } } } },
       section: { include: { groups: { where: { deleted_at: null } } } },
-      section2: { include: { groups: { where: { deleted_at: null } } } },
       group: true,
     },
     orderBy: [{ department: { name: "asc" } }, { section: { name: "asc" } }, { name: "asc" }],

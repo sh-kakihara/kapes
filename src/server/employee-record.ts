@@ -157,7 +157,7 @@ export async function getEmployeeRecords(selectedFiscalYear: number) {
     include: {
       department: true,
       section: true,
-      section2: true,
+      managed_section2: true,
       employee_records: {
         where: { fiscal_year: { in: [selectedFiscalYear, selectedFiscalYear - 1] } },
       },
@@ -208,8 +208,7 @@ export async function getEmployeeRecords(selectedFiscalYear: number) {
         resign_date: u.resign_date,
         department: u.department,
         section: u.section,
-        section2: u.section2,
-        section2_name: u.section2_name,
+        managed_section2: u.managed_section2,
       },
       record,
       prevYear: prevRec
@@ -449,20 +448,16 @@ export async function importEmployeeRecordsCsv(
   const empNoIdx = headerRow.indexOf("社員番号");
   if (empNoIdx === -1) return { imported: 0, errors: [{ line: 1, message: "ヘッダー行に「社員番号」列がありません" }] };
 
-  // 課２列のインデックス
-  const section2Idx = headerRow.indexOf("課２");
-
-  // 更新対象フィールドのインデックスを抽出（社員番号・課２以外）
+  // 更新対象フィールドのインデックスを抽出（社員番号以外）
   const fieldCols: { colIdx: number; fieldKey: string }[] = [];
   for (let c = 0; c < headerRow.length; c++) {
-    if (c === empNoIdx || c === section2Idx) continue;
+    if (c === empNoIdx) continue;
     const fieldKey = HEADER_TO_FIELD[headerRow[c]];
     if (fieldKey) fieldCols.push({ colIdx: c, fieldKey });
   }
 
-  const hasSection2Col = section2Idx !== -1;
-  if (fieldCols.length === 0 && !hasSection2Col) return { imported: 0, errors: [{ line: 1, message: "更新可能な列がありません。ヘッダー名を確認してください" }] };
-  if (fieldCols.length > 0 && !fieldCols.some((f) => f.fieldKey === "fiscal_year")) {
+  if (fieldCols.length === 0) return { imported: 0, errors: [{ line: 1, message: "更新可能な列がありません。ヘッダー名を確認してください" }] };
+  if (!fieldCols.some((f) => f.fieldKey === "fiscal_year")) {
     return { imported: 0, errors: [{ line: 1, message: "「対象年度」列が必要です" }] };
   }
 
@@ -475,8 +470,6 @@ export async function importEmployeeRecordsCsv(
     const emp_no = (cols[empNoIdx] ?? "").trim();
     if (!emp_no && cols.every((c) => !c?.trim())) continue;
     if (!emp_no) { errors.push({ line, message: "社員番号が空です" }); continue; }
-
-    const section2NameValue = hasSection2Col ? (cols[section2Idx]?.trim() || null) : undefined;
 
     const raw: Record<string, unknown> = {};
     for (const { colIdx, fieldKey } of fieldCols) {
@@ -502,8 +495,6 @@ export async function importEmployeeRecordsCsv(
     }
     if (rowError) continue;
 
-    if (section2NameValue !== undefined) parsed.section2_name = section2NameValue;
-
     valid.push({ line, employee_number: emp_no, data: parsed });
   }
 
@@ -515,14 +506,6 @@ export async function importEmployeeRecordsCsv(
     if (!user) {
       errors.push({ line: row.line, message: `社員番号 ${row.employee_number} が見つかりません` });
       continue;
-    }
-
-    // 課２を User に保存
-    if (row.data.section2_name !== undefined) {
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { section2_name: row.data.section2_name as string | null },
-      });
     }
 
     const fy = row.data.fiscal_year as number;

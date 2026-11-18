@@ -1,0 +1,3 @@
+ALTER TABLE "User" DROP CONSTRAINT IF EXISTS "User_section2_id_fkey";
+ALTER TABLE "User" DROP COLUMN IF EXISTS "section2_id";
+ALTER TABLE "User" DROP COLUMN IF EXISTS "section2_name";
