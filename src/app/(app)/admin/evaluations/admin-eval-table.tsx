@@ -17,6 +17,7 @@ export default function AdminEvalTable({ items }: { items: EvalListItem[] }) {
     <EvaluationListTable
       items={items}
       detailBasePath="/director"
+      detailQuery="from=admin"
       scoreEvaluator="manager"
       scoreOptions={[
         { value: "self",     label: "自己評価" },

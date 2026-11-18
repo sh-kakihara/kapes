@@ -83,6 +83,7 @@ export default function EvaluationListTable({
   popupColumns,
   hideWithoutGroupForEvaluator,
   diffColumn,
+  detailQuery,
   detailButtonLabel = "評価入力へ",
   noManagerFallbackToSelf = false,
   onSkipEvaluation,
@@ -93,6 +94,7 @@ export default function EvaluationListTable({
 }: {
   items: EvalListItem[];
   detailBasePath: string;
+  detailQuery?: string;
   scoreEvaluator: string;
   scoreOptions?: { value: string; label: string }[];
   selfUserId?: string;
@@ -623,7 +625,7 @@ export default function EvaluationListTable({
                   <button
                     onClick={() => {
                       setSelectedItem(null);
-                      router.push(`${detailBasePath}/${selectedItem.evalId}`);
+                      router.push(`${detailBasePath}/${selectedItem.evalId}${detailQuery ? `?${detailQuery}` : ""}`);
                     }}
                     className="px-4 py-2 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700"
                   >

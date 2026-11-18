@@ -6,18 +6,21 @@ import DirectorEvalForm from "./director-eval-form";
 import { EVALUATION_ITEMS } from "@/lib/constants";
 import { isBeforeDateJST } from "@/lib/date-jst";
 
-export default async function DirectorEvalPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function DirectorEvalPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ from?: string }> }) {
   const session = await auth();
   if (!session?.user) redirect("/login");
-  const isDirectorRole = ["DIRECTOR", "ADMIN"].includes(session.user.role);
+  const isAdmin = session.user.role === "ADMIN";
+  const isDirectorRole = session.user.role === "DIRECTOR";
   const isExecutive = session.user.role === "EXECUTIVE";
-  const viewer = (isDirectorRole || isExecutive)
+  const viewer = (isDirectorRole || isAdmin || isExecutive)
     ? null
     : await prisma.user.findUnique({ where: { id: session.user.id }, select: { can_view_evaluations: true } });
-  if (!isDirectorRole && !isExecutive && !viewer?.can_view_evaluations) redirect("/evaluation");
+  if (!isDirectorRole && !isAdmin && !isExecutive && !viewer?.can_view_evaluations) redirect("/evaluation");
   const readOnly = !isDirectorRole;
 
   const { id } = await params;
+  const { from } = await searchParams;
+  const backHref = from === "admin" ? "/admin/evaluations" : "/director";
   const evaluation = await prisma.evaluation.findUnique({
     where: { id },
     include: { employee: true, scores: true, period: true },
@@ -52,7 +55,7 @@ export default async function DirectorEvalPage({ params }: { params: Promise<{ i
   return (
     <div>
       <div className="mb-4">
-        <a href="/director" className="text-sm text-blue-600 hover:underline">← 一覧に戻る</a>
+        <a href={backHref} className="text-sm text-blue-600 hover:underline">← 一覧に戻る</a>
       </div>
       <h2 className="text-xl font-bold mb-1 text-gray-800">{evaluation.employee.name} の評価</h2>
       <p className="text-sm text-gray-500 mb-6">期間: {evaluation.period.name}</p>
