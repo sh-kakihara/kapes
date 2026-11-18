@@ -61,9 +61,10 @@ model Section {
   deleted_at    DateTime?
 
   department    Department @relation(fields: [department_id], references: [id])
-  groups        Group[]
-  users         User[]
-  users2        User[]     @relation("UserSection2")
+  groups                Group[]
+  users                 User[]
+  users2                User[]     @relation("UserSection2")
+  managed_section2_users User[]   @relation("UserManagedSection2")
 
   @@unique([department_id, name])
 }
@@ -92,10 +93,11 @@ model User {
   password_hash   String
   role            Role      @default(STAFF)
   department_id   String?   /// 所属部署
-  section_id      String?   /// 所属課
-  section2_id     String?   /// 所属課２（兼務等・FK、旧仕様）
-  section2_name   String?   /// 所属課２（自由テキスト）
-  group_id        String?   /// 所属グループ
+  section_id           String?   /// 所属課
+  section2_id          String?   /// 所属課２（兼務等・FK、旧仕様）
+  section2_name        String?   /// 所属課２（自由テキスト）
+  managed_section2_id  String?   /// 課長兼務担当課（課長が評価を担当する2つ目の課）
+  group_id             String?   /// 所属グループ
   employee_type   String?   /// 社員種別（柿原工業/柿原技研/実習生）
   hire_date       DateTime? /// 入社年月日
   resign_date     DateTime? /// 退社年月日（在籍中はnull）
@@ -108,10 +110,11 @@ model User {
   updated_at      DateTime  @updatedAt
   deleted_at      DateTime?
 
-  department    Department? @relation(fields: [department_id], references: [id])
-  section       Section?    @relation(fields: [section_id], references: [id])
-  section2      Section?    @relation("UserSection2", fields: [section2_id], references: [id])
-  group         Group?      @relation(fields: [group_id], references: [id])
+  department       Department? @relation(fields: [department_id], references: [id])
+  section          Section?    @relation(fields: [section_id], references: [id])
+  section2         Section?    @relation("UserSection2", fields: [section2_id], references: [id])
+  managed_section2 Section?    @relation("UserManagedSection2", fields: [managed_section2_id], references: [id])
+  group            Group?      @relation(fields: [group_id], references: [id])
 
   self_evaluations      Evaluation[] @relation("EvaluationEmployee")
   leader_evaluations    Evaluation[] @relation("EvaluationLeader")

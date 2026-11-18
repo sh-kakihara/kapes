@@ -87,6 +87,7 @@ export default function EvaluationListTable({
   noManagerFallbackToSelf = false,
   onSkipEvaluation,
   onUndoSkipEvaluation,
+  onRollbackStatus,
   extraActions,
   beforePeriodMessage,
 }: {
@@ -130,6 +131,8 @@ export default function EvaluationListTable({
   onSkipEvaluation?: (item: EvalListItem, reason: string) => Promise<void>;
   /** スキップ解除コールバック（課長権限のみ渡す） */
   onUndoSkipEvaluation?: (item: EvalListItem) => Promise<void>;
+  /** ステータスを1つ前に戻すコールバック（管理者のみ渡す） */
+  onRollbackStatus?: (item: EvalListItem) => Promise<void>;
   /** CSVエクスポートボタンの左に追加するアクション要素 */
   extraActions?: React.ReactNode;
   /** 設定時、行クリックでポップアップを開かずこのメッセージを表示する（評価期間外） */
@@ -575,6 +578,36 @@ export default function EvaluationListTable({
                     className="px-4 py-2 bg-orange-500 text-white rounded text-sm font-medium hover:bg-orange-600 disabled:opacity-50"
                   >
                     スキップ解除
+                  </button>
+                )}
+                {onRollbackStatus && selectedItem.evalId && selectedItem.status && selectedItem.status !== "DRAFT" && (
+                  <button
+                    onClick={async () => {
+                      const statusLabels: Record<string, string> = {
+                        SUBMITTED_TO_LEADER: "リーダー評価待ち",
+                        SUBMITTED_TO_MANAGER: "課長評価待ち",
+                        SUBMITTED_TO_DIRECTOR: "部長評価待ち",
+                        SUBMITTED_TO_EXECUTIVE: "執行役員評価待ち",
+                        SUBMITTED_TO_PRESIDENT: "社長評価待ち",
+                        COMPLETED: "完了",
+                      };
+                      const currentLabel = statusLabels[selectedItem.status ?? ""] ?? selectedItem.status;
+                      if (!confirm(`${selectedItem.employee.name} のステータスを「${currentLabel}」から1つ前に戻します。よろしいですか？`)) return;
+                      setSkipping(true);
+                      try {
+                        await onRollbackStatus(selectedItem);
+                        setSelectedItem(null);
+                        router.refresh();
+                      } catch (e) {
+                        alert(`ステータスの変更に失敗しました。\n${e instanceof Error ? e.message : String(e)}`);
+                      } finally {
+                        setSkipping(false);
+                      }
+                    }}
+                    disabled={skipping}
+                    className="px-4 py-2 bg-yellow-600 text-white rounded text-sm font-medium hover:bg-yellow-700 disabled:opacity-50"
+                  >
+                    ステータスを戻す
                   </button>
                 )}
                 {onSkipEvaluation && !["SUBMITTED_TO_MANAGER", "SUBMITTED_TO_DIRECTOR", "SUBMITTED_TO_EXECUTIVE", "SUBMITTED_TO_PRESIDENT", "COMPLETED"].includes(selectedItem.status ?? "") && (

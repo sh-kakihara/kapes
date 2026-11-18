@@ -29,6 +29,7 @@ type User = {
   department: Department | null;
   section: Section | null;
   section2: Section | null;
+  managed_section2: Section | null;
   group: Group | null;
   [key: string]: unknown;
 };
@@ -62,7 +63,7 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
 
   const [form, setForm] = useState({
     employee_number: "", login_id: "", name: "", password: "", role: "STAFF",
-    department_id: "", section_id: "", section2_id: "", group_id: "", is_active: true, employee_type: "",
+    department_id: "", section_id: "", section2_id: "", managed_section2_id: "", group_id: "", is_active: true, employee_type: "",
     can_view_evaluations: false, can_view_notices: false, hire_date: "", resign_date: "",
   });
 
@@ -76,7 +77,7 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
   const groups = (!isManagerOrAbove && sectionHasLeader) ? (selectedSection?.groups ?? []) : [];
 
   function openNew() {
-    setForm({ employee_number: "", login_id: "", name: "", password: "", role: "STAFF", department_id: "", section_id: "", section2_id: "", group_id: "", is_active: true, employee_type: "", can_view_evaluations: false, can_view_notices: false, hire_date: "", resign_date: "" });
+    setForm({ employee_number: "", login_id: "", name: "", password: "", role: "STAFF", department_id: "", section_id: "", section2_id: "", managed_section2_id: "", group_id: "", is_active: true, employee_type: "", can_view_evaluations: false, can_view_notices: false, hire_date: "", resign_date: "" });
     setFormError("");
     setEditUser(null);
     setShowForm(true);
@@ -90,6 +91,7 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
       department_id: u.department?.id ?? "",
       section_id: u.section?.id ?? "",
       section2_id: u.section2?.id ?? "",
+      managed_section2_id: u.managed_section2?.id ?? "",
       group_id: u.group?.id ?? "",
       is_active: u.is_active,
       employee_type: u.employee_type ?? "",
@@ -114,6 +116,7 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
           department_id: form.department_id || undefined,
           section_id: form.section_id || undefined,
           section2_id: form.section2_id || undefined,
+          managed_section2_id: form.managed_section2_id || undefined,
           group_id: form.group_id || undefined,
           is_active: form.is_active,
           password: form.password || undefined,
@@ -133,6 +136,7 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
           department_id: form.department_id || undefined,
           section_id: form.section_id || undefined,
           section2_id: form.section2_id || undefined,
+          managed_section2_id: form.managed_section2_id || undefined,
           group_id: form.group_id || undefined,
           employee_type: form.employee_type || undefined,
           hire_date: form.hire_date || undefined,
@@ -459,8 +463,12 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
                 <select value={form.role}
                   onChange={(e) => {
                     const newRole = e.target.value;
-                    // 部長は課・グループを持たない
-                    setForm({ ...form, role: newRole, section_id: newRole === "DIRECTOR" ? "" : form.section_id, group_id: newRole === "DIRECTOR" ? "" : form.group_id });
+                    // 部長は課・グループを持たない; MANAGER以外は担当課２なし
+                    setForm({ ...form, role: newRole,
+                      section_id: newRole === "DIRECTOR" ? "" : form.section_id,
+                      group_id: newRole === "DIRECTOR" ? "" : form.group_id,
+                      managed_section2_id: newRole === "MANAGER" ? form.managed_section2_id : "",
+                    });
                   }}
                   className="w-full border rounded px-3 py-2 text-sm">
                   {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
@@ -492,6 +500,17 @@ export default function UserAdmin({ users, departments }: { users: User[]; depar
                   {departments.flatMap((d) => d.sections).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
               </div>
+              {form.role === "MANAGER" && (
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">担当課２（兼務評価）</label>
+                  <select value={form.managed_section2_id} onChange={(e) => setForm({ ...form, managed_section2_id: e.target.value })}
+                    className="w-full border rounded px-3 py-2 text-sm">
+                    <option value="">（なし）</option>
+                    {departments.flatMap((d) => d.sections).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  </select>
+                  <p className="text-xs text-gray-400 mt-0.5">この課長が上長評価を担当する2つ目の課</p>
+                </div>
+              )}
               {!isDirector && sectionHasLeader && groups.length > 0 && (
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">グループ</label>

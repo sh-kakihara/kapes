@@ -162,9 +162,10 @@ export async function submitFromEmployee(evaluationId: string) {
 
   // リーダー自身 → 課長へ直接提出
   if (employeeRole === "LEADER") {
-    const manager = evaluation.employee.section_id
+    const empSectionId = evaluation.employee.section_id;
+    const manager = empSectionId
       ? await prisma.user.findFirst({
-          where: { section_id: evaluation.employee.section_id, role: "MANAGER", is_active: true, deleted_at: null },
+          where: { role: "MANAGER", is_active: true, deleted_at: null, OR: [{ section_id: empSectionId }, { managed_section2_id: empSectionId }] },
         })
       : null;
     await prisma.evaluation.update({
@@ -179,10 +180,11 @@ export async function submitFromEmployee(evaluationId: string) {
     return { ok: true };
   }
 
-  // 課長が実在するか確認（課なし or 課に課長がいない場合は部長へ直接）
-  const manager = evaluation.employee.section_id
+  // 課長が実在するか確認（課なし or 課に課長がいない場合は部長へ直接、managed_section2_id兼務も考慮）
+  const empSectionId = evaluation.employee.section_id;
+  const manager = empSectionId
     ? await prisma.user.findFirst({
-        where: { section_id: evaluation.employee.section_id, role: "MANAGER", is_active: true, deleted_at: null },
+        where: { role: "MANAGER", is_active: true, deleted_at: null, OR: [{ section_id: empSectionId }, { managed_section2_id: empSectionId }] },
       })
     : null;
   const hasManager = !!manager;
@@ -292,9 +294,10 @@ export async function submitFromLeader(evaluationId: string) {
   if (lFrom && isBeforeDateJST(lFrom)) throw new Error("リーダー評価の提出期間はまだ始まっていません");
   if (lTo   && isPastDateJST(lTo))    throw new Error("リーダー評価の提出期限を過ぎています");
 
-  const manager = evaluation.employee.section_id
+  const ldrEmpSectionId = evaluation.employee.section_id;
+  const manager = ldrEmpSectionId
     ? await prisma.user.findFirst({
-        where: { section_id: evaluation.employee.section_id, role: "MANAGER", is_active: true, deleted_at: null },
+        where: { role: "MANAGER", is_active: true, deleted_at: null, OR: [{ section_id: ldrEmpSectionId }, { managed_section2_id: ldrEmpSectionId }] },
       })
     : null;
 
@@ -609,15 +612,21 @@ async function mergeUsersWithEvaluations(
   employees: Awaited<ReturnType<typeof prisma.user.findMany<{ include: typeof employeeWithOrgInclude }>>>,
   evaluations: EvalWithScores[]
 ) {
-  // 課長が存在する section_id の集合を取得
+  // 課長が存在する section_id の集合を取得（managed_section2_id 兼務も考慮）
   const sectionIds = [...new Set(employees.map((e) => e.section_id).filter(Boolean))] as string[];
-  const managedSections = sectionIds.length > 0
+  const managers = sectionIds.length > 0
     ? await prisma.user.findMany({
-        where: { section_id: { in: sectionIds }, role: "MANAGER", is_active: true, deleted_at: null },
-        select: { section_id: true },
+        where: {
+          role: "MANAGER", is_active: true, deleted_at: null,
+          OR: [{ section_id: { in: sectionIds } }, { managed_section2_id: { in: sectionIds } }],
+        },
+        select: { section_id: true, managed_section2_id: true },
       })
     : [];
-  const managedSectionSet = new Set(managedSections.map((m) => m.section_id));
+  const managedSectionSet = new Set([
+    ...managers.filter((m) => m.section_id).map((m) => m.section_id!),
+    ...managers.filter((m) => m.managed_section2_id).map((m) => m.managed_section2_id!),
+  ]);
 
   return employees.map((emp) => {
     const ev = evaluations.find((e) => e.employee_id === emp.id);
@@ -712,6 +721,38 @@ export async function undoSkipEvaluation(evaluationId: string) {
   return { ok: true };
 }
 
+// 管理者: 評価ステータスを1つ前に戻す
+export async function rollbackEvaluationStatus(evaluationId: string) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("未認証");
+  if (session.user.role !== "ADMIN") forbidden();
+
+  const evaluation = await prisma.evaluation.findUnique({ where: { id: evaluationId } });
+  if (!evaluation) throw new Error("評価が見つかりません");
+
+  const STATUS_ORDER = [
+    "DRAFT",
+    "SUBMITTED_TO_LEADER",
+    "SUBMITTED_TO_MANAGER",
+    "SUBMITTED_TO_DIRECTOR",
+    "SUBMITTED_TO_EXECUTIVE",
+    "SUBMITTED_TO_PRESIDENT",
+    "COMPLETED",
+  ] as const;
+
+  const currentIdx = STATUS_ORDER.indexOf(evaluation.status as typeof STATUS_ORDER[number]);
+  if (currentIdx <= 0) throw new Error("これ以上ステータスを戻せません（DRAFT が最初のステータスです）");
+
+  const prevStatus = STATUS_ORDER[currentIdx - 1];
+  await prisma.evaluation.update({
+    where: { id: evaluationId },
+    data: { status: prevStatus },
+  });
+
+  revalidatePath("/admin/evaluations");
+  return { ok: true };
+}
+
 // 課長: 担当課の全社員一覧（未開始含む）
 export async function getManagerEvaluationList(periodId: string) {
   const session = await auth();
@@ -721,8 +762,10 @@ export async function getManagerEvaluationList(periodId: string) {
   const me = await prisma.user.findUnique({ where: { id: session.user.id } });
   if (!me) throw new Error("ユーザー情報取得失敗");
 
+  const managerSectionIds = [me.section_id, me.managed_section2_id].filter(Boolean) as string[];
+
   const employees = await prisma.user.findMany({
-    where: { section_id: me.section_id ?? undefined, deleted_at: null, is_active: true, resign_date: null, role: { notIn: ["DIRECTOR", "EXECUTIVE", "PRESIDENT", "ADMIN"] }, employee_type: { not: "実習生" }, department: { skip_evaluation: false } },
+    where: { section_id: { in: managerSectionIds }, deleted_at: null, is_active: true, resign_date: null, role: { notIn: ["DIRECTOR", "EXECUTIVE", "PRESIDENT", "ADMIN"] }, employee_type: { not: "実習生" }, department: { skip_evaluation: false } },
     include: employeeWithOrgInclude,
     orderBy: [{ employee_number: "asc" }, { name: "asc" }],
   });
@@ -827,10 +870,12 @@ export async function getManagerEvaluations(periodId: string) {
   const me = await prisma.user.findUnique({ where: { id: session.user.id } });
   if (!me) throw new Error("ユーザー情報取得失敗");
 
+  const mgr2SectionIds = [me.section_id, me.managed_section2_id].filter(Boolean) as string[];
+
   return prisma.evaluation.findMany({
     where: {
       period_id: periodId,
-      employee: { section_id: me.section_id ?? undefined, employee_type: { not: "実習生" }, department: { skip_evaluation: false } },
+      employee: { section_id: { in: mgr2SectionIds }, employee_type: { not: "実習生" }, department: { skip_evaluation: false } },
       status: { in: ["SUBMITTED_TO_MANAGER", "SUBMITTED_TO_DIRECTOR", "SUBMITTED_TO_PRESIDENT", "COMPLETED"] },
     },
     include: { employee: { include: employeeWithOrgInclude }, scores: true, period: true },
