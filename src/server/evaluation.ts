@@ -665,11 +665,15 @@ export async function getLeaderEvaluationList(periodId: string) {
   return await mergeUsersWithEvaluations(employees, maskScoresBelow(evaluations, "SUBMITTED_TO_LEADER"));
 }
 
-// 課長: 全評価をスキップして社長へ直送（育休・長期病欠など）
-export async function skipEvaluation(periodId: string, employeeId: string, reason: string) {
+// 課長/管理者: 評価をスキップして指定ステータスへ進める（育休・長期病欠など）
+// target: "manager" = 自己評価をスキップして課長評価へ, "president" = 全評価をスキップして社長へ
+export async function skipEvaluation(periodId: string, employeeId: string, reason: string, target: "manager" | "president" = "president") {
   const session = await auth();
   if (!session?.user?.id) throw new Error("未認証");
   await requireManagerOrDeptViewer(session.user.id, session.user.role);
+
+  const targetStatus = target === "manager" ? "SUBMITTED_TO_MANAGER" : "SUBMITTED_TO_PRESIDENT";
+  const targetLabel = target === "manager" ? "課長評価" : "社長評価";
 
   // 評価レコードがなければ作成する
   const existing = await prisma.evaluation.findUnique({
@@ -679,21 +683,19 @@ export async function skipEvaluation(periodId: string, employeeId: string, reaso
   if (existing) {
     // すでに課長より先に進んでいる場合はスキップ不可
     const skipable = ["DRAFT", "SUBMITTED_TO_LEADER"].includes(existing.status ?? "") || existing.status === null;
-    if (!skipable) throw new Error("この評価はすでに課長評価以降に進んでいるためスキップできません");
-    await prisma.evaluation.update({
-      where: { id: existing.id },
-      data: { status: "SUBMITTED_TO_PRESIDENT", submitted_to_president_at: new Date(), skip_reason: reason },
-    });
+    if (!skipable) throw new Error(`この評価はすでに${targetLabel}以降に進んでいるためスキップできません`);
+    const updateData: Record<string, unknown> = { status: targetStatus, skip_reason: reason };
+    if (target === "president") updateData.submitted_to_president_at = new Date();
+    await prisma.evaluation.update({ where: { id: existing.id }, data: updateData });
   } else {
-    await prisma.evaluation.create({
-      data: {
-        period_id: periodId,
-        employee_id: employeeId,
-        status: "SUBMITTED_TO_PRESIDENT",
-        submitted_to_president_at: new Date(),
-        skip_reason: reason,
-      },
-    });
+    const createData: Record<string, unknown> = {
+      period_id: periodId,
+      employee_id: employeeId,
+      status: targetStatus,
+      skip_reason: reason,
+    };
+    if (target === "president") createData.submitted_to_president_at = new Date();
+    await prisma.evaluation.create({ data: createData as Parameters<typeof prisma.evaluation.create>[0]["data"] });
   }
 
   revalidatePath("/manager");
@@ -701,7 +703,7 @@ export async function skipEvaluation(periodId: string, employeeId: string, reaso
   return { ok: true };
 }
 
-// 課長: スキップを解除してDRAFTに戻す
+// 課長/管理者: スキップを解除してDRAFTに戻す
 export async function undoSkipEvaluation(evaluationId: string) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("未認証");
@@ -709,7 +711,10 @@ export async function undoSkipEvaluation(evaluationId: string) {
 
   const evaluation = await prisma.evaluation.findUnique({ where: { id: evaluationId } });
   if (!evaluation) throw new Error("評価が見つかりません");
-  if (evaluation.status !== "SUBMITTED_TO_PRESIDENT") throw new Error("社長提出済み以外の評価は解除できません");
+  const isSkipped =
+    (evaluation.status === "SUBMITTED_TO_PRESIDENT" || evaluation.status === "SUBMITTED_TO_MANAGER") &&
+    evaluation.skip_reason != null;
+  if (!isSkipped) throw new Error("スキップ済みの評価以外は解除できません");
 
   await prisma.evaluation.update({
     where: { id: evaluationId },

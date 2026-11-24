@@ -13,8 +13,8 @@ export default function AdminEvalTable({ items, periodId }: { items: EvalListIte
     router.refresh();
   }
 
-  async function handleSkip(item: EvalListItem, reason: string) {
-    await skipEvaluation(periodId, item.employee.id, reason);
+  async function handleSkip(item: EvalListItem, reason: string, target: "manager" | "president") {
+    await skipEvaluation(periodId, item.employee.id, reason, target);
     router.refresh();
   }
 

@@ -130,7 +130,7 @@ export default function EvaluationListTable({
   /** true のとき、課長不在の社員行は課長評価選択時に自己評価を代替表示（課長画面専用） */
   noManagerFallbackToSelf?: boolean;
   /** 評価スキップコールバック（課長権限のみ渡す） */
-  onSkipEvaluation?: (item: EvalListItem, reason: string) => Promise<void>;
+  onSkipEvaluation?: (item: EvalListItem, reason: string, target: "manager" | "president") => Promise<void>;
   /** スキップ解除コールバック（課長権限のみ渡す） */
   onUndoSkipEvaluation?: (item: EvalListItem) => Promise<void>;
   /** ステータスを1つ前に戻すコールバック（管理者のみ渡す） */
@@ -149,6 +149,7 @@ export default function EvaluationListTable({
   const [beforePeriodToast, setBeforePeriodToast] = useState(false);
   const [skipDialogItem, setSkipDialogItem] = useState<EvalListItem | null>(null);
   const [skipReason, setSkipReason] = useState("");
+  const [skipTarget, setSkipTarget] = useState<"manager" | "president">("manager");
 
   const data = useMemo<RowData[]>(() =>
     items.flatMap((item) => {
@@ -561,7 +562,7 @@ export default function EvaluationListTable({
                 )}
               </div>
               <div className="flex items-center gap-3">
-                {onUndoSkipEvaluation && selectedItem.evalId && (selectedItem.skip_reason || selectedItem.status === "SUBMITTED_TO_PRESIDENT") && (
+                {onUndoSkipEvaluation && selectedItem.evalId && selectedItem.skip_reason && (
                   <button
                     onClick={async () => {
                       if (!confirm(`${selectedItem.employee.name} のスキップを解除しますか？\n自己評価入力中（DRAFT）に戻ります。`)) return;
@@ -614,7 +615,7 @@ export default function EvaluationListTable({
                 )}
                 {onSkipEvaluation && !["SUBMITTED_TO_MANAGER", "SUBMITTED_TO_DIRECTOR", "SUBMITTED_TO_EXECUTIVE", "SUBMITTED_TO_PRESIDENT", "COMPLETED"].includes(selectedItem.status ?? "") && (
                   <button
-                    onClick={() => { setSkipDialogItem(selectedItem); setSkipReason(""); }}
+                    onClick={() => { setSkipDialogItem(selectedItem); setSkipReason(""); setSkipTarget("manager"); }}
                     disabled={skipping}
                     className="px-4 py-2 bg-gray-500 text-white rounded text-sm font-medium hover:bg-gray-600 disabled:opacity-50"
                   >
@@ -759,8 +760,23 @@ export default function EvaluationListTable({
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
             <h3 className="font-bold text-gray-800 mb-1">評価スキップの確認</h3>
             <p className="text-sm text-gray-500 mb-4">
-              {skipDialogItem.employee.name} の全評価をスキップして社長へ直接送ります。
+              {skipDialogItem.employee.name} の評価をスキップします。
             </p>
+            <label className="block text-xs font-medium text-gray-700 mb-2">
+              スキップ先 <span className="text-red-500">*</span>
+            </label>
+            <div className="flex gap-3 mb-4">
+              <label className={`flex-1 flex items-center gap-2 border rounded-lg px-3 py-2 cursor-pointer text-sm transition-colors ${skipTarget === "manager" ? "border-blue-500 bg-blue-50 text-blue-800 font-medium" : "border-gray-300 text-gray-700 hover:bg-gray-50"}`}>
+                <input type="radio" name="skipTarget" value="manager" checked={skipTarget === "manager"} onChange={() => setSkipTarget("manager")} className="accent-blue-600" />
+                課長評価へ
+                <span className="text-xs text-gray-400 ml-auto">自己評価をスキップ</span>
+              </label>
+              <label className={`flex-1 flex items-center gap-2 border rounded-lg px-3 py-2 cursor-pointer text-sm transition-colors ${skipTarget === "president" ? "border-gray-600 bg-gray-100 text-gray-800 font-medium" : "border-gray-300 text-gray-700 hover:bg-gray-50"}`}>
+                <input type="radio" name="skipTarget" value="president" checked={skipTarget === "president"} onChange={() => setSkipTarget("president")} className="accent-gray-600" />
+                社長評価へ
+                <span className="text-xs text-gray-400 ml-auto">全評価をスキップ</span>
+              </label>
+            </div>
             <label className="block text-xs font-medium text-gray-700 mb-1">
               スキップ理由 <span className="text-red-500">*</span>
             </label>
@@ -778,7 +794,7 @@ export default function EvaluationListTable({
                   if (!skipReason.trim()) return;
                   setSkipping(true);
                   try {
-                    await onSkipEvaluation!(skipDialogItem, skipReason.trim());
+                    await onSkipEvaluation!(skipDialogItem, skipReason.trim(), skipTarget);
                     setSkipDialogItem(null);
                     setSelectedItem(null);
                     router.refresh();
